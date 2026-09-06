@@ -5,10 +5,17 @@ concept is defined twice, because a second definition always drifts.
 
 | Layer | Owner | Answers |
 |---|---|---|
-| 1 System | [`ARCHITECTURE.md`](ARCHITECTURE.md) | what the modules are, and what the type contracts are |
+| 1 Product | [`README.md`](../README.md) + [`contributing/SCOPE.md`](contributing/SCOPE.md) | what Juxbly is, why it exists, and where its boundary is |
+| 2 Architecture | [`ARCHITECTURE.md`](ARCHITECTURE.md) | what the modules are, and what the type contracts are |
 | 2 UI | [`UI_SPEC.md`](UI_SPEC.md) | what it looks like and how it behaves |
-| 3 Engineering | [`CONVENTIONS.md`](CONVENTIONS.md) | how we write and review code |
-| 4 Navigation | [`CODE_MAP.md`](CODE_MAP.md) | where a given thing lives |
+| 2 Roadmap | [`ROADMAP.md`](ROADMAP.md) | the phase → stage sequence and each stage's acceptance boundary |
+| 3 Engineering | [`CONVENTIONS.md`](CONVENTIONS.md) | how we write, review and secure code |
+| 4 Navigation | [`CODE_MAP.md`](CODE_MAP.md) | where a given thing lives, and what it must not do |
+| 5 / 6 Code and tests | `packages/**`, `apps/**`, `tests/**` | what is actually built, and what proves it stays built |
+
+Layers 5 and 6 are the repository itself. A fact belongs in a document only until the
+code can state it better: types live in `ARCHITECTURE.md` *as contracts*, and in
+`packages/core` as the implementation that must match them.
 
 Supporting documents:
 
@@ -27,14 +34,26 @@ Supporting documents:
 
 ## Conflict rules
 
-When two documents disagree:
+Seven rules, in precedence order. When two documents disagree, the higher one wins — and
+the lower one gets fixed in the same pull request, because a stale document is read as
+truth by the next person and the next agent.
 
-1. **Type contracts and module interfaces** win — `ARCHITECTURE.md`.
-2. **UI behaviour** is defined by `UI_SPEC.md`, never by a prototype.
-3. **Engineering practice** is defined by `CONVENTIONS.md`.
-4. **Code** is the tiebreaker for anything a document leaves ambiguous. When code and
-   document disagree, one of them is wrong: fix it and change the other in the same pull
-   request.
+1. **Type contracts and module interfaces** — `ARCHITECTURE.md`.
+2. **UI appearance and behaviour** — `UI_SPEC.md`, never a prototype. A prototype is an
+   interactive proposal; it loses every argument with the spec.
+3. **What the product is, and where its boundary is** — `README.md` carries the promise,
+   `contributing/SCOPE.md` carries the boundary. What V1 refuses to become is not
+   negotiable per pull request.
+4. **Build order and acceptance boundaries** — `ROADMAP.md`.
+5. **Engineering, review and security practice** — `CONVENTIONS.md`.
+6. **Where something lives** — `CODE_MAP.md`. It navigates; it never defines.
+7. **Code is the tiebreaker for anything a document leaves ambiguous.** When code and
+   document disagree, one of them is wrong: fix it, and change the other in the same
+   pull request.
+
+Rule 7 is the one that gets skipped, and it is the one that costs the most later: a
+document that describes code that no longer exists is worse than no document, because it
+is trusted.
 
 Changing a contract that more than one document mentions goes through
 [`contributing/DOC_CHANGE_PROTOCOL.md`](contributing/DOC_CHANGE_PROTOCOL.md).
@@ -44,8 +63,10 @@ Changing a contract that more than one document mentions goes through
 | You want to | Read |
 |---|---|
 | run it locally | [`DEVELOPMENT.md`](DEVELOPMENT.md) |
+| know what this is and why | [`../README.md`](../README.md) |
 | understand the system | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | find a module | [`CODE_MAP.md`](CODE_MAP.md) |
+| see the build order | [`ROADMAP.md`](ROADMAP.md) |
 | add a capability | [`contributing/CAPABILITY_GUIDE.md`](contributing/CAPABILITY_GUIDE.md) |
 | work on UI | [`UI_SPEC.md`](UI_SPEC.md) |
 | know the boundaries | [`contributing/SCOPE.md`](contributing/SCOPE.md) |

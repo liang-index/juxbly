@@ -43,11 +43,26 @@ describe('manifest permissions (ARCHITECTURE.md §7.3)', () => {
       'toggle-juxbly': {
         suggested_key: {
           default: 'Ctrl+Shift+J',
-          mac: 'Cmd+Shift+J',
+          mac: 'Command+Shift+J',
         },
         description: 'Show or hide Juxbly',
       },
     })
+  })
+
+  it('spells Mac modifiers the way Chrome accepts them', () => {
+    // Chrome rejects the whole manifest on an unknown Mac modifier — the first load
+    // attempt failed with "Invalid value for 'commands[1].mac': Cmd+Shift+J". Only
+    // `Command` and `MacCtrl` load; `Cmd` (how the docs write it) does not.
+    for (const command of Object.values(JUXBLY_COMMANDS)) {
+      const suggestedKey = command.suggested_key
+      // WXT types `suggested_key` as an object or a bare string; only the object form
+      // carries a Mac-specific value.
+      if (suggestedKey === undefined || typeof suggestedKey === 'string') continue
+      const mac = suggestedKey.mac
+      if (mac === undefined) continue
+      expect(mac.startsWith('Command+') || mac.startsWith('MacCtrl+')).toBe(true)
+    }
   })
 
   it('builds the manifest from the same declarations this test asserts', () => {

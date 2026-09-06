@@ -34,6 +34,12 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 | `apps/extension` | WXT entry assembly and manifest | — | hold business logic |
 | `apps/playground` | Web Corpus static server + benchmark runner | — | ship with the extension |
 
+**State:** every directory above exists. `core`, `dsl` and `ui` carry code today (stages
+0-3 and 1-1); the rest hold a placeholder entry naming the stage that will fill them. The
+*Owns* column is a contract about code that may not exist yet — read it as the reason the
+directory is reserved, and check [`ARCHITECTURE.md` §4](ARCHITECTURE.md) before putting
+anything new in one of them.
+
 ## "I want to…" index
 
 | I want to… | Go to |
@@ -50,7 +56,11 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 | add a message between contexts | `packages/core` protocol + [`ARCHITECTURE.md` §7.2](ARCHITECTURE.md) |
 | add an export format | `packages/capabilities/export` + `ExportStep.format` |
 | change user-facing copy | `packages/ui/src/copy/` (language rules: [`UI_SPEC.md` §9.5](UI_SPEC.md)) |
-| add a benchmark case | `tests/benchmark` + [`contributing/BENCHMARK_GUIDE.md`](contributing/BENCHMARK_GUIDE.md) |
+| add a benchmark case | `tests/benchmark` (from stage 2-1) + [`contributing/BENCHMARK_GUIDE.md`](contributing/BENCHMARK_GUIDE.md) |
+| change what the extension is allowed to do | `apps/extension/manifest.ts` + [`ARCHITECTURE.md` §7.3](ARCHITECTURE.md) — the permission snapshot test fails on any change |
+| change the global shortcut | `apps/extension/manifest.ts` (`commands`). Chrome spells the Mac modifier `Command`, not `Cmd`, and rejects the manifest otherwise |
+| add a log category | `packages/core/src/logger.ts` + [`CONVENTIONS.md` §12](CONVENTIONS.md) |
+| understand why a package is empty | `ARCHITECTURE.md` §4, then the stage that owns it in [`ROADMAP.md`](ROADMAP.md) |
 
 ## Invariants worth protecting
 

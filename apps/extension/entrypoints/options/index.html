@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Open as a real tab, not embedded in `chrome://extensions`. `open_in_tab: false` is
+      an MV2-era shape; on MV3 it can leave the options entry without a reachable
+      surface. Stage 1-13 turns this page into the settings page (BYOK, tool list),
+      which wants a full tab anyway.
+    -->
+    <meta name="manifest.open_in_tab" content="true" />
     <title>Juxbly settings</title>
   </head>
   <body>
