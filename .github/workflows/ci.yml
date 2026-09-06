@@ -24,7 +24,7 @@ jobs:
           # Keep in sync with the `packageManager` field in package.json
           version: 10.33.2
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: pnpm
