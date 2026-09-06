@@ -10,6 +10,8 @@ The benchmark's target is **task reliability, not site coverage**.
 
 ## Structure
 
+The tree below is created with stage 2-1; until then nothing here exists on disk.
+
 ```text
 tests/benchmark/
 ├── cases/            Task Corpus: one JSON per case (see contributing/BENCHMARK_GUIDE.md)

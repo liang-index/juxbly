@@ -29,12 +29,17 @@ export const JUXBLY_HOST_PERMISSIONS: NonNullable<UserManifest['host_permissions
 /**
  * `Ctrl/Cmd+Shift+J` — `docs/UI_SPEC.md` §8. Stage 0-3 declares the command and lands
  * the receiving skeleton only; what the command actually does arrives in 1-8.
+ *
+ * The Mac value is spelled `Command`, not `Cmd`: Chrome accepts only `Command` and
+ * `MacCtrl` as Mac modifiers and rejects the manifest outright on anything else
+ * ("Invalid value for 'commands[...].mac'"). `Cmd` and `Ctrl`/`Cmd` are how humans and
+ * the docs write the shortcut; the literal in the manifest has to be Chrome's spelling.
  */
 export const JUXBLY_COMMANDS: NonNullable<UserManifest['commands']> = {
   'toggle-juxbly': {
     suggested_key: {
       default: 'Ctrl+Shift+J',
-      mac: 'Cmd+Shift+J',
+      mac: 'Command+Shift+J',
     },
     description: copy.command.toggleJuxbly,
   },

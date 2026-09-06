@@ -1,6 +1,6 @@
 # Getting Started
 
-Two paths, depending on what you want to do. Both are optimised for the same metric: **time from clone to first success**.
+Three paths, depending on what you want to do. All three are optimised for the same metric: **time from clone to first success**.
 
 ## I want to run Juxbly
 

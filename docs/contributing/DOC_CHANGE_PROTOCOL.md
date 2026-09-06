@@ -35,6 +35,7 @@ For type or protocol changes, additionally check:
 - Are enums synchronised everywhere they appear (DSL union, validator, capability registry, UI, docs)?
 - Are dependents updated (schemas, tests, fixtures, tasks)?
 - **Is the new or changed contract written back to `docs/ARCHITECTURE.md`?** That document is the single source of truth for types and interfaces. A type marked for write-back to it must also have a matching entry in that stage's Acceptance Criteria — otherwise the obligation exists only as a sentence nobody checks.
+- **Did the change move a module boundary, change what a directory means, or add or remove a cross-package dependency?** Then `docs/ARCHITECTURE.md` §4 (module map) and `docs/CODE_MAP.md` are updated in the same pull request. These two describe the same map at different resolutions; a change to one that skips the other is how navigation rots.
 
 ## Step 5 — Check internal consistency
 

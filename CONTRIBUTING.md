@@ -43,6 +43,7 @@ Full setup and troubleshooting: [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md).
 - One logical change per PR. No unrelated formatting, renaming, or refactoring mixed in.
 - `pnpm typecheck && pnpm lint && pnpm test` passes locally.
 - **Type contracts are written back, not left in code.** If your change adds or modifies a DSL type, a message-protocol field, or a capability's input/output structure, `docs/ARCHITECTURE.md` must be updated in the same PR. A type that exists only in code is a type nobody can review against.
+- **Module boundaries are written back too.** If your change moves a module boundary, changes what a directory means, or adds or removes a cross-package dependency, `docs/ARCHITECTURE.md` §4 (module map) and `docs/CODE_MAP.md` must be updated in the same PR. A dependency that only exists in code is invisible during review, and it is exactly the kind a well-meaning refactor breaks later.
 - If your change touches `packages/dsl`, `packages/runtime`, `packages/capabilities`, `packages/health`, `packages/analyzer`, or `packages/repair`, you must also report benchmark / regression results (see [`docs/testing/TESTING.md`](docs/testing/TESTING.md)).
 - Tests accompany behaviour changes. Bug fixes ship with a test that fails before the fix.
 - The PR description covers: what changed, why, how it was verified, and what is deliberately **not** done.
