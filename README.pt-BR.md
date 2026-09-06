@@ -1,8 +1,8 @@
+<kbd>[English](README.md)</kbd> · <kbd>[简体中文](README.zh-CN.md)</kbd> · <kbd>[日本語](README.ja.md)</kbd> · <kbd>**Português (Brasil)**</kbd> · <kbd>[Español](README.es.md)</kbd>
+
 # Juxbly
 
 **A fábrica instantânea de apps do navegador.** Descreva o que você quer na página que está vendo: o resultado chega na hora, e a ferramenta que o produziu fica — ela volta sozinha na próxima vez que você visitar.
-
-[English](README.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · **Português (Brasil)** · [Español](README.es.md)
 
 > Esta é uma tradução da comunidade, mantida por esforço coletivo e sujeita a atraso; quando houver divergência, o [README em inglês](README.md) prevalece.
 

@@ -1,8 +1,8 @@
+<kbd>**English**</kbd> · <kbd>[简体中文](README.zh-CN.md)</kbd> · <kbd>[日本語](README.ja.md)</kbd> · <kbd>[Português (Brasil)](README.pt-BR.md)</kbd> · <kbd>[Español](README.es.md)</kbd>
+
 # Juxbly
 
 **The instant browser app factory.** Describe what you want on the page you are looking at: you get the result right away, and the tool that produced it stays behind — it comes back by itself next time you visit.
-
-**English** · [简体中文](README.zh-CN.md) · [日本語](README.ja.md) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md)
 
 > Status: **pre-implementation**. The MV3 skeleton loads in Chrome and the DSL with its validation layer is in place; page analysis, tools, panels and highlight confirmation are not built yet. For what V1 deliberately will not do, see [`docs/contributing/SCOPE.md`](docs/contributing/SCOPE.md).
 

@@ -138,15 +138,16 @@ Rules for the set:
    `DOC_CHANGE_PROTOCOL.md`.
 4. **Translation discipline.** Code blocks, commands, URLs, file paths and product names
    stay literal; prose, headings and image alt text translate. All files carry the same
-   language-switcher line, with the reader's own language in bold.
+   language-switcher row on the file's first line, above the `# Juxbly` heading: one
+   `<kbd>` chip per language, the reader's own in bold, every other one a link.
 
 ## Enforcement
 
 `tests/unit/architecture/doc-visibility.test.ts` fails the build when:
 
 1. any tracked file contains CJK characters — exempt are the approved localized READMEs
-   above (wholesale) and, inside every README, the one language-switcher line that rule 4
-   prescribes,
+   above (wholesale) and, inside every README, the single language-switcher row that
+   rule 4 prescribes,
 2. any tracked path contains non-ASCII characters,
 3. any path on the internal inventory above is tracked.
 

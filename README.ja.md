@@ -1,8 +1,8 @@
+<kbd>[English](README.md)</kbd> · <kbd>[简体中文](README.zh-CN.md)</kbd> · <kbd>**日本語**</kbd> · <kbd>[Português (Brasil)](README.pt-BR.md)</kbd> · <kbd>[Español](README.es.md)</kbd>
+
 # Juxbly
 
 **ブラウザの即席アプリ工場。** 今見ているページでやりたいことを言葉で伝える：結果はすぐに届き、それを生み出したツールはその場に残る——次に同じページを訪れると、自動的に戻ってきます。
-
-[English](README.md) · [简体中文](README.zh-CN.md) · **日本語** · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md)
 
 > 本ドキュメントはコミュニティ翻訳です。英語版に追従するのはベストエフォートで、遅れることがあります。両者が一致しない場合は [英語版 README](README.md) が正です。
 

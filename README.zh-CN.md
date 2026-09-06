@@ -1,8 +1,8 @@
+<kbd>[English](README.md)</kbd> · <kbd>**简体中文**</kbd> · <kbd>[日本語](README.ja.md)</kbd> · <kbd>[Português (Brasil)](README.pt-BR.md)</kbd> · <kbd>[Español](README.es.md)</kbd>
+
 # Juxbly
 
 **浏览器即时应用工厂。** 在你正在看的页面上描述你想要什么：结果立刻到手，而产出这个结果的工具会留在原地——下次再访问，它会自己回来。
-
-[English](README.md) · **简体中文** · [日本語](README.ja.md) · [Português (Brasil)](README.pt-BR.md) · [Español](README.es.md)
 
 > 本文档是社区翻译，尽力跟随英文原版，允许滞后；两版不一致时，以 [英文 README](README.md) 为准。
 

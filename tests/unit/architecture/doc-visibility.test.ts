@@ -79,11 +79,11 @@ const CJK_ALLOWED = new Set(['README.zh-CN.md', 'README.ja.md'])
 const README_FILE = /^README(?:\.[\w-]+)?\.md$/
 
 /**
- * The language switcher — the one line that names all five languages in canonical order,
- * the reader's own in bold and unlinked (rule 4 of "Localized READMEs" puts this line in
- * every README). It is part of the sanctioned design, so the CJK test runs on every README
- * with each such line removed. A line naming all five languages in order is the switcher
- * and nothing else; everything else in a non-CJK README stays CJK-free.
+ * The language switcher — the first line of every README (rule 4 of "Localized READMEs"),
+ * naming all five languages in canonical order, the reader's own in bold and unlinked.
+ * It is part of the sanctioned design, so the CJK test runs on every README with each
+ * such line removed. A line naming all five languages in order is the switcher and
+ * nothing else; everything else in a non-CJK README stays CJK-free.
  *
  * The two CJK labels are assembled from code points because this file is itself scanned by
  * the assertion below and must stay CJK-free.
