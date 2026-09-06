@@ -1,0 +1,121 @@
+name: Recipe
+description: Share a reusable Tool definition (recipe). Desensitisation is mandatory.
+labels: [recipe]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read the [Recipe Contribution Guide](https://github.com/<org>/juxbly/blob/main/docs/contributing/RECIPE_GUIDE.md) first.
+        The authoritative shape of `recipe.json` is `RecipeJson` in
+        [`ARCHITECTURE.md` §5.5](https://github.com/<org>/juxbly/blob/main/docs/ARCHITECTURE.md) — if they disagree, the architecture doc wins.
+  - type: input
+    id: name
+    attributes:
+      label: Recipe name
+      description: kebab-case, matches the directory `docs/recipes/<name>/`.
+      placeholder: hacker-news-frontpage-digest
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What it does
+      description: One paragraph: which page, what it collects/does, what a successful run looks like.
+    validations:
+      required: true
+  - type: input
+    id: url-pattern
+    attributes:
+      label: URL pattern
+      description: Must match `definition.url_pattern` semantics (ARCHITECTURE §5.3).
+      placeholder: news.ycombinator.com/*
+    validations:
+      required: true
+  - type: input
+    id: verified-url
+    attributes:
+      label: Verified on URL + date
+      description: The exact public URL it was built and verified on, and the date.
+      placeholder: https://news.ycombinator.com/ — 2026-09-02
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: "`monitor` was removed in V1 — no V1 capability can produce a monitor-type tool."
+      options:
+        - data
+        - enhance
+        - analyze
+        - export
+    validations:
+      required: true
+  - type: checkboxes
+    id: capabilities
+    attributes:
+      label: Capabilities used
+      description: List only existing ones — a recipe cannot smuggle in capabilities the core does not have.
+      options:
+        - label: extract
+        - label: transform
+        - label: llm
+        - label: render
+        - label: export
+    validations:
+      required: true
+  - type: dropdown
+    id: page-difficulty
+    attributes:
+      label: Page difficulty
+      description: This is what makes a recipe useful as a benchmark case.
+      options:
+        - regular
+        - spa
+        - shadow-dom
+        - infinite-scroll
+        - hashed-class
+    validations:
+      required: true
+  - type: textarea
+    id: health-baseline
+    attributes:
+      label: Health baseline
+      description: The SHAPE of a healthy result — item count range and value type per field. Never actual extracted content.
+      placeholder: |
+        expected_item_count: 20-31
+        expected_fields: { "title": "text", "points": "numeric", "comments": "numeric" }
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: Recipe content license
+      description: Your choice — the exported JSON asks, it never assumes. (CC BY-SA 4.0 or CC0)
+      placeholder: CC BY-SA 4.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: desensitisation
+    attributes:
+      label: Desensitisation checklist (mandatory — check before submitting, and check again in the diff)
+      options:
+        - label: No API keys, tokens, cookies, or session identifiers
+          required: true
+        - label: No account-specific data (usernames tied to me, private dashboards, internal URLs)
+          required: true
+        - label: No extracted page content or personal data
+          required: true
+        - label: No absolute local paths
+          required: true
+        - label: No URL that only resolves inside a private network or behind my login
+          required: true
+  - type: checkboxes
+    id: reproducibility
+    attributes:
+      label: Reproducibility
+      options:
+        - label: The recipe README states the exact URL + date, what a successful run looks like, and anything fragile
+          required: true
+        - label: I understand a stale recipe should be reported/fixed, not left silently broken
+          required: true

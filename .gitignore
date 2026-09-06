@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output (WXT / extension)
+.output/
+.wxt/
+dist/
+
+# Environment & secrets
+.env
+.env.*
+*.env
+*.pem
+*.p12
+*.key
+
+# Editor & OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# Logs & caches
+*.log
+coverage/
+.cache/
+.vite/
+tsxCache/
+
+# Local scratch
+*.local

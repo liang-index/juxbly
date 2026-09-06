@@ -1,0 +1,53 @@
+name: Feature request
+description: Propose an enhancement. Scope discipline applies — read this template before proposing.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Juxbly keeps a strict scope discipline. If your proposal contradicts a documented decision,
+        say so explicitly — it will be reviewed against
+        [`docs/contributing/SCOPE.md`](https://github.com/liang-index/Juxbly/blob/main/docs/contributing/SCOPE.md),
+        which lists what V1 deliberately does not do.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What recurring, page-specific task is hard today? Describe the need, not the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Including "do nothing" — why is the current behaviour not good enough?
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary check
+      description: Juxbly deliberately does not do the following. Confirm your proposal is not one of them.
+      options:
+        - label: My proposal does not ask for conditional/loop steps or arbitrary JS execution in the Tool DSL
+          required: true
+        - label: My proposal does not ask for cloud sync, accounts, or telemetry
+          required: true
+        - label: My proposal does not ask for a generic chat sidebar or a universal scraper
+          required: true
+  - type: dropdown
+    id: contributor
+    attributes:
+      label: Are you willing to contribute this?
+      options:
+        - "Yes — I can open a PR (tests + docs included)"
+        - Partially — I can help with tests or docs
+        - "No — proposing for someone else"
+    validations:
+      required: true

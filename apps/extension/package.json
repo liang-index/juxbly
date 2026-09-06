@@ -1,0 +1,23 @@
+{
+  "name": "@juxbly/extension",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare": "wxt prepare",
+    "dev": "wxt",
+    "build": "wxt build"
+  },
+  "dependencies": {
+    "@juxbly/core": "workspace:*",
+    "@juxbly/ui": "workspace:*",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@wxt-dev/module-react": "^1.2.2",
+    "wxt": "^0.21.4"
+  }
+}

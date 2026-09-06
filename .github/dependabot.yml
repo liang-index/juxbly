@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # Workspace root (pnpm workspace: packages/* + apps/*) — lockfile-level updates
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+    ignore:
+      # Pre-release: avoid churn on major bumps until stage 0-2 pins the toolchain baseline
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
+      include: scope
+    labels:
+      - dependencies
+      - ci

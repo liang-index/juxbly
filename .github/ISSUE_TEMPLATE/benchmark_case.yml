@@ -1,0 +1,94 @@
+name: Benchmark case
+description: Contribute a repeatable benchmark case (page + task + ground truth). The most valuable early contribution.
+labels: [benchmark]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Read the [Benchmark Case Contribution Guide](https://github.com/<org>/juxbly/blob/main/docs/contributing/BENCHMARK_GUIDE.md)
+        first — the field definitions below come from it. **Failure cases are the most valuable ones.**
+  - type: input
+    id: case-id
+    attributes:
+      label: Case id
+      description: "`<bucket>-<NN>`, stable forever, never reused. If unsure, propose one and a maintainer confirms."
+      placeholder: C-03
+    validations:
+      required: true
+  - type: dropdown
+    id: bucket
+    attributes:
+      label: Difficulty bucket
+      description: Verify the page still has the bucket-defining property in DevTools before submitting (required for B and C).
+      options:
+        - A — regular structure (tables, lists, semantic HTML)
+        - B — SPA routing (client-side routing, late-rendered DOM)
+        - C — shadow DOM / web components (custom elements, open shadow roots)
+        - D — infinite scroll / lazy loading
+        - E — hashed / CSS-in-JS classes
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      description: Public, no login/paywall/private network.
+      placeholder: https://www.reddit.com/r/webdev/
+    validations:
+      required: true
+  - type: textarea
+    id: task-description
+    attributes:
+      label: Task description
+      description: Written the way a user would actually type it. Do NOT phrase it as a selector hint.
+      placeholder: Collect the title, subreddit, and score of each post in the feed.
+    validations:
+      required: true
+  - type: textarea
+    id: expected-fields
+    attributes:
+      label: Expected fields
+      description: Field names a good tool should produce.
+      placeholder: '["title", "subreddit", "score"]'
+    validations:
+      required: true
+  - type: textarea
+    id: ground-truth
+    attributes:
+      label: Ground truth sample
+      description: A few representative items (not the whole page), plus an item count range if known. JSON preferred.
+      placeholder: |
+        {
+          "item_count_range": [10, 30],
+          "sample": [{ "title": "…", "subreddit": "r/webdev", "score": "142" }]
+        }
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Bucket-specific traps, why this site was chosen, anything fragile.
+    validations:
+      required: false
+  - type: input
+    id: verified-on
+    attributes:
+      label: Verified on
+      description: Date you confirmed the page still matches the bucket property.
+      placeholder: "2026-09-02"
+    validations:
+      required: true
+  - type: checkboxes
+    id: submission-rules
+    attributes:
+      label: Submission rules (from the guide — all required)
+      options:
+        - label: The page is not behind a login, paywall, or private network
+          required: true
+        - label: The page content is not personal data, and collecting it does not violate the site's terms
+          required: true
+        - label: I have the right to reference this page/structure, and the snapshot (if any) is minimal
+          required: true
+        - label: I verified the bucket-defining property still holds (DevTools check for B/C)
+          required: true

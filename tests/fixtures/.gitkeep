@@ -1,0 +1,4 @@
+# Fixtures for integration and benchmark tests.
+#
+# Real fixtures arrive with the stages that need them (e.g. page-analysis fixtures,
+# Web Corpus snapshots). Fixtures must never contain credentials — see SECURITY.md.

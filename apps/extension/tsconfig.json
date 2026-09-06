@@ -1,0 +1,11 @@
+{
+  "extends": "./.wxt/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": "../..",
+    "paths": {
+      "@juxbly/*": ["packages/*/src"]
+    }
+  },
+  "include": ["entrypoints/**/*.ts", "entrypoints/**/*.tsx", "src/**/*.ts", "*.ts"]
+}

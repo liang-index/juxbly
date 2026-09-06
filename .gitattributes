@@ -1,0 +1,18 @@
+# Normalize line endings: LF everywhere in the repository, LF on checkout for text files.
+* text=auto eol=lf
+
+# Windows scripts may need CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binaries
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.zip binary
+
+# Never let formatters touch the license text (stage 0-2 Prettier must also ignore it)
+LICENSE -diff -merge

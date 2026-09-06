@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or discussion
+    url: https://github.com/<org>/juxbly/discussions
+    description: Usage questions and ideas — please do not open an issue for questions.
+  - name: Security vulnerability
+    url: https://github.com/<org>/juxbly/security/advisories/new
+    description: Report vulnerabilities privately. Never open a public issue for security problems.

@@ -1,0 +1,32 @@
+# Stage 0-1 placeholder: secret / credential scanning only.
+# The main CI pipeline (lint + typecheck + test) lands in stage 0-2.
+# Code scanning (CodeQL) is enabled in repository settings and is added here as a workflow in 0-2.
+name: security-scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Weekly full-history sweep (branch protection / push protection cover the push path)
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+  # gitleaks-action lists the pull request's commits to scope its scan. Without this
+  # scope the job dies with "Resource not accessible by integration" (403) on every
+  # pull_request event — it fails before scanning anything.
+  pull-requests: read
+
+jobs:
+  secrets:
+    name: Secret scanning (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so gitleaks can scan prior commits
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,10 @@
+{
+  "name": "@juxbly/playground",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../scripts/stage-placeholder.mjs 0-3",
+    "build": "node ../../scripts/stage-placeholder.mjs 0-3"
+  }
+}
