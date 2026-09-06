@@ -11,7 +11,9 @@ import { describe, expect, it } from 'vitest'
  * alone drifts, so the boundary is enforced against what git actually tracks:
  *
  *   1. No tracked file contains CJK text. Public documents are English; a Chinese file in
- *      the tree is a methodology document that escaped.
+ *      the tree is a methodology document that escaped. The approved localized READMEs
+ *      (`README.zh-CN.md`, `README.ja.md` — see the "Localized READMEs" rule in
+ *      `DOC_VISIBILITY.md`) are the only exemption.
  *   2. No tracked path contains non-ASCII characters. A Chinese filename cannot be typed
  *      or linked reliably across platforms.
  *   3. No path on the internal inventory is tracked at all.
@@ -61,6 +63,13 @@ const INTERNAL_PATTERNS = [
 const CJK = new RegExp(
   '[\\u3400-\\u4DBF\\u4E00-\\u9FFF\\uF900-\\uFAFF\\u3000-\\u303F\\uFF01-\\uFF60]',
 )
+
+/**
+ * The approved localized READMEs — the only files allowed to contain CJK. The set is closed
+ * by `DOC_VISIBILITY.md` ("Localized READMEs"); adding a language is a governance change
+ * that starts in that file, not here.
+ */
+const CJK_ALLOWED = new Set(['README.zh-CN.md', 'README.ja.md'])
 
 /** Git treats these as binary; reading them as UTF-8 proves nothing. */
 const BINARY_EXTENSIONS = [
@@ -120,11 +129,12 @@ describe.skipIf(isInternalRepo)('document visibility: public tree stays clean', 
     expect(offenders).toEqual([])
   })
 
-  it('no tracked text file contains CJK', () => {
+  it('no tracked text file contains CJK outside the approved localized READMEs', () => {
     const offenders: string[] = []
 
     for (const file of trackedFiles()) {
       if (BINARY_EXTENSIONS.some((extension) => file.endsWith(extension))) continue
+      if (CJK_ALLOWED.has(file)) continue
 
       if (CJK.test(readFileSync(join(REPO_ROOT, file), 'utf8'))) {
         offenders.push(file)

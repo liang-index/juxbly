@@ -66,13 +66,15 @@ document, and it belongs here. A document only someone inside the project needs 
 ledger, a per-stage construction ticket, an internal audit — is a methodology document, and
 it lives in the internal repository rather than in this tree.
 
-Public therefore means **English**. The full inventory, and the rule for lifting a
-methodology conclusion into a public document without publishing the document itself, is in
-[`contributing/DOC_VISIBILITY.md`](contributing/DOC_VISIBILITY.md). CI checks the boundary
+Public therefore means **English** — with one sanctioned exception: the closed set of
+approved `README` translations listed in
+[`contributing/DOC_VISIBILITY.md`](contributing/DOC_VISIBILITY.md). The full inventory, and
+the rule for lifting a methodology conclusion into a public document without publishing the
+document itself, is in that same file. CI checks the boundary
 in `tests/unit/architecture/doc-visibility.test.ts`.
 
 A consequence worth stating plainly: **a Chinese file in this tree is a methodology
-document that escaped.**
+document that escaped** — `README.zh-CN.md` and `README.ja.md` being the only exemption.
 
 ## Layout
 

@@ -38,6 +38,8 @@ That yields an unusually cheap check on the boundary:
 
 > **A Chinese file in the public tree is a methodology document that escaped.**
 
+The approved localized READMEs (next section) are the single, deliberately narrow exception.
+
 Everything currently in Chinese is therefore on the internal list below — not because the
 content is wrong, but because it is process.
 
@@ -48,6 +50,7 @@ content is wrong, but because it is process.
 | Document | Defines |
 |---|---|
 | `README.md` | what this is, current status, install |
+| `README.zh-CN.md`, `README.ja.md`, `README.pt-BR.md`, `README.es.md` | approved translations of `README.md` — see the localization rule below |
 | `docs/README.md` | documentation stack navigation and conflict rules |
 | `docs/ROADMAP.md` | phase sequence and acceptance boundaries |
 | `docs/ARCHITECTURE.md` | type contracts and module interfaces |
@@ -106,11 +109,43 @@ Example: the ten-site selector quality spike stays internal. "Regular well-struc
 are reliable; SPA and hashed class names are best effort" is stated in `README.md` with no
 reference to the spike that produced it.
 
+## Localized READMEs — the one sanctioned exception
+
+`README.md` is English. It additionally ships as a closed set of approved translations:
+
+| File | Language |
+|---|---|
+| `README.zh-CN.md` | Simplified Chinese |
+| `README.ja.md` | Japanese |
+| `README.pt-BR.md` | Brazilian Portuguese |
+| `README.es.md` | Spanish |
+
+Why these four: each sits at the intersection of a large developer population (GitHub
+Octoverse 2025), a large Chrome desktop share, and low English proficiency (EF EPI 2025) —
+the markets where an English-only README measurably loses readers. German and French are
+deliberately absent: developers there read English comfortably, so a translation would be
+pure maintenance cost. Hindi is absent for the same reason — Indian developers work in
+English.
+
+Rules for the set:
+
+1. **English is authoritative.** Every translation carries a note saying so; translations
+   follow the English original on a best-effort basis and may lag.
+2. **README only.** No other document is translated. `docs/` stays English — translating
+   the SSOT would fork the truth.
+3. **The set is closed.** Adding or removing a language is a governance change: edit this
+   file first, then the guard test, then `scripts/sync-public.mjs` — in that order, per
+   `DOC_CHANGE_PROTOCOL.md`.
+4. **Translation discipline.** Code blocks, commands, URLs, file paths and product names
+   stay literal; prose, headings and image alt text translate. All files carry the same
+   language-switcher line, with the reader's own language in bold.
+
 ## Enforcement
 
 `tests/unit/architecture/doc-visibility.test.ts` fails the build when:
 
-1. any tracked file contains CJK characters,
+1. any tracked file contains CJK characters — the approved localized READMEs above are the
+   only exemption,
 2. any tracked path contains non-ASCII characters,
 3. any path on the internal inventory above is tracked.
 
