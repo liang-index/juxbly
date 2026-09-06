@@ -11,9 +11,10 @@ import { describe, expect, it } from 'vitest'
  * alone drifts, so the boundary is enforced against what git actually tracks:
  *
  *   1. No tracked file contains CJK text. Public documents are English; a Chinese file in
- *      the tree is a methodology document that escaped. The approved localized READMEs
- *      (`README.zh-CN.md`, `README.ja.md` — see the "Localized READMEs" rule in
- *      `DOC_VISIBILITY.md`) are the only exemption.
+ *      the tree is a methodology document that escaped. Exempt: the approved localized
+ *      READMEs (`README.zh-CN.md`, `README.ja.md`) wholesale, and the shared
+ *      language-switcher line inside every README — see the "Localized READMEs" rule in
+ *      `DOC_VISIBILITY.md`.
  *   2. No tracked path contains non-ASCII characters. A Chinese filename cannot be typed
  *      or linked reliably across platforms.
  *   3. No path on the internal inventory is tracked at all.
@@ -70,6 +71,28 @@ const CJK = new RegExp(
  * that starts in that file, not here.
  */
 const CJK_ALLOWED = new Set(['README.zh-CN.md', 'README.ja.md'])
+
+/**
+ * Every README variant: `README.md` itself and each localized `README.<lang>.md`. Rule 4 of
+ * "Localized READMEs" puts one shared language-switcher line in all of them.
+ */
+const README_FILE = /^README(?:\.[\w-]+)?\.md$/
+
+/**
+ * The language switcher — the one line that names all five languages in canonical order,
+ * the reader's own in bold and unlinked (rule 4 of "Localized READMEs" puts this line in
+ * every README). It is part of the sanctioned design, so the CJK test runs on every README
+ * with each such line removed. A line naming all five languages in order is the switcher
+ * and nothing else; everything else in a non-CJK README stays CJK-free.
+ *
+ * The two CJK labels are assembled from code points because this file is itself scanned by
+ * the assertion below and must stay CJK-free.
+ */
+const SIMPLIFIED_CHINESE = String.fromCodePoint(0x7b80, 0x4f53, 0x4e2d, 0x6587)
+const JAPANESE = String.fromCodePoint(0x65e5, 0x672c, 0x8a9e)
+const LANGUAGE_SWITCHER = new RegExp(
+  `English.*${SIMPLIFIED_CHINESE}.*${JAPANESE}.*Português \\(Brasil\\).*Español`,
+)
 
 /** Git treats these as binary; reading them as UTF-8 proves nothing. */
 const BINARY_EXTENSIONS = [
@@ -136,7 +159,15 @@ describe.skipIf(isInternalRepo)('document visibility: public tree stays clean', 
       if (BINARY_EXTENSIONS.some((extension) => file.endsWith(extension))) continue
       if (CJK_ALLOWED.has(file)) continue
 
-      if (CJK.test(readFileSync(join(REPO_ROOT, file), 'utf8'))) {
+      let content = readFileSync(join(REPO_ROOT, file), 'utf8')
+      if (README_FILE.test(file)) {
+        content = content
+          .split('\n')
+          .filter((line) => !LANGUAGE_SWITCHER.test(line))
+          .join('\n')
+      }
+
+      if (CJK.test(content)) {
         offenders.push(file)
       }
     }

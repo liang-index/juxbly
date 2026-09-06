@@ -144,8 +144,9 @@ Rules for the set:
 
 `tests/unit/architecture/doc-visibility.test.ts` fails the build when:
 
-1. any tracked file contains CJK characters — the approved localized READMEs above are the
-   only exemption,
+1. any tracked file contains CJK characters — exempt are the approved localized READMEs
+   above (wholesale) and, inside every README, the one language-switcher line that rule 4
+   prescribes,
 2. any tracked path contains non-ASCII characters,
 3. any path on the internal inventory above is tracked.
 
