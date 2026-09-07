@@ -1,7 +1,16 @@
 /**
- * Placeholder entry for @juxbly/analyzer (stage 0-2 skeleton).
+ * `@juxbly/analyzer` — what the model sees of the page, before the model is asked
+ * anything.
  *
- * Real exports arrive with the stage that owns this module. See
- * docs/ARCHITECTURE.md section 4 (module map) for what belongs here.
+ * Module map: `docs/ARCHITECTURE.md` §4. Output contract: `PageAnalysis`, §5.5.
+ * Consumed by: the build flow (§9.1, stage 1-9).
+ *
+ * Pure DOM reads: no writes, no scrolling, no network, no model call. The analyzer runs
+ * inside a page Juxbly does not own, so "read-only" is a boundary, not a preference.
  */
-export const packageId = '@juxbly/analyzer' as const
+export * from './analyze-page'
+export * from './custom-elements'
+export * from './dom'
+export * from './shadow'
+export * from './structure'
+export * from './visible-text'

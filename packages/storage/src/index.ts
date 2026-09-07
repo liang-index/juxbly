@@ -1,7 +1,15 @@
 /**
- * Placeholder entry for @juxbly/storage (stage 0-2 skeleton).
+ * `@juxbly/storage` — the local storage wrapper and data migrations.
  *
- * Real exports arrive with the stage that owns this module. See
- * docs/ARCHITECTURE.md section 4 (module map) for what belongs here.
+ * Module map: `docs/ARCHITECTURE.md` §4. Storage contract: §8.1.
+ *
+ * Every function takes a `BrowserAdapter` instead of reaching for the platform: the whole
+ * package then runs unchanged in tests, in the background service worker and in the
+ * playground. It never touches platform storage on its own — only through
+ * `packages/browser` (§6.4).
  */
-export const packageId = '@juxbly/storage' as const
+export * from './keys'
+export * from './migrations'
+export * from './onboarding'
+export * from './settings'
+export * from './tools'

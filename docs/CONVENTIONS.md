@@ -364,6 +364,14 @@ The final layout follows the actual implementation, but it must satisfy:
 
 Do not let an oversized `utils/`, `helpers/`, or `misc/` directory without clear boundaries become a dumping ground for core business code.
 
+### 7.1 Workspace-internal dependencies
+
+A `package.json` declares **external** dependencies only. One package reaching another `@juxbly/*` package is resolved through `compilerOptions.paths` (`tsconfig.base.json`) plus the matching alias in `vitest.config.ts` and `apps/extension/wxt.config.ts` — not through `pnpm`.
+
+Why not `workspace:*`: `packages/core` and `packages/browser` import types from each other — `RuntimePorts` reuses the browser port shapes, and the adapter carries the §7.2 message types. Declaring both directions would make the workspace graph cyclic for a dependency that is erased at compile time anyway.
+
+The consequence to keep in mind: `package.json` does not show the internal graph. The authoritative statement of it is `docs/ARCHITECTURE.md` §4, mirrored in `docs/CODE_MAP.md`; a new package must be registered in **all three** alias sources, or it will resolve in one runner and fail in another.
+
 ---
 
 # 8. Code Size and Module Boundaries

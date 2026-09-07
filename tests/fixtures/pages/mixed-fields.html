@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+  Fixture: text / image / link mixed, with relative URLs and a missing alt (stage 1-5).
+
+  Every attribute-reading rule in one page:
+    - `image` reads `src`, falls back to the first `srcset` candidate, and keeps `alt`
+      even when the attribute is absent (empty, not missing);
+    - `link` reads `href`, and a relative href is resolved against the document base —
+      fixed with `<base>` here so the ground truth is a stable absolute URL;
+    - `javascript:` is passed through unchanged: rejecting it is the render layer's job.
+
+  Bucket A for the Phase 2 corpus (docs/contributing/BENCHMARK_GUIDE.md): structural
+  difficulty "regular".
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <base href="https://shop.example.com/" />
+    <title>Gear</title>
+  </head>
+  <body>
+    <h1>Gear</h1>
+    <ul class="cards">
+      <li class="card">
+        <h3 class="title">Alpine tent</h3>
+        <img class="thumb" src="/img/tent.jpg" alt="Alpine tent" />
+        <a class="detail" href="/p/alpine-tent">View</a>
+      </li>
+      <li class="card">
+        <h3 class="title">Trail stove</h3>
+        <img class="thumb" srcset="/img/stove-2x.jpg 2x, /img/stove-1x.jpg 1x" />
+        <a class="detail" href="https://shop.example.com/p/trail-stove">View</a>
+      </li>
+      <li class="card">
+        <h3 class="title">Map case</h3>
+        <img class="thumb" src="/img/map-case.jpg" />
+        <a class="detail" href="javascript:void(0)">View</a>
+      </li>
+    </ul>
+  </body>
+</html>

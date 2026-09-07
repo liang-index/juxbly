@@ -108,6 +108,15 @@ export interface ExtractError {
   selector?: string
 }
 
+/**
+ * Value shapes inside `items` (stage 1-5): `text` and `link` are strings, `image` is
+ * `{ src, alt }`. A field with no value is never `undefined` — it is `''`, or
+ * `{ src: '', alt: '' }` for an image — so "the field hit nothing" and "the record is
+ * missing" stay distinguishable.
+ *
+ * `link` and `image.src` are resolved to absolute URLs against the document base; a value
+ * that cannot be resolved (`javascript:`, `mailto:`) is returned unchanged.
+ */
 export interface ExtractResult {
   /** Extracted records; single mode yields an array of length 1. */
   items: Record<string, unknown>[]
@@ -117,6 +126,12 @@ export interface ExtractResult {
   hitCount: number
   /** Fields that hit nothing at all — the direct execution-health signal. */
   missingFields: string[]
+  /**
+   * True when the container cap cut the result short, so the host page stays
+   * responsive. `hitCount` still reports the full match count: capping must not look
+   * like a page that changed.
+   */
+  truncated?: boolean
 }
 
 // ── Run engine output ──────────────────────────────────────────────────────────
@@ -203,6 +218,21 @@ export interface RecipeJson {
 }
 
 // ── Export output ──────────────────────────────────────────────────────────────
+
+// ── render output (packages/capabilities/render) ──────────────────────────────
+
+export interface RenderResult {
+  view: 'table' | 'card' | 'text'
+  /**
+   * Records handed to the view. **0 is a normal empty state, not an error**
+   * (`docs/UI_SPEC.md` §7): "nothing matched" is an answer a tool is allowed to give.
+   */
+  itemCount: number
+  /** True when rows or long values were capped, so the host page stays responsive. */
+  truncated: boolean
+}
+
+// ── export output ────────────────────────────────────────────────────────────
 
 export interface ExportResult {
   ok: boolean

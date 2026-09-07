@@ -24,4 +24,11 @@ export const en = {
     heading: 'Juxbly settings',
     body: 'Your model key and preferences will be set here.',
   },
+  views: {
+    loading: 'Loading…',
+    // 0 rows is an answer, not a failure: no error styling, no apology (UI_SPEC §7).
+    empty: 'No rows yet. Run this tool on a page that has what you described.',
+    error: 'This view could not be drawn. Run the tool again to refresh it.',
+    moreRowsHidden: 'Some rows are hidden to keep the page responsive.',
+  },
 } as const

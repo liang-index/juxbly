@@ -1,0 +1,38 @@
+{
+  "id": "A-03",
+  "bucket": "A",
+  "fixture": "mixed-fields.html",
+  "task_description": "Collect the title, thumbnail and detail link of every card.",
+  "extract": {
+    "type": "extract",
+    "mode": "list",
+    "selector": ".cards li.card",
+    "fields": { "title": ".title", "thumb": ".thumb", "detail": ".detail" },
+    "field_types": { "thumb": "image", "detail": "link" },
+    "output_to": "gear"
+  },
+  "expected_fields": ["title", "thumb", "detail"],
+  "ground_truth": {
+    "item_count_range": [3, 3],
+    "sample": [
+      {
+        "title": "Alpine tent",
+        "thumb": { "src": "https://shop.example.com/img/tent.jpg", "alt": "Alpine tent" },
+        "detail": "https://shop.example.com/p/alpine-tent"
+      },
+      {
+        "title": "Trail stove",
+        "thumb": { "src": "https://shop.example.com/img/stove-2x.jpg", "alt": "" },
+        "detail": "https://shop.example.com/p/trail-stove"
+      },
+      {
+        "title": "Map case",
+        "thumb": { "src": "https://shop.example.com/img/map-case.jpg", "alt": "" },
+        "detail": "javascript:void(0)"
+      }
+    ]
+  },
+  "expected_missing_fields": [],
+  "notes": "Attribute reading, not text: row two has no `src` (first `srcset` candidate wins) and no `alt` (empty, not missing); row three's href is `javascript:` and passes through unchanged because refusing to render it is the render layer's job. Relative URLs are absolute here because the fixture sets `<base>`.",
+  "verified_on": "2026-09-06"
+}

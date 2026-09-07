@@ -1,0 +1,26 @@
+{
+  "id": "A-01",
+  "bucket": "A",
+  "fixture": "list-page.html",
+  "task_description": "Collect the title, price and rating of every product in the results list.",
+  "extract": {
+    "type": "extract",
+    "mode": "list",
+    "selector": ".results li.product",
+    "fields": { "title": ".title", "price": ".price", "rating": ".rating" },
+    "output_to": "products"
+  },
+  "expected_fields": ["title", "price", "rating"],
+  "ground_truth": {
+    "item_count_range": [4, 4],
+    "sample": [
+      { "title": "Wireless keyboard", "price": "$49.00", "rating": "4.6" },
+      { "title": "Wireless mouse", "price": "$29.00", "rating": "4.2" },
+      { "title": "USB-C hub", "price": "$39.00", "rating": "4.5" },
+      { "title": "Laptop stand", "price": "$59.00", "rating": "4.8" }
+    ]
+  },
+  "expected_missing_fields": [],
+  "notes": "Baseline regular list: semantic tags, every field present in every row. Nothing here may be a near-miss — a regression on this case is never a selector-quality question.",
+  "verified_on": "2026-09-06"
+}
