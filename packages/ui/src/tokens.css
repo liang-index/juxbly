@@ -1,0 +1,44 @@
+/**
+ * Design tokens — `docs/UI_SPEC.md` §12, transcribed verbatim.
+ *
+ * This is the **only** place a colour value may appear in `packages/ui`. Components
+ * reference the variables and never a literal, which is what keeps a recolor a one-file
+ * change instead of a hunt through every component (UI_SPEC §11.4).
+ *
+ * Values inside the documented ranges (radius 16–20px, element 8–10px) land as a single
+ * number here; stepping outside a range is a UI_SPEC change first.
+ *
+ * Injected into Juxbly's Shadow DOM host (stage 1-8) — an extension cannot rely on a
+ * global stylesheet surviving the host page. `:host` sits beside `:root` because a
+ * `:root` rule alone matches nothing inside a shadow root: custom properties there must
+ * ride on the host element for the shadow tree to inherit them.
+ */
+:root,
+:host {
+  --jx-surface-base-1: #0d2b2e;
+  --jx-surface-base-2: #0b2021;
+  --jx-surface-border: rgba(94, 234, 212, 0.18);
+  --jx-accent: #5eead4;
+  --jx-accent-hover: #7ff2df;
+  --jx-accent-dim: rgba(94, 234, 212, 0.15);
+  --jx-on-accent: #0d2b2e;
+  --jx-warn: #fbbf24;
+  --jx-error: #ff7a6b;
+  --jx-text-primary: rgba(255, 255, 255, 0.92);
+  --jx-text-secondary: rgba(255, 255, 255, 0.65);
+  --jx-text-muted: rgba(255, 255, 255, 0.4);
+  --jx-ball-gradient: linear-gradient(135deg, #2a8577, #0d2b2e);
+  /* Broken state of the ball itself (prototype BALL-08); the only place this gradient applies. */
+  --jx-ball-gradient-error: linear-gradient(135deg, #b4483c, #39150f);
+  --jx-cat-data: #5eead4;
+  --jx-cat-enhance: #93c5fd;
+  --jx-cat-analyze: #c4b5fd;
+  --jx-cat-export: #fdba74;
+  --jx-radius-panel: 18px;
+  --jx-radius-element: 9px;
+  --jx-radius-pill: 999px;
+  --jx-motion-instant: 80ms ease-out;
+  --jx-motion-flow: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --jx-motion-signature: 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --jx-stagger: 70ms;
+}

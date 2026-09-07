@@ -38,6 +38,8 @@ const ALLOWED_ASSEMBLY_APIS = [
   'runtime.getURL',
   'runtime.onInstalled',
   'runtime.onMessage',
+  'tabs.query',
+  'tabs.sendMessage',
 ]
 
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs']

@@ -77,15 +77,30 @@ export type ExtensionMessage =
   | { kind: 'export:download_json'; filename: string; json: string }
   // Settings (popup / options ↔ background)
   | { kind: 'settings:get' }
+  | {
+      kind: 'settings:get_result'
+      /**
+       * The public subset only. The BYOK key never crosses back to a content script, so
+       * the reply is a flat allowlist, not a `Settings` object (stage 1-8; §12).
+       */
+      floating_ball_enabled: boolean
+    }
   | { kind: 'settings:set'; patch: Partial<Settings> }
   // Internal: channel probe, NOT business protocol.
   // The `internal:` prefix keeps it out of the business namespaces so a later stage
   // cannot mistake it for a real protocol message.
   | { kind: 'internal:ping' }
   | { kind: 'internal:pong'; ok: true }
+  // Internal: background → content command forwarding. `commands.onCommand` only fires
+  // in the service worker, so the shortcut is relayed to the active tab (stage 1-8).
+  | { kind: 'internal:command'; command: string }
 
 export type InternalPing = Extract<ExtensionMessage, { kind: 'internal:ping' }>
 export type InternalPong = Extract<ExtensionMessage, { kind: 'internal:pong' }>
+
+/** The llm step's cross-context hop: the content script has no key, so it asks (§7.1). */
+export type RunLlmMessage = Extract<ExtensionMessage, { kind: 'run:llm' }>
+export type RunLlmResultMessage = Extract<ExtensionMessage, { kind: 'run:llm_result' }>
 
 /**
  * Messages cross a trust boundary: anything that arrives over the runtime message
@@ -103,4 +118,8 @@ export function isPing(message: unknown): message is InternalPing {
 
 export function isPong(message: unknown): message is InternalPong {
   return hasKind(message, 'internal:pong')
+}
+
+export function isRunLlm(message: unknown): message is RunLlmMessage {
+  return hasKind(message, 'run:llm')
 }

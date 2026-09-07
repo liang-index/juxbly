@@ -35,6 +35,16 @@ export default defineConfig({
         ),
         '@juxbly/core': fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url)),
         '@juxbly/ui': fileURLToPath(new URL('../../packages/ui/src/index.ts', import.meta.url)),
+        // Stage 1-6: the background entrypoint now reaches the llm package, which reads
+        // settings through storage and the platform through the browser adapter.
+        '@juxbly/llm': fileURLToPath(new URL('../../packages/llm/src/index.ts', import.meta.url)),
+        '@juxbly/storage': fileURLToPath(
+          new URL('../../packages/storage/src/index.ts', import.meta.url),
+        ),
+        '@juxbly/browser': fileURLToPath(
+          new URL('../../packages/browser/src/index.ts', import.meta.url),
+        ),
+        '@juxbly/dsl': fileURLToPath(new URL('../../packages/dsl/src/index.ts', import.meta.url)),
       },
     },
   }),

@@ -1,0 +1,21 @@
+{
+  "id": "A-02",
+  "bucket": "A",
+  "fixture": "single-record.html",
+  "task_description": "Read the name, role and location from the profile panel.",
+  "extract": {
+    "type": "extract",
+    "mode": "single",
+    "selector": ".profile",
+    "fields": { "name": ".name", "role": ".role", "location": ".location" },
+    "output_to": "profile"
+  },
+  "expected_fields": ["name", "role", "location"],
+  "ground_truth": {
+    "item_count_range": [1, 1],
+    "sample": [{ "name": "Ada Lovelace", "role": "Research lead", "location": "London" }]
+  },
+  "expected_missing_fields": [],
+  "notes": "single mode with a container selector; the page also carries a `.footer` with text that must not leak into any field — scoping is what keeps it out.",
+  "verified_on": "2026-09-06"
+}

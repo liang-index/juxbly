@@ -1,0 +1,49 @@
+<!doctype html>
+<!--
+  Fixture: repeating units inside an open shadow root (stage 1-5).
+
+  Two shadow boundaries on purpose, because they break two different things:
+    - the container selector has to pierce into `product-grid`'s root to find the rows;
+    - the `price` field has to pierce a second root nested inside each row.
+  A query that stops at the light DOM returns zero rows here — which is exactly the
+  YouTube / Reddit failure mode M0 recorded.
+
+  A shadow root cannot be written in HTML, so the markup declares one with
+  `<template data-shadow-mode>` and the loader moves the content into the host.
+
+  Bucket C for the Phase 2 corpus (docs/contributing/BENCHMARK_GUIDE.md): structural
+  difficulty "shadow-dom".
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Component store</title>
+  </head>
+  <body>
+    <h1>Component store</h1>
+    <product-grid>
+      <template data-shadow-mode="open">
+        <ul class="catalog">
+          <li class="item">
+            <span class="title">Wireless keyboard</span>
+            <my-price>
+              <template data-shadow-mode="open"><span class="price">$49.00</span></template>
+            </my-price>
+          </li>
+          <li class="item">
+            <span class="title">Wireless mouse</span>
+            <my-price>
+              <template data-shadow-mode="open"><span class="price">$29.00</span></template>
+            </my-price>
+          </li>
+          <li class="item">
+            <span class="title">USB-C hub</span>
+            <my-price>
+              <template data-shadow-mode="open"><span class="price">$39.00</span></template>
+            </my-price>
+          </li>
+        </ul>
+      </template>
+    </product-grid>
+  </body>
+</html>

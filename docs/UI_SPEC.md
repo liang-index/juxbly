@@ -35,6 +35,7 @@
 | `text-secondary` | `rgba(255,255,255,.65)` | Secondary text |
 | `text-muted` | `rgba(255,255,255,.40)` | Metadata (version, timestamps, token usage) |
 | `ball-gradient` | `linear-gradient(135deg,#2A8577,#0D2B2E)` | Floating ball body gradient |
+| `ball-gradient-error` | `linear-gradient(135deg,#b4483c,#39150f)` | Floating ball body in the broken state (§6.2); the only surface this gradient applies to |
 
 **Discipline for new colors**: before building any new surface, check whether existing tokens can express it; only three state semantics may exist — `confirm(accent) / warn / error` — so the UI never "looks cobbled together".
 
@@ -103,14 +104,34 @@ Panels must not invent their own spacing values.
 
 ## 6. Floating ball state machine (visual mapping)
 
+### 6.1 State enum (registered in stage 1-8; code: `packages/ui/src/floating-ball/ball-state.ts`)
+
+| # | State | Entering event | Exits |
+|---|---|---|---|
+| 1 | `idle` | initial / `mount` / `close` from any state / `build-done` | `open-chat` → listening |
+| 2 | `listening` | `open-chat` | `analyze-start` → analyzing; `proposal-ready` → awaiting-confirm |
+| 3 | `analyzing` | `analyze-start` | `analyze-done` → listening; `proposal-ready` → awaiting-confirm |
+| 4 | `awaiting-confirm` | `proposal-ready` | `build-start` → building; `open-chat` → listening (re-describe) |
+| 5 | `building` | `build-start` | `build-done` → idle; `build-failed` → error |
+| 6 | `error` | `build-failed` | `open-chat` → listening (recovery is user-driven, never automatic) |
+
+"Has saved tools" is **not a seventh state**: `mount` carries `hasSavedTools` and drives the
+one-shot pulse inside `idle` (see the visual mapping below). Illegal events change nothing.
+
+### 6.2 Visual mapping
+
 | State | Visual |
 |---|---|
 | Idle · no saved tools | Fully static, opacity 0.32 (nearly transparent), **no looping motion** |
 | Idle · has tools (page just loaded) | One-shot `jxOncePulse`, then quiet |
 | Hover | Slight scale-up + brighten (`motion-instant`) |
 | Click | Brief compression rebound, then the panel expands |
-| Listening / analyzing / awaiting confirmation / building | Distinguished by state color / simple motion (following the six-state build-flow design §3.1), **no text labels needed** |
-| Broken | `error` color state |
+| Listening / analyzing / awaiting confirmation / building | Distinguished by state color / simple motion (`analyzing` breathes via `jx-think`; the only loop, and only while user-triggered work runs), **no text labels needed** |
+| Broken | `error` color state (ball body switches to `--jx-ball-gradient-error`, §12) |
+
+Screen-reader labels come from the copy bundle (`ball.aria.*`) and update with the state;
+there is no `aria-live` interrupt (the ball must not hijack the host page's screen-reader
+flow).
 
 ---
 
@@ -197,7 +218,7 @@ Show usage numbers that **belong to the user alone**, in the tool overview and t
 
 | Scenario | Keys | Behaviour |
 |---|---|---|
-| Any time | `Ctrl/Cmd+Shift+J` (`chrome.commands`, configurable) | Invoke / collapse Juxbly |
+| Any time | `Ctrl/Cmd+Shift+Y` (`chrome.commands`, **suggested** — the user may override it at `chrome://extensions/shortcuts`, so never state the key as a fact in copy) | Invoke / collapse Juxbly |
 | Build panel | `↑` `↓` | Move focus between suggestion chips |
 | Input contexts | `Enter` | Confirm the primary action (send / confirm the highlighted selection) |
 | Any Juxbly panel | `Esc` | Collapse back to the floating ball, **state is not lost** |
@@ -252,7 +273,11 @@ The OSS edition **is not another skin**: on top of the same token system it allo
 ## 12. CSS variable definitions (landing baseline)
 
 ```css
-:root {
+/* `:host` rides beside `:root` because a `:root` rule alone matches nothing inside a
+   shadow root — the variables must live on the host element for the shadow tree to
+   inherit them (stage 1-8). */
+:root,
+:host {
   --jx-surface-base-1: #0D2B2E;
   --jx-surface-base-2: #0b2021;
   --jx-surface-border: rgba(94, 234, 212, 0.18);
@@ -266,6 +291,7 @@ The OSS edition **is not another skin**: on top of the same token system it allo
   --jx-text-secondary: rgba(255, 255, 255, 0.65);
   --jx-text-muted: rgba(255, 255, 255, 0.40);
   --jx-ball-gradient: linear-gradient(135deg, #2A8577, #0D2B2E);
+  --jx-ball-gradient-error: linear-gradient(135deg, #b4483c, #39150F);  /* broken state of the ball itself (§6.2); prototype BALL-08 */
   --jx-cat-data: #5EEAD4;
   --jx-cat-enhance: #93C5FD;
   --jx-cat-analyze: #C4B5FD;

@@ -9,6 +9,7 @@
  * dependencies. References to DSL types are `import type` only and erase at compile
  * time — see tool-record.ts / runtime.ts / messages.ts.
  */
+export * from './capability'
 export * from './logger'
 export * from './messages'
 export * from './runtime'

@@ -10,7 +10,7 @@
  */
 import type { ToolCategory, ToolDefinition, ToolStep } from '@juxbly/dsl'
 import type { TokenUsage } from './messages'
-import type { HealthStatus, ToolRecord } from './tool-record'
+import type { HealthStatus, RunState, RunSummary, ToolRecord } from './tool-record'
 
 // ── Page analysis (packages/analyzer output; input to the build flow) ──────────
 
@@ -108,6 +108,15 @@ export interface ExtractError {
   selector?: string
 }
 
+/**
+ * Value shapes inside `items` (stage 1-5): `text` and `link` are strings, `image` is
+ * `{ src, alt }`. A field with no value is never `undefined` — it is `''`, or
+ * `{ src: '', alt: '' }` for an image — so "the field hit nothing" and "the record is
+ * missing" stay distinguishable.
+ *
+ * `link` and `image.src` are resolved to absolute URLs against the document base; a value
+ * that cannot be resolved (`javascript:`, `mailto:`) is returned unchanged.
+ */
 export interface ExtractResult {
   /** Extracted records; single mode yields an array of length 1. */
   items: Record<string, unknown>[]
@@ -117,9 +126,69 @@ export interface ExtractResult {
   hitCount: number
   /** Fields that hit nothing at all — the direct execution-health signal. */
   missingFields: string[]
+  /**
+   * True when the container cap cut the result short, so the host page stays
+   * responsive. `hitCount` still reports the full match count: capping must not look
+   * like a page that changed.
+   */
+  truncated?: boolean
 }
 
-// ── Run engine output ──────────────────────────────────────────────────────────
+// ── Run engine input / output (packages/runtime, stage 1-7) ────────────────────
+
+/**
+ * What the run engine is handed besides the tool itself.
+ *
+ * `runState` is the previous run's cache: the engine reads it and hands a new one back.
+ * Storing it is the **caller's** job (1-10) — the engine stays free of side effects (§4),
+ * which is also what makes "cancel mid-run" a matter of returning nothing to store.
+ */
+export interface RunOptions {
+  tabId: number
+  /** Cancelled when the panel closes or the page navigates (§6.1). */
+  signal: AbortSignal
+  /** What the previous run left behind; absent on the first run. */
+  runState?: RunState | null
+  /**
+   * Run every llm step even when the input hash is unchanged (§9.2 manual refresh) —
+   * the only way to spend tokens on purpose, because the cache is the default.
+   */
+  force?: boolean
+}
+
+/**
+ * Why a run did not complete. `code` is stable and English because the panel and the
+ * health layer branch on it (1-9 / 1-11); `message` is ours and never a capability's —
+ * a capability's own text could carry page content, and this structure crosses contexts.
+ */
+export type RunErrorCode =
+  /** Kept verbatim from `ExtractError`: health reports them on different layers (§10). */
+  | ExtractErrorCode
+  | 'LLM_FAILED'
+  | 'VALIDATION_FAILED'
+  | 'CAPABILITY_UNREGISTERED'
+  | 'CAPABILITY_FAILED'
+  /** The variable bag's own fence; `validateToolDefinition` already rejects these (§5.4). */
+  | 'VARIABLE_DUPLICATE'
+  | 'VARIABLE_UNRESOLVED'
+  | 'VARIABLE_NOT_RECORDS'
+
+export interface RunError {
+  code: RunErrorCode
+  message: string
+  /** Index of the step that failed; absent when the whole tool was rejected. */
+  step?: number
+  /** Field-level reasons — present only for `VALIDATION_FAILED` (§5.4). */
+  errors?: ValidationError[]
+  /** Carried from `ExtractError` so health can name the selector that failed. */
+  selector?: string
+}
+
+/** What the llm capability returns: the model's output plus what it cost (BYOK). */
+export interface LlmStepOutput {
+  output: unknown
+  usage: TokenUsage
+}
 
 export interface RunOutcome {
   ok: boolean
@@ -129,7 +198,16 @@ export interface RunOutcome {
   usage: TokenUsage
   /** Whether llm steps were skipped because the cache hit (§9.2 hash comparison). */
   llmCached: boolean
-  error?: ExtractError | { code: 'LLM_FAILED' | 'VALIDATION_FAILED'; message: string }
+  /** The render step's result, when the tool has one. */
+  render?: RenderResult
+  /** The minimal run summary health keeps in its 10-run window (§8.1). */
+  summary: RunSummary
+  /**
+   * What the caller stores for the next run — absent when the run was cancelled or
+   * rejected, so a half-finished run can never poison the cache (§9.2).
+   */
+  runState?: RunState
+  error?: RunError
 }
 
 // ── Health evaluation (packages/health) ────────────────────────────────────────
@@ -203,6 +281,21 @@ export interface RecipeJson {
 }
 
 // ── Export output ──────────────────────────────────────────────────────────────
+
+// ── render output (packages/capabilities/render) ──────────────────────────────
+
+export interface RenderResult {
+  view: 'table' | 'card' | 'text'
+  /**
+   * Records handed to the view. **0 is a normal empty state, not an error**
+   * (`docs/UI_SPEC.md` §7): "nothing matched" is an answer a tool is allowed to give.
+   */
+  itemCount: number
+  /** True when rows or long values were capped, so the host page stays responsive. */
+  truncated: boolean
+}
+
+// ── export output ────────────────────────────────────────────────────────────
 
 export interface ExportResult {
   ok: boolean

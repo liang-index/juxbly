@@ -133,7 +133,8 @@ If your change touches `packages/dsl`, `packages/runtime`, `packages/capabilitie
 
 | Symptom | Likely cause |
 |---|---|
-| Chrome refuses the manifest and names `commands` | Chrome accepts only `Command` and `MacCtrl` as Mac modifiers in `suggested_key.mac`. `Ctrl/Cmd+Shift+J` is how the docs *write* the shortcut; the literal has to be `Command+Shift+J` |
+| Chrome refuses the manifest and names `commands` | Chrome accepts only `Command` and `MacCtrl` as Mac modifiers in `suggested_key.mac`. `Ctrl/Cmd+Shift+Y` is how the docs *write* the shortcut; the literal has to be `Command+Shift+Y` |
+| The command is registered but `chrome.commands.getAll()` reports `shortcut: ""` | A `suggested_key` is only a suggestion: Chrome withholds it when it collides with one of its own (`Ctrl/Cmd+Shift+J` collides with *open the console*). Pick a non-colliding key, or assign it by hand at `chrome://extensions/shortcuts` |
 | There is no options entry anywhere | `options_ui.open_in_tab` must be `true` on MV3. Look under *Details → Extension options*, or right-click the toolbar icon |
 | `.output/chrome-mv3` is not visible in the picker | dot-directory — press `Cmd + Shift + .`; select `chrome-mv3`, the folder holding `manifest.json` |
 | No `[JUXBLY]` log at all | the background log is in the service worker's own console (`chrome://extensions` → *service worker*), not the page console |

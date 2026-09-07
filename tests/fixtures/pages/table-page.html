@@ -1,0 +1,62 @@
+<!doctype html>
+<!--
+  Fixture: a regular table page (stage 1-2, tests/unit/analyzer).
+
+  Carries the two things that must never reach the model: script content and CSS, plus two
+  kinds of invisible text (inline `display:none` and `aria-hidden`) — hidden SEO text is a
+  real trap on real pages, not a contrived one.
+
+  Bucket C for the Phase 2 corpus (docs/contributing/BENCHMARK_GUIDE.md): structural
+  difficulty "regular".
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fruit prices</title>
+    <script>
+      window.trackingPayload = 'must-not-appear'
+    </script>
+    <style>
+      .price {
+        color: #b00;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Fruit prices</h1>
+    <div id="content">
+      <table class="price-table">
+        <thead>
+          <tr>
+            <th>Fruit</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="row">
+            <td class="name">Apple</td>
+            <td class="price">1.20</td>
+          </tr>
+          <tr class="row">
+            <td class="name">Banana</td>
+            <td class="price">0.80</td>
+          </tr>
+          <tr class="row">
+            <td class="name">Cherry</td>
+            <td class="price">2.40</td>
+          </tr>
+          <tr class="row">
+            <td class="name">Damson</td>
+            <td class="price">1.75</td>
+          </tr>
+          <tr class="row">
+            <td class="name">Elderberry</td>
+            <td class="price">3.10</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="seo" style="display: none">hidden seo text should not appear</div>
+    <div class="decoy" aria-hidden="true">aria hidden text should not appear</div>
+  </body>
+</html>
