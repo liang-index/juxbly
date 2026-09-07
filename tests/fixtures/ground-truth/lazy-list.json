@@ -1,0 +1,35 @@
+{
+  "id": "D-01",
+  "bucket": "D",
+  "fixture": "lazy-list.html",
+  "task_description": "Collect the title of every post in the feed, including the ones that only load on scroll.",
+  "extract": {
+    "type": "extract",
+    "mode": "list",
+    "selector": "#feed li.post",
+    "fields": { "title": ".title" },
+    "pre_scroll": { "mode": "to_bottom", "max": 3, "settle_ms": 0 },
+    "output_to": "posts"
+  },
+  "expected_fields": ["title"],
+  "ground_truth": {
+    "item_count_range": [12, 12],
+    "sample": [
+      { "title": "Post one" },
+      { "title": "Post two" },
+      { "title": "Post three" },
+      { "title": "Post four" },
+      { "title": "Post five" },
+      { "title": "Post six" },
+      { "title": "Post seven" },
+      { "title": "Post eight" },
+      { "title": "Post nine" },
+      { "title": "Post ten" },
+      { "title": "Post eleven" },
+      { "title": "Post twelve" }
+    ]
+  },
+  "expected_missing_fields": [],
+  "notes": "The point of `pre_scroll`: without it this page yields 4 of 12, which is a tool that works and is useless. `max: 3` covers the two deferred pages and one round that reports no growth.",
+  "verified_on": "2026-09-06"
+}

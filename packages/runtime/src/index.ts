@@ -1,7 +1,9 @@
 /**
- * Placeholder entry for @juxbly/runtime (stage 0-2 skeleton).
+ * `@juxbly/runtime` — step orchestration, the variable bag and the capability registry.
  *
- * Real exports arrive with the stage that owns this module. See
- * docs/ARCHITECTURE.md section 4 (module map) for what belongs here.
+ * Module map: `docs/ARCHITECTURE.md` §4. Registry contract: §6.2.
+ *
+ * Stage 1-4 lands the registry (the seam capabilities plug into); the orchestration that
+ * resolves `input_from` into records and calls `execute` belongs to 1-7.
  */
-export const packageId = '@juxbly/runtime' as const
+export * from './registry'

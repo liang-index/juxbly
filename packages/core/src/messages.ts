@@ -87,6 +87,10 @@ export type ExtensionMessage =
 export type InternalPing = Extract<ExtensionMessage, { kind: 'internal:ping' }>
 export type InternalPong = Extract<ExtensionMessage, { kind: 'internal:pong' }>
 
+/** The llm step's cross-context hop: the content script has no key, so it asks (§7.1). */
+export type RunLlmMessage = Extract<ExtensionMessage, { kind: 'run:llm' }>
+export type RunLlmResultMessage = Extract<ExtensionMessage, { kind: 'run:llm_result' }>
+
 /**
  * Messages cross a trust boundary: anything that arrives over the runtime message
  * channel is `unknown` until proven otherwise.
@@ -103,4 +107,8 @@ export function isPing(message: unknown): message is InternalPing {
 
 export function isPong(message: unknown): message is InternalPong {
   return hasKind(message, 'internal:pong')
+}
+
+export function isRunLlm(message: unknown): message is RunLlmMessage {
+  return hasKind(message, 'run:llm')
 }

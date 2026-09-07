@@ -6,3 +6,4 @@
 export { copy, en } from './copy'
 export type { Copy } from './copy'
 export { mountReactRoot } from './mount'
+export * from './views'

@@ -1,0 +1,47 @@
+<!doctype html>
+<!--
+  Fixture: infinite scroll (stage 1-2, tests/unit/analyzer).
+
+  What matters is that the analyzer *detects* the pattern and does nothing about it:
+  scrolling is the extract capability's `pre_scroll` (stage 1-5). Nothing here may load
+  more content when the page is analysed.
+
+  Bucket C for the Phase 2 corpus (docs/contributing/BENCHMARK_GUIDE.md): structural
+  difficulty "infinite-scroll".
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Infinite feed</title>
+  </head>
+  <body>
+    <h1>Feed</h1>
+    <ul id="feed">
+      <li class="post">
+        <span class="title">Post one</span>
+        <span class="author">ana</span>
+      </li>
+      <li class="post">
+        <span class="title">Post two</span>
+        <span class="author">bo</span>
+      </li>
+      <li class="post">
+        <span class="title">Post three</span>
+        <span class="author">cy</span>
+      </li>
+      <li class="post">
+        <span class="title">Post four</span>
+        <span class="author">de</span>
+      </li>
+      <li class="post">
+        <span class="title">Post five</span>
+        <span class="author">eli</span>
+      </li>
+      <li class="post">
+        <span class="title">Post six</span>
+        <span class="author">fay</span>
+      </li>
+    </ul>
+    <div id="feed-sentinel" class="infinite-scroll-loader" aria-busy="true"></div>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<!--
+  Fixture: custom elements + shadow DOM (stage 1-2, tests/unit/analyzer).
+
+  A shadow root cannot be written in HTML, so the markup declares it with
+  `<template data-shadow-mode>` and the test helper moves the content into the host.
+  Keeping it here means one file describes everything the analyzer should see.
+
+  Bucket C for the Phase 2 corpus (docs/contributing/BENCHMARK_GUIDE.md): structural
+  difficulty "shadow-dom".
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Component store</title>
+  </head>
+  <body>
+    <h1>Component store</h1>
+    <ul class="catalog">
+      <li class="item">
+        <my-product-card>
+          <template data-shadow-mode="open">
+            <div class="card">
+              <span class="title">Wireless keyboard</span>
+              <span class="price">$49.00</span>
+              <my-rating-stars rating="4"></my-rating-stars>
+            </div>
+          </template>
+        </my-product-card>
+      </li>
+      <li class="item">
+        <my-product-card>
+          <template data-shadow-mode="open">
+            <div class="card">
+              <span class="title">Wireless mouse</span>
+              <span class="price">$29.00</span>
+              <my-rating-stars rating="5"></my-rating-stars>
+            </div>
+          </template>
+        </my-product-card>
+      </li>
+      <li class="item">
+        <my-product-card>
+          <template data-shadow-mode="open">
+            <div class="card">
+              <span class="title">USB-C hub</span>
+              <span class="price">$39.00</span>
+              <my-rating-stars rating="3"></my-rating-stars>
+            </div>
+          </template>
+        </my-product-card>
+      </li>
+      <li class="item">
+        <!-- Closed roots are not penetrated; this content must never appear. -->
+        <my-hidden-panel>
+          <template data-shadow-mode="closed">
+            <p class="secret">Closed shadow content</p>
+          </template>
+        </my-hidden-panel>
+      </li>
+    </ul>
+  </body>
+</html>
