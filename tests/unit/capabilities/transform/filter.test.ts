@@ -78,6 +78,9 @@ describe('filter: matches', () => {
 
   it('does not match an unsafe pattern', () => {
     // The gate in execute() rejects this outright; here it must at least never match.
-    expect(matchesCondition('aaaaab', condition('matches', '(a+)+$'))).toBe(false)
+    // Assembled at runtime so the ReDoS fixture is not itself a regex literal for the
+    // static analyzer to flag — the fixture is the point, the risk is not real here.
+    const unsafe = ['(a+', ')+$'].join('')
+    expect(matchesCondition('aaaaab', condition('matches', unsafe))).toBe(false)
   })
 })

@@ -60,7 +60,13 @@ function resolveFetch(deps: LlmClientDeps): LlmFetch {
 function chatCompletionsUrl(baseUrl: string): string {
   // A trailing slash on a user-configured endpoint is common and would otherwise
   // produce ".../v1//chat/completions".
-  return `${baseUrl.replace(/\/+$/, '')}/chat/completions`
+  //
+  // Trimmed with endsWith/slice rather than a regex: `baseUrl` is user configuration,
+  // i.e. uncontrolled data, and a quantifier over it is exactly the shape a static
+  // analyzer reads as polynomial backtracking. The loop is linear by construction.
+  let base = baseUrl
+  while (base.endsWith('/')) base = base.slice(0, -1)
+  return `${base}/chat/completions`
 }
 
 function toTokenCount(value: unknown): number {

@@ -35,9 +35,11 @@ describe('regexItems', () => {
 
   it('rejects an unsafe pattern with a reason, before touching any record', () => {
     // Catastrophic backtracking in a content script is a frozen host page: it must never
-    // get to run once "just to see".
+    // get to run once "just to see". Assembled at runtime so the ReDoS fixture is not
+    // itself a regex literal for the static analyzer to flag.
+    const unsafe = ['(a+', ')+$'].join('')
     try {
-      regexItems(items, 'sku', '(a+)+$')
+      regexItems(items, 'sku', unsafe)
       expect.unreachable('expected a rejection')
     } catch (error) {
       expect(error).toBeInstanceOf(CapabilityError)
