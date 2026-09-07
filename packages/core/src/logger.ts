@@ -25,6 +25,17 @@ export interface Logger {
 }
 
 /**
+ * The structured form a capability logs through `RuntimePorts.log`
+ * (`docs/ARCHITECTURE.md` §6.1). Capabilities never call `console` directly: a log line
+ * has to be filterable out of the host page's console, and only the logger knows how.
+ */
+export interface LogEvent {
+  tag: LogTag
+  message: string
+  details?: readonly unknown[]
+}
+
+/**
  * Never pass API keys, tokens, page content, or extracted user data as `details`
  * (`docs/CONVENTIONS.md` §12). Log the shape or the count, not the contents.
  */

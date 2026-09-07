@@ -73,7 +73,17 @@ importers:
 
   packages/browser: {}
 
-  packages/capabilities: {}
+  packages/capabilities:
+    dependencies:
+      '@juxbly/core':
+        specifier: workspace:*
+        version: link:../core
+      '@juxbly/dsl':
+        specifier: workspace:*
+        version: link:../dsl
+      '@juxbly/ui':
+        specifier: workspace:*
+        version: link:../ui
 
   packages/core: {}
 
@@ -85,7 +95,11 @@ importers:
 
   packages/repair: {}
 
-  packages/runtime: {}
+  packages/runtime:
+    dependencies:
+      '@juxbly/core':
+        specifier: workspace:*
+        version: link:../core
 
   packages/storage: {}
 

@@ -1,0 +1,153 @@
+/**
+ * Floating ball styles — transcribed from `docs/prototypes/juxbly-prototype-v1.html`
+ * (BALL screen), whose measured values are the authoritative source. Deviations from
+ * the prototype are token-related only: the prototype hardcodes the error gradient and
+ * the icon stroke; here everything goes through `--jx-*` tokens (UI_SPEC §11.4).
+ *
+ * Sizing note: the prototype positions the ball absolutely against its demo viewport;
+ * the real mount positions the shadow host (content script) and the ball fills it.
+ * Geometry below is otherwise verbatim.
+ */
+
+.jx-ball {
+  width: 44px;
+  height: 76px;
+  /* Right-edge half-pill: flat side hugs the window border. */
+  border-radius: 999px 0 0 999px;
+  border: 1px solid var(--jx-surface-border);
+  border-right: 0;
+  background: var(--jx-ball-gradient);
+  box-shadow:
+    -6px 0 18px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  /* Idle · no saved tools: fully static, nearly transparent, NO looping motion. */
+  opacity: 0.32;
+  transition:
+    opacity var(--jx-motion-instant),
+    transform var(--jx-motion-instant),
+    box-shadow var(--jx-motion-instant);
+}
+
+.jx-ball:hover {
+  opacity: 1;
+  transform: scale(1.06);
+}
+
+/* Press compression rebound (prototype click behaviour). */
+.jx-ball:active {
+  transform: scale(0.94);
+}
+
+.jx-ball:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 4px;
+  opacity: 1;
+}
+
+.jx-ball svg {
+  width: 19px;
+  height: 19px;
+  stroke: var(--jx-accent);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+/* ── One-shot pulse: page with saved tools just finished loading ─────────────
+   Plays exactly once, then the element is quiet. Never `infinite`. */
+.jx-ball.is-pulsing {
+  animation: jx-once-pulse 900ms var(--jx-motion-flow) 1;
+}
+
+@keyframes jx-once-pulse {
+  0% {
+    box-shadow:
+      -6px 0 18px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(94, 234, 212, 0.5);
+    opacity: 0.32;
+  }
+  40% {
+    box-shadow:
+      -6px 0 18px rgba(0, 0, 0, 0.35),
+      0 0 0 14px rgba(94, 234, 212, 0);
+    opacity: 0.85;
+  }
+  100% {
+    box-shadow:
+      -6px 0 18px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(94, 234, 212, 0);
+    opacity: 0.32;
+  }
+}
+
+/* ── Six-state visual mapping (UI_SPEC §6) ─────────────────────────────────── */
+
+.jx-ball[data-state='listening'] {
+  opacity: 1;
+  border-color: var(--jx-accent);
+}
+
+/* The one loop allowed: a user-triggered, short-lived analysing state — not an idle
+   animation. Idle looping remains forbidden (product discipline). */
+.jx-ball[data-state='analyzing'] {
+  opacity: 1;
+  animation: jx-think 1.1s ease-in-out infinite;
+}
+
+@keyframes jx-think {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.07);
+  }
+}
+
+.jx-ball[data-state='awaiting-confirm'] {
+  opacity: 1;
+  box-shadow:
+    -6px 0 18px rgba(0, 0, 0, 0.35),
+    0 0 0 4px var(--jx-accent-dim);
+}
+
+.jx-ball[data-state='building'] {
+  opacity: 1;
+  border-color: var(--jx-accent);
+}
+
+.jx-ball[data-state='error'] {
+  opacity: 1;
+  background: var(--jx-ball-gradient-error);
+}
+
+/* ── Reduced motion (mandatory): stagger/glow/pulse degrade or vanish ──────── */
+@media (prefers-reduced-motion: reduce) {
+  .jx-ball.is-pulsing {
+    /* Degrade to a plain fade, not a shadow diffusion. */
+    animation: jx-once-pulse-fade 900ms var(--jx-motion-flow) 1;
+  }
+
+  .jx-ball[data-state='analyzing'] {
+    animation: none;
+  }
+
+  .jx-ball {
+    transition-duration: 0s;
+  }
+}
+
+@keyframes jx-once-pulse-fade {
+  0% {
+    opacity: 0.32;
+  }
+  40% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.32;
+  }
+}

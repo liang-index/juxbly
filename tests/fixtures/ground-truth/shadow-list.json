@@ -1,0 +1,25 @@
+{
+  "id": "C-01",
+  "bucket": "C",
+  "fixture": "shadow-list.html",
+  "task_description": "Collect the title and price of every product card in the catalogue.",
+  "extract": {
+    "type": "extract",
+    "mode": "list",
+    "selector": "li.item",
+    "fields": { "title": ".title", "price": ".price" },
+    "output_to": "products"
+  },
+  "expected_fields": ["title", "price"],
+  "ground_truth": {
+    "item_count_range": [3, 3],
+    "sample": [
+      { "title": "Wireless keyboard", "price": "$49.00" },
+      { "title": "Wireless mouse", "price": "$29.00" },
+      { "title": "USB-C hub", "price": "$39.00" }
+    ]
+  },
+  "expected_missing_fields": [],
+  "notes": "Two nested shadow boundaries: the container selector must pierce `product-grid`, and the price field must pierce `my-price` inside each row. A light-DOM-only query returns zero rows here, which is the YouTube / Reddit failure mode M0 recorded.",
+  "verified_on": "2026-09-06"
+}

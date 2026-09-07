@@ -89,14 +89,14 @@ The directory layout follows EC §7 — semantic boundaries: a stranger can infe
 | `packages/core` | Domain models and the cross-context message protocol | `ToolRecord`, `HealthStatus`, `ExtensionMessage` and other types | none | none (pure types) |
 | `packages/dsl` | DSL type definitions, schema validation, URL matching | `validateToolDefinition()`, `matchUrl()`, `parseUrlPattern()` | core | none (pure functions) |
 | `packages/runtime` | Step orchestration, the variable bag, llm-cache decisions, capability registry | `ToolRuntime`, `CapabilityRegistry` | core, dsl | no direct side effects (through injected ports) |
-| `packages/capabilities` | The five capability executors (extract / transform / llm / render / export) | one `CapabilityDefinition` implementation each | core, dsl, browser (interface) | DOM reads, clipboard writes |
+| `packages/capabilities` | The five capability executors (extract / transform / llm / render / export) | one `CapabilityDefinition` implementation each | core, dsl, browser (interface), ui (render views only) | DOM reads, clipboard writes |
 | `packages/browser` | Browser Adapter: chrome API abstraction + mock implementation | the `BrowserAdapter` interface | core | **the only package that wraps chrome.* capabilities** (assembly-layer exception in §6.4.1) |
 | `packages/analyzer` | Page analysis: visible-text simplification, structural features, dynamic custom-element scan, shadow expansion | `analyzePage()` | none | none (pure DOM reads) |
 | `packages/health` | Breakage evaluation and the health state machine | `evaluateHealth()` | core, dsl | none (results are written through storage) |
 | `packages/repair` | Repair sessions, version creation and rollback | `RepairSession` | core, dsl, runtime | storage writes (through browser) |
 | `packages/ui` | Floating ball, chat panel, run panel, highlight layer, three views, popup, options | React components | core, dsl | DOM rendering (Shadow DOM isolation) |
 | `packages/storage` | chrome.storage wrapper, data migration | `loadTool()`, `saveTool()` etc. | core, browser | chrome.storage.local reads and writes |
-| `packages/llm` | BYOK client, prompt templates, prompt-injection defence | `callLlm()`, `buildPrompt()` | core | network requests (executed in the background context only) |
+| `packages/llm` | BYOK client, prompt templates, prompt-injection defence | `callLlm()`, `buildPrompt()`, `handleRunLlm()` | core, dsl (types), storage, browser (interface) | network requests (executed in the background context only) |
 | `apps/extension` | WXT entrypoint assembly: background / content / popup / options, manifest | — | all | process assembly (chrome.* calls limited to the §6.4.1 assembly-layer list) |
 | `apps/playground` | Local benchmark carrier (Web Corpus static serving + runner) | — | dsl, runtime | local dev server |
 
@@ -363,6 +363,16 @@ interface ExtractError {
   selector?: string
 }
 
+/**
+ * Value shapes inside `items` (stage 1-5): `text` and `link` are strings, `image` is
+ * `{ src, alt }`. A field with no value is never `undefined` — it is `''`, or
+ * `{ src: '', alt: '' }` for an image — so "the field hit nothing" and "the record is
+ * missing" stay distinguishable.
+ *
+ * `link` and `image.src` are resolved to absolute URLs against the document base. A value
+ * that cannot be resolved (`javascript:`, `mailto:`) is returned unchanged and is never
+ * rendered as a link until the render layer checks the protocol (§5.2 Edge Cases).
+ */
 interface ExtractResult {
   /** Extracted records; single mode yields an array of length 1 */
   items: Record<string, unknown>[]
@@ -372,9 +382,60 @@ interface ExtractResult {
   hitCount: number
   /** Fields that hit nothing at all — the direct verdict input for execution-layer health */
   missingFields: string[]
+  /**
+   * True when the container cap cut the result short, so the host page stays responsive
+   * (§11). `hitCount` still reports the full match count, which is what health compares
+   * against an expected range — capping must not look like a page that changed.
+   */
+  truncated?: boolean
 }
 
-// ── Run engine output ───────────────────────────────────────────────────────────
+// ── Run engine (packages/runtime, stage 1-7) ───────────────────────────────────
+
+/** What the engine is handed besides the tool itself. */
+interface RunOptions {
+  tabId: number
+  /** Cancelled when the panel closes or the page navigates (§6.1) */
+  signal: AbortSignal
+  /** What the previous run left in storage; absent on the first run */
+  runState?: RunState | null
+  /** Run every llm step even when the input hash is unchanged (§9.2 manual refresh) */
+  force?: boolean
+}
+
+/**
+ * Why a run did not complete. `code` is stable and English because the panel and the
+ * health layer branch on it; `message` is the engine's own and never a capability's —
+ * a capability's text can be built from page content, and this crosses contexts.
+ */
+type RunErrorCode =
+  /** Kept verbatim from `ExtractError`: health reports them on different layers (§10) */
+  | ExtractErrorCode
+  | 'LLM_FAILED'
+  | 'VALIDATION_FAILED'
+  | 'CAPABILITY_UNREGISTERED'
+  | 'CAPABILITY_FAILED'
+  /** The variable bag's own fence; §5.4 already rejects these at validation time */
+  | 'VARIABLE_DUPLICATE'
+  | 'VARIABLE_UNRESOLVED'
+  | 'VARIABLE_NOT_RECORDS'
+
+interface RunError {
+  code: RunErrorCode
+  message: string
+  /** Index of the step that failed; absent when the whole tool was rejected */
+  step?: number
+  /** Field-level reasons — present only for `VALIDATION_FAILED` (§5.4) */
+  errors?: ValidationError[]
+  /** Carried from `ExtractError`, so health can name the selector that failed */
+  selector?: string
+}
+
+/** What the llm capability returns: the model's output plus what it cost (BYOK) */
+interface LlmStepOutput {
+  output: unknown
+  usage: TokenUsage
+}
 
 interface RunOutcome {
   ok: boolean
@@ -384,7 +445,13 @@ interface RunOutcome {
   usage: TokenUsage
   /** Whether llm steps were skipped because the cache hit (the §9.2 hash comparison) */
   llmCached: boolean
-  error?: ExtractError | { code: 'LLM_FAILED' | 'VALIDATION_FAILED'; message: string }
+  /** The render step's result, when the tool has one */
+  render?: RenderResult
+  /** The minimal run summary health keeps in its 10-run window (§8.1) */
+  summary: RunSummary
+  /** What the caller stores for the next run — absent when the run was cancelled or rejected */
+  runState?: RunState
+  error?: RunError
 }
 
 // ── Health evaluation (packages/health) ─────────────────────────────────────────
@@ -455,6 +522,16 @@ interface RecipeJson {
   }
 }
 
+// ── render output (packages/capabilities/render, stage 1-4) ───────────────────
+
+interface RenderResult {
+  view: 'table' | 'card' | 'text'
+  /** Records handed to the view. **0 is a normal empty state, not an error** (UI_SPEC §7) */
+  itemCount: number
+  /** True when rows or long values were capped, so the host page stays responsive */
+  truncated: boolean
+}
+
 // ── export output ────────────────────────────────────────────────────────────
 
 interface ExportResult {
@@ -484,6 +561,65 @@ interface BrowserAdapter {
   /** Cross-context messaging (content script ↔ background), carrying every §7.2 message type */
   messaging: MessagingPort
 }
+
+// ── LLM package contracts (packages/llm — runs in the background context only) ──────────────
+
+/**
+ * Completed by stage 1-6 around the §6.1 `LlmPort` (which stays the capability-facing
+ * contract). The key flows: storage → `LlmEndpoint` → one request header — nothing else.
+ */
+
+interface LlmEndpoint {
+  baseUrl: string   // any OpenAI-compatible endpoint; empty → https://api.openai.com/v1
+  apiKey: string    // read only here (§12.2): never logged, never sent back over messaging
+  model: string
+}
+
+interface LlmMessage { role: 'system' | 'user'; content: string }
+
+interface LlmRequest {
+  endpoint: LlmEndpoint
+  messages: readonly LlmMessage[]
+  /** 'json' requests a JSON object and parses strictly — JSON.parse is the only parser (§12.1) */
+  responseFormat?: 'text' | 'json'
+  /** Cancelled on panel close / page navigation */
+  signal?: AbortSignal
+  timeoutMs?: number          // default 60_000
+}
+
+interface LlmResponse {
+  output: unknown
+  /** Success only — a failed call reports no usage, so a failure never reads as free. */
+  usage: TokenUsage
+}
+
+/** The three prompt sections. Page content may appear in `data` and nowhere else (§12.3). */
+interface PromptSpec { system: string; instruction: string; data: string }
+
+type LlmErrorCode =
+  | 'NOT_CONFIGURED'   // no key / model yet — 1-13's onboarding step takes over
+  | 'NETWORK'          // endpoint unreachable
+  | 'AUTH'             // 401 / 403
+  | 'RATE_LIMIT'       // 429 — a distinct copy path from NETWORK (§11)
+  | 'HTTP_ERROR'       // any other non-2xx
+  | 'TIMEOUT'
+  | 'ABORTED'          // caller cancelled
+  | 'INVALID_REQUEST'  // the step has nothing to send (custom task without a prompt)
+  | 'INVALID_RESPONSE' // the reply is not a readable chat completion
+
+class LlmError extends Error {
+  code: LlmErrorCode
+  status?: number
+}
+
+function callLlm(req: LlmRequest, deps?: { fetchImpl?: LlmFetch; logger?: Logger }): Promise<LlmResponse>
+function buildPrompt(spec: PromptSpec): LlmMessage[]
+//   Three messages, in order: system instruction / wrapped data section / instruction —
+//   so the last thing the model reads is Juxbly's instruction, not the page's.
+function handleRunLlm(message: RunLlmMessage, adapter: BrowserAdapter): Promise<RunLlmResultMessage>
+//   The background side of run:llm (§7.2). Never rejects: `run:llm_result.error` carries
+//   the LlmErrorCode string and the panels (1-9 / 1-10) map a code to copy — `error` is a
+//   category, not prose.
 ```
 
 ### 5.6 Candidate scoring (A2)
@@ -563,13 +699,38 @@ interface RuntimePorts {
 }
 
 /**
+ * What the run engine hands a capability for steps 2..N: the step, **plus** the records
+ * `input_from` resolved to (stage 1-4). A capability receives its data; it never goes
+ * looking for it.
+ */
+interface CapabilityInput<Step> {
+  step: Step
+  items: readonly Record<string, unknown>[]
+}
+
+/**
  * Port shapes. All are **interfaces** — implementations come from
  * `packages/browser` (chrome) or test mocks / playground stand-ins; capabilities depend on
  * interfaces only and must not touch `chrome.*` (§6.4).
+ *
+ * Where these live in code: `CapabilityDefinition`, `ExecutionContext`, `RuntimePorts`,
+ * `DomPort` and `LlmPort` are `packages/core/src/capability.ts` (the dependency-graph
+ * bottom, so runtime and capabilities can both depend on them without a cycle); the
+ * storage / clipboard / downloads / messaging port shapes stay in `packages/browser`
+ * (§5.5, stage 1-3) and are imported, never restated; `CapabilityRegistry` is
+ * `packages/runtime/src/registry.ts` (§6.2).
  */
 interface DomPort {
-  /** Query within the document (including open shadow roots); closed shadow roots cannot be pierced */
-  query(selector: string): Element[]
+  /**
+   * Query within the document (including open shadow roots); closed shadow roots cannot
+   * be pierced. Throws on invalid selector syntax — "threw" and "matched nothing" are
+   * different answers and map to different `ExtractErrorCode`s (§5.5).
+   *
+   * `scope` restricts the search to a subtree: field selectors of an `extract` step are
+   * relative to the container (§5.2), so without it every row of a list would resolve to
+   * the same first match.
+   */
+  query(selector: string, scope?: Element): Element[]
   /** Container where render results mount — always inside Juxbly's own Shadow DOM (UI_SPEC §11) */
   mountPoint(): HTMLElement
   /** A1: scroll to the bottom to trigger lazy loading; returns whether page height changed */
@@ -608,6 +769,13 @@ interface StoragePort {
 /** Used by `BrowserAdapter.messaging`; carries all §7.2 message types */
 interface MessagingPort {
   send<T extends ExtensionMessage>(msg: ExtensionMessage): Promise<T | null>
+  /**
+   * Subscribe to messages pushed **into** this context (background → content script,
+   * e.g. the shortcut relay). The listener receives `unknown` — messages cross a trust
+   * boundary. Returns an unsubscribe function. (Stage 1-8; `send` is request/response
+   * and does not cover this direction.)
+   */
+  onMessage(listener: (message: unknown) => void): () => void
   /** Screenshots are initiated on the background side (A3); the content script only responds and never uploads page content on its own */
   captureTab(): Promise<string>
 }
@@ -622,6 +790,13 @@ class CapabilityRegistry {
   list(): readonly CapabilityDefinition<unknown, unknown>[]
 }
 ```
+
+Registering the same type twice throws: two implementations of one step type would make
+the meaning of that step depend on registration order.
+
+V1 registers four capabilities — `extract`, `transform`, `llm` and `render`. `export`
+(§6.3's `clipboard.write` / `downloads` consumer) joins at the same call in stage 1-15;
+the engine needs no change when it does, which is the point of having a registry.
 
 ### 6.3 Permission list
 
@@ -641,6 +816,22 @@ type CapabilityPermission =
 - `apps/playground` provides a chrome-free Adapter stand-in backing the Web Corpus benchmarks.
 - The sole exception is the entrypoint assembly layer defined in §6.4.1.
 
+**Confirmed minimal set** (interface in §5.5, port shapes in §6.1):
+
+| Port | Platform capability | Permission (§7.3) |
+|---|---|---|
+| `storage` | `chrome.storage.local` | `storage` |
+| `clipboard` | clipboard write | `clipboardWrite` |
+| `downloads` | `chrome.downloads.download` | `downloads` |
+| `messaging` | runtime messaging, visible-tab capture | none (capture is covered by `activeTab`) |
+
+Nothing `tabs`-shaped is exposed **through the adapter**. URLs arrive through `activeTab`
+and the existing message flow, and DOM reads are not an adapter concern at all — they are
+injected as `RuntimePorts.dom` (§6.1). The one sanctioned `tabs.*` use is the background
+assembly-layer relay in §6.4.1 (`commands.onCommand` → active tab), which needs no
+`tabs` permission. Adding a port is a §7.3 permission decision before it is an
+interface change.
+
 #### 6.4.1 Entrypoint assembly-layer exception (E1)
 
 MV3's Service Worker / content script / extension page entrypoints **can only be invoked by the platform directly**; an Adapter cannot be injected into them.
@@ -648,7 +839,7 @@ Therefore `apps/extension/entrypoints/*` is an **enumerable, assertable assembly
 
 | Location | Permitted `chrome.*` | Notes |
 |---|---|---|
-| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency) |
+| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency); the two `tabs.*` calls exist **only** to relay a received shortcut to the active tab's content script (stage 1-8) — no `tabs` permission is requested, and no tab metadata is read |
 | `entrypoints/content.ts` | **none** | the content script belongs to the UI-side host; all messaging and data reads/writes go through `BrowserAdapter` |
 | `entrypoints/popup/**` · `entrypoints/options/**` | **none** | extension pages are also UI-side |
 
@@ -712,12 +903,16 @@ type ExtensionMessage =
   | { kind: 'export:download_json'; filename: string; json: string }
   // settings (popup / options ↔ background)
   | { kind: 'settings:get' }
+  // Reply carries the public subset only — `api_key` never crosses back (§12). (Stage 1-8)
+  | { kind: 'settings:get_result'; floating_ball_enabled: boolean }
   | { kind: 'settings:set'; patch: Partial<Settings> }
   // internal: channel availability check, **not business protocol**.
   // The `internal:` prefix is namespaced away from `build:*` / `run:*` / `health:*` / `export:*` / `settings:*`,
   // so verification messages cannot be misread as business semantics in later stages.
   | { kind: 'internal:ping' }
   | { kind: 'internal:pong'; ok: true }
+  // internal: shortcut relay, background → content via `tabs.sendMessage` (§6.4.1). (Stage 1-8)
+  | { kind: 'internal:command'; command: string }
 
 interface TokenUsage { prompt_tokens: number; completion_tokens: number }  // shown transparently in the panel
 ```

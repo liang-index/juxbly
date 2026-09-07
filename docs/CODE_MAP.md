@@ -22,20 +22,21 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 |---|---|---|---|
 | `packages/core` | domain models, cross-context message protocol | `ToolRecord`, `HealthStatus`, `ExtensionMessage` | contain runtime logic (types only) |
 | `packages/dsl` | DSL types, schema validation, URL matching | `validateToolDefinition`, `matchUrl`, `parseUrlPattern` | import `chrome.*`, touch the DOM |
-| `packages/runtime` | step orchestration, variable bag, llm cache decision, capability registry | `ToolRuntime`, `CapabilityRegistry` | call platform APIs directly; produce side effects except through injected ports |
+| `packages/runtime` | step orchestration, variable bag, llm cache decision, capability registry | `ToolRuntime`, `CapabilityRegistry`, `createRuntimePorts`, `stableHash`, `VariableBag` | call platform APIs directly; produce side effects except through injected ports |
 | `packages/capabilities` | the five executors | `CapabilityDefinition` implementations | bypass the registry, silently swallow failures |
 | `packages/browser` | `BrowserAdapter` interface, chrome implementation, mock | `BrowserAdapter` | be bypassed by anyone (the entrypoint assembly layer is the sole exception, §6.4.1) |
 | `packages/analyzer` | page analysis (visible text, structure, custom elements, shadow DOM) | `analyzePage` | mutate the page, call the model |
 | `packages/health` | health evaluation and state machine | `evaluateHealth` | write to storage (results are written by the caller) |
 | `packages/repair` | repair session, version creation, rollback | `RepairSession` | auto-apply a repaired tool without user confirmation |
 | `packages/storage` | `chrome.storage` wrapper, migrations | `loadTool`, `saveTool`, … | be used outside the background gateway path |
-| `packages/llm` | BYOK client, prompt templates, injection defence | `callLlm`, `buildPrompt` | execute outside the background context; log prompts containing keys |
+| `packages/llm` | BYOK client, prompt templates, injection defence, `run:llm` background handler | `callLlm`, `buildPrompt`, `handleRunLlm`, `createMockLlmPort` | execute outside the background context; log prompts containing keys |
 | `packages/ui` | React UI, Shadow DOM isolation, tokens | components | hard-code colour values; import icon libraries ad hoc |
 | `apps/extension` | WXT entry assembly and manifest | — | hold business logic |
 | `apps/playground` | Web Corpus static server + benchmark runner | — | ship with the extension |
 
-**State:** every directory above exists. `core`, `dsl` and `ui` carry code today (stages
-0-3 and 1-1); the rest hold a placeholder entry naming the stage that will fill them. The
+**State:** every directory above exists. `core`, `dsl` and `ui` carry code (stages 0-3 and
+1-1), and stages 1-2 / 1-3 filled `analyzer`, `browser` and `storage`; the rest hold a
+placeholder entry naming the stage that will fill them. The
 *Owns* column is a contract about code that may not exist yet — read it as the reason the
 directory is reserved, and check [`ARCHITECTURE.md` §4](ARCHITECTURE.md) before putting
 anything new in one of them.
@@ -48,6 +49,7 @@ anything new in one of them.
 | add a transform operation | `packages/capabilities/transform` + `TransformOp` enum |
 | add a new view | `packages/capabilities/render` + `RenderStep.view` |
 | change how a page is understood | `packages/analyzer` |
+| change how values are read off a page | `packages/capabilities/extract` + [`ARCHITECTURE.md` §5.2](ARCHITECTURE.md) |
 | change when the model is called | `packages/runtime` (hash comparison) |
 | change failure detection | `packages/health` + [`ARCHITECTURE.md` §10](ARCHITECTURE.md) |
 | change repair / versioning | `packages/repair` |

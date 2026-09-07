@@ -5,7 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./copy": "./src/copy/index.ts"
+    "./copy": "./src/copy/index.ts",
+    "./tokens.css": "./src/tokens.css",
+    "./floating-ball/styles.css": "./src/floating-ball/styles.css"
   },
   "main": "./src/index.ts",
   "types": "./src/index.ts",

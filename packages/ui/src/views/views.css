@@ -1,0 +1,100 @@
+/**
+ * Result-view styles — structure only; every colour is a token from `tokens.css`.
+ *
+ * Constraints that shape this file:
+ *
+ * - The result area lives in someone else's page, so long content scrolls inside a capped
+ *   container instead of growing the panel until the page behind it is unusable.
+ * - Class names carry the `jx-` prefix (UI_SPEC §11.2) because these rules are injected
+ *   into a host page that has its own `table`, `p` and `span` styling.
+ */
+.jx-view {
+  color: var(--jx-text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.jx-view-note {
+  margin: 0;
+  padding: var(--jx-radius-element);
+  color: var(--jx-text-secondary);
+  font-size: 12.5px;
+}
+
+/* The only state colour a result view is allowed to use, and only for a real failure. */
+.jx-view-note--error {
+  color: var(--jx-error);
+}
+
+.jx-view-scroll {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.jx-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.jx-table th,
+.jx-table td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--jx-surface-border);
+  text-align: left;
+  vertical-align: top;
+  max-width: 320px;
+  overflow-wrap: anywhere;
+}
+
+.jx-table th {
+  color: var(--jx-text-secondary);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.jx-cards {
+  display: grid;
+  gap: 8px;
+}
+
+.jx-card {
+  padding: 8px 10px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-accent-dim);
+}
+
+.jx-card-field {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.jx-card-key {
+  color: var(--jx-text-muted);
+  font-size: 11px;
+}
+
+.jx-card-value {
+  color: var(--jx-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.jx-text-view {
+  display: grid;
+  gap: 6px;
+}
+
+.jx-text-row {
+  color: var(--jx-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.jx-link {
+  color: var(--jx-accent);
+  overflow-wrap: anywhere;
+}
+
+.jx-link:hover {
+  color: var(--jx-accent-hover);
+}

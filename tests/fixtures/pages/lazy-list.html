@@ -1,0 +1,41 @@
+<!doctype html>
+<!--
+  Fixture: a lazy list (stage 1-5, `pre_scroll`).
+
+  A static file cannot load on scroll, so the deferred pages are declared here and the
+  fixture host (tests/fixtures/load-page.ts) appends the next one each time
+  `DomPort.scrollToBottom` is called — the same call a real page would answer by
+  fetching. Keeping the content in the fixture is what makes the ground truth a property
+  of the page rather than of the test.
+
+  Bucket D for the Phase 2 corpus (docs/contributing/BENCHMARK_GUIDE.md): structural
+  difficulty "infinite-scroll".
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Feed</title>
+  </head>
+  <body>
+    <h1>Feed</h1>
+    <ul id="feed" data-lazy-list>
+      <li class="post"><span class="title">Post one</span></li>
+      <li class="post"><span class="title">Post two</span></li>
+      <li class="post"><span class="title">Post three</span></li>
+      <li class="post"><span class="title">Post four</span></li>
+    </ul>
+    <template data-lazy-page>
+      <li class="post"><span class="title">Post five</span></li>
+      <li class="post"><span class="title">Post six</span></li>
+      <li class="post"><span class="title">Post seven</span></li>
+      <li class="post"><span class="title">Post eight</span></li>
+    </template>
+    <template data-lazy-page>
+      <li class="post"><span class="title">Post nine</span></li>
+      <li class="post"><span class="title">Post ten</span></li>
+      <li class="post"><span class="title">Post eleven</span></li>
+      <li class="post"><span class="title">Post twelve</span></li>
+    </template>
+    <div class="infinite-scroll-loader" aria-busy="true"></div>
+  </body>
+</html>

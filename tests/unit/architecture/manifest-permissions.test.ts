@@ -38,12 +38,12 @@ describe('manifest permissions (ARCHITECTURE.md §7.3)', () => {
     }
   })
 
-  it('declares the Ctrl/Cmd+Shift+J command (UI_SPEC.md §8)', () => {
+  it('declares the Ctrl/Cmd+Shift+Y command (UI_SPEC.md §8)', () => {
     expect(JUXBLY_COMMANDS).toEqual({
       'toggle-juxbly': {
         suggested_key: {
-          default: 'Ctrl+Shift+J',
-          mac: 'Command+Shift+J',
+          default: 'Ctrl+Shift+Y',
+          mac: 'Command+Shift+Y',
         },
         description: 'Show or hide Juxbly',
       },

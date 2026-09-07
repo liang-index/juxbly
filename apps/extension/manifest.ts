@@ -27,8 +27,16 @@ export const JUXBLY_PERMISSIONS: NonNullable<UserManifest['permissions']> = [
 export const JUXBLY_HOST_PERMISSIONS: NonNullable<UserManifest['host_permissions']> = ['<all_urls>']
 
 /**
- * `Ctrl/Cmd+Shift+J` — `docs/UI_SPEC.md` §8. Stage 0-3 declares the command and lands
+ * `Ctrl/Cmd+Shift+Y` — `docs/UI_SPEC.md` §8. Stage 0-3 declares the command and lands
  * the receiving skeleton only; what the command actually does arrives in 1-8.
+ *
+ * Why `Y` and not `J`: a `suggested_key` is only a suggestion — Chrome assigns it unless
+ * it collides with one of its own, and `Ctrl/Cmd+Shift+J` does (open the console), so
+ * Chrome silently assigned **nothing** and the command was unreachable (measured in 1-8:
+ * the `commands` API reported `shortcut: ""` for `toggle-juxbly`). `Ctrl+Shift+Y`
+ * / `Command+Shift+Y` is assigned on load. Whatever ships here stays a *suggestion* the
+ * user can override in the browser's shortcut settings, so no copy may state the key as
+ * a fact — read it back from the `commands` API when it has to be shown.
  *
  * The Mac value is spelled `Command`, not `Cmd`: Chrome accepts only `Command` and
  * `MacCtrl` as Mac modifiers and rejects the manifest outright on anything else
@@ -38,8 +46,8 @@ export const JUXBLY_HOST_PERMISSIONS: NonNullable<UserManifest['host_permissions
 export const JUXBLY_COMMANDS: NonNullable<UserManifest['commands']> = {
   'toggle-juxbly': {
     suggested_key: {
-      default: 'Ctrl+Shift+J',
-      mac: 'Command+Shift+J',
+      default: 'Ctrl+Shift+Y',
+      mac: 'Command+Shift+Y',
     },
     description: copy.command.toggleJuxbly,
   },
