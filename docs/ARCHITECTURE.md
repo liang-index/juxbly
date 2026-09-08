@@ -394,7 +394,8 @@ interface ExtractResult {
 
 /** What the engine is handed besides the tool itself. */
 interface RunOptions {
-  tabId: number
+  /** Optional since 1-10: a content script cannot name its own tab, and no V1 capability reads it. */
+  tabId?: number
   /** Cancelled when the panel closes or the page navigates (§6.1) */
   signal: AbortSignal
   /** What the previous run left in storage; absent on the first run */
@@ -419,6 +420,15 @@ type RunErrorCode =
   | 'VARIABLE_DUPLICATE'
   | 'VARIABLE_UNRESOLVED'
   | 'VARIABLE_NOT_RECORDS'
+
+/**
+ * The `llm` capability translates between the two error vocabularies (stage 1-10): a
+ * `RuntimePorts.llm` failure carries a `LlmErrorCode` (§5.5), and every category except
+ * `ABORTED` folds into `LLM_FAILED` here — the panel branches on engine codes only, and
+ * "check your key and endpoint" is the right next step for an unconfigured user as well.
+ * The fold lives in the capability, so no host port and no mock has to remember to
+ * attach a code; a cancelled call keeps `ABORTED` and is a cancellation, not a failure.
+ */
 
 interface RunError {
   code: RunErrorCode
@@ -575,7 +585,15 @@ interface LlmEndpoint {
   model: string
 }
 
-interface LlmMessage { role: 'system' | 'user'; content: string }
+/**
+ * Content may be text or parts. Parts exist for the A3 visual fallback (§9.1 level ②):
+ * a screenshot is an image part next to the instruction, never an instruction itself.
+ */
+type LlmContentPart =
+  | { type: 'text'; text: string }
+  | { type: 'image_url'; image_url: string }   // data URL; pixels leave the machine only here
+
+interface LlmMessage { role: 'system' | 'user'; content: string | LlmContentPart[] }
 
 interface LlmRequest {
   endpoint: LlmEndpoint
@@ -631,8 +649,12 @@ function handleRunLlm(message: RunLlmMessage, adapter: BrowserAdapter): Promise<
 
 ```ts
 interface CandidateEvaluation {
-  /** The candidate's index in the `candidates` array */
-  index: number
+  /**
+   * The candidate's index in the `candidates` array. Named `candidateIndex` rather than
+   * `index` because the array below is **sparse**: a candidate whose dry run threw is
+   * absent, so an entry's position in the result is not its position in the input.
+   */
+  candidateIndex: number
   /** Container hit count */
   hitCount: number
   /** Field fill rate (0–1) */
@@ -650,9 +672,11 @@ interface CandidateEvaluation {
  *
  * Constraints:
  *   - The dry run must be read-only DOM queries with no side effects (no clipboard
- *     writes, no downloads, no storage writes);
+ *     writes, no downloads, no storage writes). Enforced by injection: the function
+ *     takes a `DomPort` and nothing else, so there is no path from here to a network
+ *     call or a `chrome.*` API;
  *   - A candidate that throws `ExtractError` is eliminated outright (it does not enter
- *     the ranking) and is not treated as a run failure;
+ *     the ranking) and is not treated as a run failure — hence the sparse result;
  *   - If every candidate fails, the §9.1 failure escalation chain takes over — no
  *     immediate stop-loss.
  */
@@ -660,6 +684,13 @@ function evaluateCandidates(
   candidates: ToolDefinition[],
   dom: DomPort
 ): CandidateEvaluation[]
+
+/**
+ * Identity of a plan: the container selector plus its field selectors. Two candidates
+ * with the same fingerprint are the same idea, which is how §9.1 level ① refuses to
+ * spend the retry on a plan the chain has already judged.
+ */
+function candidateFingerprint(candidate: ToolDefinition): string
 ```
 
 Scoring weights and thresholds land with the implementation and iterate with the Phase 2
@@ -684,7 +715,7 @@ interface CapabilityDefinition<I, O> {
 }
 
 interface ExecutionContext {
-  tabId: number
+  tabId?: number                        // mirrors RunOptions: absent for content-script runs
   signal: AbortSignal                   // cancelled on page navigation / panel close
   /** Platform service ports: every environmental capability execution needs; touching chrome.* directly is forbidden */
   ports: RuntimePorts
@@ -728,7 +759,10 @@ interface DomPort {
    *
    * `scope` restricts the search to a subtree: field selectors of an `extract` step are
    * relative to the container (§5.2), so without it every row of a list would resolve to
-   * the same first match.
+   * the same first match. A scope that is itself a shadow host includes its **own** open
+   * shadow root — the chromestatus shape, where the repeating unit is a custom element
+   * whose content lives in its shadow interior; without this a relative field query
+   * against such a container could never match, no matter how correct the selector was.
    */
   query(selector: string, scope?: Element): Element[]
   /** Container where render results mount — always inside Juxbly's own Shadow DOM (UI_SPEC §11) */
@@ -876,6 +910,11 @@ The exception is enforced by two guardrails (not by convention):
 type ExtensionMessage =
   // build (panel → background)
   | { kind: 'build:propose'; requestId: string; conversation: ChatMessage[]; pageAnalysis: PageAnalysis
+      /** Level ①: the chain already failed once — ask for the plainest, most literal reading. */
+      ; conservative?: boolean
+      /** The clarification cap talking to the model: at two questions it must produce a draft
+       *  instead of a third question. Sent as a request; §9.1 also enforces it on the way back. */
+      ; noMoreQuestions?: boolean
       /** A3 visual fallback: a screenshot attached only after the DOM route has failed (base64 PNG).
        *  First builds **never carry one** — a screenshot means page pixels leave the machine for the user's own model
        *  endpoint, so it must be an explicit, post-failure remedy rather than the normal path (product document §13 data-flow disclosure) */
@@ -885,15 +924,36 @@ type ExtensionMessage =
       /** A2 candidates: the model may emit several candidates at once; the content script scores
        *  them locally (§5.6) and presents the best to the user. When absent, degrades to the single `tool` — old behaviour unchanged, backward compatible */
       ; candidates?: ToolDefinition[]
+      /** Success only, like `LlmResponse.usage` (§5.5): a failed call must not read as free. */
+      ; usage?: TokenUsage
       ; error?: string }
   | { kind: 'build:save_tool'; tool: ToolDefinition }
+  // Storage is the last gate before an invalid definition is written (§5.4), so the write
+  // answers. A silent failure here is the worst outcome available: the user would walk
+  // away believing they own a tool they do not have (§8.1).
+  | { kind: 'build:save_tool_result'; ok: boolean
+      /** Stable code: a `ValidationError.code` for a rejected draft, or `SAVE_FAILED`. */
+      ; error?: string }
   // run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
   | { kind: 'run:llm'; requestId: string; step: LlmStep; input: unknown }
   | { kind: 'run:llm_result'; requestId: string; ok: boolean
       ; output?: unknown; usage?: TokenUsage; error?: string }
-  | { kind: 'run:report'; toolId: string; summary: RunSummary }
+  | { kind: 'run:report'; toolId: string; summary: RunSummary
+      /** Whether the run succeeded: a failed run still counts as a run, but not as a working tool. */
+      ; ok?: boolean
+      /** What this run leaves behind for the next one (§8.1 run_state). Absent = nothing to store. */
+      ; runState?: RunState }
+  | { kind: 'run:load_state'; toolId: string }
+  /** `runState` is null on the first run of a tool. */
+  | { kind: 'run:load_state_result'; toolId: string; runState: RunState | null }
+  // tool (panel → background; first written by the run panel's "Don't keep", reused by 1-13)
+  | { kind: 'tool:delete'; toolId: string }
+  | { kind: 'tool:delete_result'; ok: boolean; toolId: string; error?: string }
+  // onboarding (panel → background; the run panel needs first_tool_built for the promise line, 1-13 reuses it)
+  | { kind: 'onboarding:get' }
+  | { kind: 'onboarding:get_result'; flags: OnboardingFlags | null }
   // health (content script → background; semantic-layer checks call the model, whose key lives only in background)
   | { kind: 'health:semantic_check'; requestId: string; fields: string[]; sample: unknown[] }
   | { kind: 'health:semantic_check_result'; requestId: string; ok: boolean
@@ -1110,15 +1170,22 @@ Floating ball idle → user input → (cs) analyzePage: visible text + structura
 → (cs) evaluateCandidates: local trial-run scoring picks the best (A2, **zero tokens**)
 → (cs) the highlight layer renders each field selector of the best candidate + panel text explanation
 → user: confirm / click to correct (updating the proposal) / re-describe (back to clarification)
-→ build:save_tool (bg validates then persists, version=1) → first render → run mode
+→ build:save_tool (bg validates then persists, version=1) → build:save_tool_result → first render → run mode
+
+Clarification cap: at most **two** questions (product baseline §3.3). The cap is sent to the model
+as `noMoreQuestions` and enforced again on the way back — a third question is dropped, not shown.
+The conversation is never reset: "none of these" is another turn in the same conversation, because
+clearing it would guarantee the same two questions come back (UI_SPEC §8).
 
 Failure escalation chain (A4; replaces the old "retry once then stop"; revised per the A4 spike measurements):
   ① All candidates eliminated / hit count 0
        → swap candidates or regenerate (more conservative prompt), at most once.
-         **Check for distinctness before retrying**: if the new candidate is materially the same as an
-         already-evaluated candidate (e.g. identical container selector), the retry is void and does
-         not consume this attempt — the spike showed the same model can emit three identical outputs
-         for the same page.
+         **A retry that changes nothing is not a retry**: the allowance is spent when the retry is
+         made and refunded when it returns a plan already on the table — materially the same
+         container and field selectors (`candidateFingerprint`, §5.6). The check necessarily runs
+         *after* the call, because "the new candidate" does not exist before it; the effect is the
+         one the spike asked for: the same model can emit three identical outputs for the same page,
+         and those must not eat the single retry.
        → **Carry the best candidate across levels** (replacing the old "last level wins"): escalation
          must not discard an already-verified better candidate; the final proposal = the highest
          locally scored candidate across all levels. The spike showed "last level wins" could retry
@@ -1153,13 +1220,16 @@ Failure escalation chain (A4; replaces the old "retry once then stop"; revised p
 
 ```text
 Page load → (cs) run:query_tools(location.href) → bg runs matchUrl → returns the tool list
+→ (cs) run:load_state(toolId) → bg returns the record's run_state (null on the first run)
 → (cs) runs extract (on every refresh; free, local)
 → hash(extract output) compared against run_state.last_extract_hash:
     unchanged → reuse last_llm_outputs, skip the llm step
     changed / first run → (cs→bg) run:llm → returns output + TokenUsage
 → transform (local, always runs) → render (local)
 → floating panel display (view switching = local re-render; extract/llm do not re-run)
-→ run:report sends RunSummary → health evaluation (execution / result / structure-fingerprint layers judged locally;
+→ run:report sends RunSummary + ok + runState → bg persists ToolUsage (run_count / last_run_at) and run_state,
+     and flags first_tool_built once a tool has actually run; health evaluation
+     (execution / result / structure-fingerprint layers judged locally;
      the semantic layer calls the model via background only when triggered, see §10)
 Manual refresh button: forces the full flow (including llm).
 Every real llm call (including semantic-layer checks) shows a token usage estimate in the panel (BYOK transparency).

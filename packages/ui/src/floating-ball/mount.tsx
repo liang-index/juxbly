@@ -1,4 +1,6 @@
 import type { BrowserAdapter } from '@juxbly/browser'
+import type { BallEvent, BallState } from './ball-state'
+import { createBallStateMachine } from './ball-state'
 import { mountReactRoot } from '../mount'
 import { FloatingBall } from './FloatingBall'
 
@@ -11,18 +13,50 @@ import { FloatingBall } from './FloatingBall'
  * button: toggling dispatches a real click on it, keeping exactly one activation path
  * (mouse and the keyboard shortcut share the same handler).
  */
+export interface FloatingBallOptions {
+  adapter: BrowserAdapter
+  hasSavedTools: boolean
+  /** Panel toggle, owned by whoever mounted the panel (stage 1-9). */
+  onToggle?: (open: boolean) => void
+}
+
+/**
+ * The handle exists so the build flow can move the ball: the ball is the only
+ * always-visible surface, and a build that happens inside a panel the user has collapsed
+ * must still show somewhere.
+ */
+export interface FloatingBallHandle {
+  send(event: BallEvent): void
+  state(): BallState
+}
+
 export function mountFloatingBall(
   container: HTMLElement,
-  options: { adapter: BrowserAdapter; hasSavedTools: boolean },
-): void {
-  const { adapter, hasSavedTools } = options
+  options: FloatingBallOptions,
+): FloatingBallHandle {
+  const { adapter, hasSavedTools, onToggle } = options
+  const machine = createBallStateMachine()
 
-  mountReactRoot(container, <FloatingBall hasSavedTools={hasSavedTools} />)
+  mountReactRoot(
+    container,
+    <FloatingBall
+      hasSavedTools={hasSavedTools}
+      machine={machine}
+      onToggle={(open) => onToggle?.(open)}
+    />,
+  )
 
   adapter.messaging.onMessage((message: unknown) => {
     if (!isInternalCommand(message, 'toggle-juxbly')) return
     container.querySelector<HTMLButtonElement>('.jx-ball')?.click()
   })
+
+  return {
+    send: (event: BallEvent) => {
+      machine.send(event)
+    },
+    state: () => machine.current(),
+  }
 }
 
 /** Messages cross a trust boundary: shape-check before acting (§7.2 discipline). */

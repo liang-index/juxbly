@@ -29,9 +29,10 @@ import { CapabilityError } from '../errors'
 export const MAX_SHADOW_DEPTH = 6
 
 /**
- * Queries `root` and every open shadow root below it, in a deterministic order: light-DOM
- * matches in document order first, then, for each host in document order, the matches
- * inside its shadow root.
+ * Queries `root` and every open shadow root below it — including `root`'s own, when root
+ * is a shadow host — in a deterministic order: light-DOM matches in document order first,
+ * then (when root is a host) the matches inside its own shadow root, then, for each host
+ * in document order, the matches inside its shadow root.
  *
  * The order is part of the contract — "a selector matched several elements across a
  * shadow boundary" is resolved by this order, never by re-sorting downstream (§5.2 Edge
@@ -50,6 +51,16 @@ function collect(root: ParentNode, selector: string, depth: number, found: Eleme
   for (const element of Array.from(root.querySelectorAll(selector))) found.push(element)
 
   if (depth >= MAX_SHADOW_DEPTH) return found
+
+  // A scope that is itself a shadow host must have its own root searched. Found on
+  // chromestatus: the repeating unit is a custom element whose *content* lives in its own
+  // shadow root, so a relative field query against that container — the §5.2 shape — saw
+  // nothing without this branch. The host is not its own descendant, so the loop below
+  // never reaches it. Closed roots stay skipped (still `null` by platform design).
+  if (root instanceof Element) {
+    const own = root.shadowRoot
+    if (own !== null) collect(own, selector, depth + 1, found)
+  }
 
   for (const host of Array.from(root.querySelectorAll('*'))) {
     const shadow = host.shadowRoot

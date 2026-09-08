@@ -54,10 +54,36 @@ describe('llmCapability', () => {
     expect(JSON.stringify(logged)).not.toContain('secret-looking output')
   })
 
-  it('propagates a failing call so the engine can classify it', async () => {
+  it('propagates a failing call with the engine tier the panel branches on', async () => {
     const { ctx } = ctxWithLog()
     ctx.ports.llm = createMockLlmPort({ error: new Error('endpoint refused') })
 
-    await expect(llmCapability.execute({ step: STEP, items: ROWS }, ctx)).rejects.toThrow('endpoint refused')
+    // The panel can only map copy from the engine's codes (`ARCHITECTURE` §5.5); a port
+    // error without one would land in the generic "did not finish" tier and hide the fix.
+    await expect(llmCapability.execute({ step: STEP, items: ROWS }, ctx)).rejects.toMatchObject({
+      code: 'LLM_FAILED',
+    })
+  })
+
+  it('folds every port category except cancellation into LLM_FAILED', async () => {
+    // `NOT_CONFIGURED` included: "check your key and endpoint" is the right next step for
+    // an unconfigured user too, and 1-13 decides onboarding on flags, not run errors.
+    for (const code of ['NOT_CONFIGURED', 'AUTH', 'RATE_LIMIT', 'NETWORK', 'HTTP_ERROR', 'TIMEOUT', 'INVALID_REQUEST']) {
+      const { ctx } = ctxWithLog()
+      ctx.ports.llm = createMockLlmPort({ error: Object.assign(new Error(code), { code }) })
+
+      await expect(llmCapability.execute({ step: STEP, items: ROWS }, ctx)).rejects.toMatchObject({
+        code: 'LLM_FAILED',
+      })
+    }
+  })
+
+  it('keeps a cancelled call a cancellation, not a failure', async () => {
+    const { ctx } = ctxWithLog()
+    ctx.ports.llm = createMockLlmPort({ error: Object.assign(new Error('cancelled'), { code: 'ABORTED' }) })
+
+    await expect(llmCapability.execute({ step: STEP, items: ROWS }, ctx)).rejects.toMatchObject({
+      code: 'ABORTED',
+    })
   })
 })

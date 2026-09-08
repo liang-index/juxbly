@@ -134,6 +134,35 @@ export interface ExtractResult {
   truncated?: boolean
 }
 
+// ── Candidate scoring (§5.6: the build phase's local dry run) ─────────────────
+
+/**
+ * One candidate tool, scored against the page it would run on.
+ *
+ * The model proposes; the page decides. A candidate that reads beautifully and matches
+ * nothing must lose to one that matches something, and the only way to know is to run
+ * its `extract` step as a dry run (`docs/ARCHITECTURE.md` §5.6).
+ */
+export interface CandidateEvaluation {
+  /**
+   * Index into the candidate array the model returned — the stable identity of a
+   * candidate. `evaluateCandidates` returns a **sparse** array (a candidate whose dry run
+   * threw is absent), so this is the only thing that still points back at the input.
+   */
+  candidateIndex: number
+  /** Container matches. `0` means the candidate does not describe this page (§5.6). */
+  hitCount: number
+  /** Share of field values actually present, 0–1 (mean of `fieldPresence`). */
+  fieldFillRate: number
+  /** Share of values that look like their declared `field_types`, 1 on a perfect match. */
+  shapeScore: number
+  /**
+   * Weighted result of the three signals, 0–1. Weights are an implementation detail of
+   * the scorer; the *ordering* is the contract.
+   */
+  score: number
+}
+
 // ── Run engine input / output (packages/runtime, stage 1-7) ────────────────────
 
 /**
@@ -144,7 +173,13 @@ export interface ExtractResult {
  * which is also what makes "cancel mid-run" a matter of returning nothing to store.
  */
 export interface RunOptions {
-  tabId: number
+  /**
+   * Absent in the content script: it cannot name its own tab (that knowledge lives in the
+   * service worker, and `BrowserAdapter.messaging` deliberately does not forward the
+   * platform `sender`), and no V1 capability consumes it — identity for a run is the tool
+   * plus the page, not the tab. Optional since stage 1-10.
+   */
+  tabId?: number
   /** Cancelled when the panel closes or the page navigates (§6.1). */
   signal: AbortSignal
   /** What the previous run left behind; absent on the first run. */

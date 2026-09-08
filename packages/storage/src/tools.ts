@@ -84,6 +84,63 @@ export async function saveTool(
 }
 
 /**
+ * What a finished run leaves in the record (stage 1-10, §8.1): `run_count` and
+ * `last_run_at`, and nothing else. `export_count` / `last_export_at` belong to 1-15 —
+ * a run is not an export, and conflating the two would make "recently used" lie.
+ *
+ * `runState` is accepted because the run engine is deliberately side-effect free: it
+ * hands the new cache back instead of storing it, so the caller (which is the only side
+ * that knows whether the run was cancelled) decides what gets written.
+ */
+export interface RunResultInput {
+  /** ISO 8601; becomes both `last_run_at` and `updated_at`. */
+  at: string
+  runState?: RunState
+}
+
+/** Returns false when there is no record for this tool — a run of a deleted tool is not a write. */
+export async function recordRunResult(
+  adapter: BrowserAdapter,
+  toolId: string,
+  input: RunResultInput,
+): Promise<boolean> {
+  const tools = await loadTools(adapter)
+  const record = tools[toolId]
+  if (record === undefined) return false
+
+  const usage: ToolUsage = {
+    ...DEFAULT_TOOL_USAGE,
+    ...record.usage,
+    run_count: record.usage.run_count + 1,
+    last_run_at: input.at,
+  }
+
+  tools[toolId] = {
+    ...record,
+    usage,
+    run_state: input.runState ?? record.run_state,
+    updated_at: input.at,
+  }
+  await adapter.storage.set(TOOLS_KEY, tools)
+  return true
+}
+
+/**
+ * Deleting a tool is a **complete removal** of the `ToolRecord` (C1: V1 has no archive
+ * tier). First caller is the run panel's "Don't keep"; 1-13 reuses it from the
+ * management surface.
+ */
+export async function deleteTool(adapter: BrowserAdapter, toolId: string): Promise<boolean> {
+  const tools = await loadTools(adapter)
+  if (!(toolId in tools)) return false
+
+  const remaining = { ...tools }
+  delete remaining[toolId]
+  await adapter.storage.set(TOOLS_KEY, remaining)
+  return true
+}
+
+/**
  * Fill in everything a record is allowed to be missing.
  *
  * Only `usage` is guaranteed by an acceptance criterion (reading an old record must

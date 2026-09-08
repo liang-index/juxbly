@@ -23,7 +23,7 @@ import { INJECTION_SAMPLES, PLAIN_PAGE_TEXT } from '../../fixtures/llm/injection
 
 const INSTRUCTION = 'Summarise the data below.'
 
-function messagesFor(data: string): readonly { role: string; content: string }[] {
+function messagesFor(data: string): readonly { role: string; content: string | unknown[] }[] {
   return buildPrompt({ system: DEFAULT_SYSTEM_PROMPT, instruction: INSTRUCTION, data })
 }
 

@@ -48,7 +48,9 @@ describe('cancelling a run', () => {
     const outcome = await runOnce(harness, { tool: makeTool([productExtractStep(), summarizeStep()]) })
 
     expect(outcome.ok).toBe(false)
-    expect(outcome.error?.code).toBe('CAPABILITY_FAILED')
+    // The llm capability folds every port category into `LLM_FAILED` (1-10), so the panel
+    // can offer "check your key and endpoint" instead of the generic did-not-finish line.
+    expect(outcome.error?.code).toBe('LLM_FAILED')
     // A capability's own message is never forwarded: it can contain page content.
     expect(outcome.error?.message).not.toContain('endpoint said no')
   })

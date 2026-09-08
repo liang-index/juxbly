@@ -37,6 +37,9 @@
   --jx-radius-panel: 18px;
   --jx-radius-element: 9px;
   --jx-radius-pill: 999px;
+  /* UI_SPEC §4 spacing: in-panel padding and in-panel group spacing. */
+  --jx-space-panel: 14px;
+  --jx-space-group: 10px;
   --jx-motion-instant: 80ms ease-out;
   --jx-motion-flow: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
   --jx-motion-signature: 600ms cubic-bezier(0.2, 0.8, 0.2, 1);

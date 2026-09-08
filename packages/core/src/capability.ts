@@ -50,7 +50,8 @@ export interface CapabilityDefinition<I, O> {
 }
 
 export interface ExecutionContext {
-  tabId: number
+  /** Mirrors `RunOptions.tabId`: absent when the run is driven from a content script. */
+  tabId?: number
   /** Cancelled when the page navigates or the panel closes — long work must observe it. */
   signal: AbortSignal
   /** The only way a capability reaches anything outside itself. */
