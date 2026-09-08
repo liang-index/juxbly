@@ -6,7 +6,16 @@ import { registerBuiltInCapabilities } from '@juxbly/capabilities'
 import { CapabilityRegistry, ToolRuntime } from '@juxbly/runtime'
 import { createRunSession } from '@juxbly/ui'
 import type { RunSession, RunSessionPorts } from '@juxbly/ui'
+import { SEMANTIC_SAMPLE_SIZE } from '@juxbly/health'
 import { createFixtureHost } from '../fixtures/page-host'
+
+/**
+ * The shapes the background answers with, read off the ports rather than imported as
+ * names: a test that restates a contract in its own words can keep passing after the
+ * contract moves.
+ */
+type RunHealthVerdict = NonNullable<Awaited<ReturnType<RunSessionPorts['report']>>>
+type RunManualCheck = NonNullable<Awaited<ReturnType<RunSessionPorts['checkHealth']>>>
 
 /**
  * The run flow — `task/stage-1-10.md` Tests, `docs/ARCHITECTURE.md` §9.2.
@@ -99,6 +108,13 @@ interface RunStats {
   readonly ranTools: readonly string[]
 }
 
+interface HarnessOptions {
+  /** What the background answers to `run:report`. `null` is "no verdict" (§10). */
+  verdict?: RunHealthVerdict | null
+  /** What `health:semantic_check` answers. `null` is "no reply at all". */
+  manualCheck?: RunManualCheck | null
+}
+
 /**
  * One page load's worth of wiring. `stored` is the record's `run_state`, shared between
  * harnesses the way `juxbly:tools` would share it between two page loads.
@@ -106,13 +122,15 @@ interface RunStats {
 function harness(
   tools: ToolDefinition[],
   stored: { current: RunState | null },
-): { session: RunSession; stats: RunStats } {
+  options: HarnessOptions = {},
+): { session: RunSession; stats: RunStats; checks: readonly { fields: string[]; sample: unknown[] }[] } {
   const host = createFixtureHost('list-page.html')
   const mount = host.document.createElement('div')
   host.document.body.append(mount)
 
   const counters = { llmCalls: 0, queries: 0 }
   const reports: { toolId: string; summary: RunSummary; ok: boolean; runState?: RunState }[] = []
+  const checks: { fields: string[]; sample: unknown[] }[] = []
   const ranTools: string[] = []
 
   const dom: DomPort = {
@@ -151,8 +169,16 @@ function harness(
         summary: input.summary,
         ok: input.ok,
         ...(input.runState === undefined ? {} : { runState: input.runState }),
+        ...(input.error === undefined ? {} : { error: input.error }),
+        ...(input.extract === undefined ? {} : { extract: input.extract }),
+        ...(input.sample === undefined ? {} : { sample: input.sample }),
       })
       if (input.runState !== undefined) stored.current = input.runState
+      return options.verdict ?? null
+    },
+    checkHealth: async ({ fields, sample }) => {
+      checks.push({ fields, sample })
+      return options.manualCheck ?? null
     },
     discard: async () => true,
     run: (candidate, options) => {
@@ -178,6 +204,7 @@ function harness(
         return ranTools
       },
     },
+    checks,
   }
 }
 
@@ -319,5 +346,41 @@ describe('the run flow (§9.2)', () => {
     expect(session.state().phase).toBe('empty')
     expect(session.state().items).toHaveLength(0)
     expect(session.state().error).toBeNull()
+  })
+
+  it('carries the background health verdict into the panel without hiding the results', async () => {
+    const degraded: RunHealthVerdict = {
+      status: 'degraded',
+      changed: true,
+      reason: 'far fewer repeating blocks matched than before',
+      layers: { execution: 'ok', result: 'ok', structure: 'drifted', semantic: 'not-run' },
+    }
+    const { session } = harness(
+      [tool('tool_a', { title: '.title' })],
+      { current: null },
+      { verdict: degraded },
+    )
+
+    await session.start(URL)
+
+    // The panel renders the badge from the reply, not from a second read (§7.2)…
+    expect(session.state().health).toEqual(degraded)
+    // …and a suspicion is not a reason to take away what the tool still found (§7).
+    expect(session.state().phase).toBe('ready')
+    expect(session.state().items).toHaveLength(4)
+  })
+
+  it('a manual check sends the field names and a capped sample, and reports no answer when none comes', async () => {
+    const { session, checks } = harness([tool('tool_a', { title: '.title' })], { current: null })
+    await session.start(URL)
+
+    await session.checkNow()
+
+    expect(checks).toHaveLength(1)
+    expect(checks[0]?.fields).toEqual(['title'])
+    // Page data leaves for the model only through the cap (§10: too little to leak).
+    expect(checks[0]?.sample.length).toBeLessThanOrEqual(SEMANTIC_SAMPLE_SIZE)
+    // No reply is "no answer", never an invented verdict — and no status moved.
+    expect(session.state().check).toEqual({ pending: false, ok: false })
   })
 })

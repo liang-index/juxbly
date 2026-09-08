@@ -13,6 +13,9 @@ import { t } from '../copy'
 import { mountView } from '../views'
 import { EmptyState } from './empty-state'
 import { ErrorState } from './error-state'
+import { ExportActions } from './export-actions'
+import { BrokenState } from './broken-state'
+import { HealthBadge } from './health-badge'
 import { createRunPorts } from './ports'
 import { PromiseLine } from './promise-line'
 import { ResultHeader } from './result-header'
@@ -199,7 +202,22 @@ export function RunPanel({
         />
       )}
 
+      {state.health?.status === 'degraded' && tool !== null ? (
+        <HealthBadge
+          health={state.health}
+          check={state.check}
+          onCheck={() => void session.checkNow()}
+        />
+      ) : null}
+
       <div className="jx-run-body">
+        {state.health?.status === 'broken' ? (
+          <BrokenState
+            health={state.health}
+            onRepair={onNewTool === undefined ? undefined : onNewTool}
+            onRefresh={() => void session.refresh()}
+          />
+        ) : null}
         {state.phase === 'loading' ? <p className="jx-run-loading">{t('run.loading')}</p> : null}
         {state.phase === 'empty' ? <EmptyState /> : null}
         {state.phase === 'error' ? (
@@ -211,6 +229,9 @@ export function RunPanel({
 
       <div className="jx-run-actions">
         <ViewSwitcher view={state.view} onChange={(view) => session.setView(view)} />
+        {tool !== null && hasData && state.phase !== 'loading' ? (
+          <ExportActions adapter={adapter} tool={tool} items={state.items ?? []} />
+        ) : null}
         <button
           type="button"
           className="jx-chip"

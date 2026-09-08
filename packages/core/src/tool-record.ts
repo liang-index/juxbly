@@ -51,6 +51,13 @@ export interface ToolHealth {
   structure_fingerprint: StructureFingerprint | null
   /** Latest semantic-layer check result, when one ran. */
   last_semantic_check: SemanticCheck | null
+  /**
+   * Clean runs since the last deviation — the counter behind "two in a row to recover"
+   * (§10). It has to be a number in storage and not a flag in memory: a run is a separate
+   * process from the one before it, and a boolean would only remember that *a* clean run
+   * happened, not how many in a row.
+   */
+  consecutive_clean_runs: number
 }
 
 /**

@@ -294,8 +294,35 @@ function createRunPorts(
     },
     llm: createRunLlmPort(adapter),
     clipboard: adapter.clipboard,
-    downloads: adapter.downloads,
+    downloads: createContentDownloadsPort(adapter),
     log: (event) => log.info(event.message, ...(event.details ?? [])),
+  }
+}
+
+/**
+ * The downloads port, wired for the content-script context (stage 1-15, AC4).
+ *
+ * `downloads` is unavailable here, so a capability that asks to download is not
+ * handed the platform adapter — it is handed a relay that messages the background. The
+ * background owns the real platform `downloads` call (§7.1); this side only ever sends
+ * `export:download_csv` / `export:download_json` and turns a refused reply into a throw,
+ * so "not delivered" never reads as "delivered".
+ */
+function createContentDownloadsPort(adapter: ReturnType<typeof createChromeAdapter>) {
+  return {
+    async download(filename: string, content: string, mime: string): Promise<void> {
+      const message =
+        mime === 'application/json'
+          ? ({ kind: 'export:download_json', filename, json: content } as const)
+          : ({ kind: 'export:download_csv', filename, csv: content } as const)
+
+      const reply = await adapter.messaging.send(message)
+      if (reply === null || reply.kind !== 'export:download_result' || !reply.ok) {
+        const reason =
+          reply !== null && reply.kind === 'export:download_result' ? reply.error : 'NO_REPLY'
+        throw new Error(reason ?? 'NO_REPLY')
+      }
+    },
   }
 }
 

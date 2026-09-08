@@ -108,7 +108,35 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--jx-space-group);
+  flex-wrap: wrap;
   /* Always visible, never collapsed into a menu (§7.3 ③). */
+}
+
+/* The three export actions live next to the view switcher, resident in ③ (§7.3). */
+.jx-run-export {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.jx-run-export-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.jx-run-export-feedback {
+  margin: 0;
+  font-size: 10.5px;
+  color: var(--jx-text-muted);
+}
+
+.jx-run-export-feedback[data-tone='ok'] {
+  color: var(--jx-text-secondary);
+}
+
+.jx-run-export-feedback[data-tone='error'] {
+  color: var(--jx-error);
 }
 
 .jx-run-views {
@@ -127,4 +155,73 @@
 
 .jx-run-line--promise {
   color: var(--jx-text-secondary);
+}
+
+/* ── Health presentation (stage 1-11, UI_SPEC §7) ──────────────────────────────
+   Degraded is a corner "?" that opens an inline note — never a dialog, never a
+   colour that competes with a real error (`warn` is reserved for suspected
+   breakage, §2). Broken takes the full error visual. */
+
+.jx-health {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 2px;
+}
+
+.jx-health-q {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--jx-radius-pill);
+  border: 1px solid var(--jx-warn);
+  background: transparent;
+  color: var(--jx-warn);
+  font-size: 10.5px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Non-colour affordance too: "reduce motion" must not be the only way to notice. */
+.jx-health-q:hover,
+.jx-health-q[aria-expanded='true'] {
+  background: var(--jx-warn);
+  color: var(--jx-surface-base-2);
+}
+
+.jx-health-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-accent-dim);
+}
+
+.jx-health-line {
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+  margin: 0;
+}
+
+.jx-health-label {
+  color: var(--jx-text-muted);
+  margin-right: 4px;
+}
+
+.jx-run-state--broken {
+  border: 1px solid var(--jx-error);
+  border-radius: var(--jx-radius-element);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.jx-run-state--broken .jx-run-state-line {
+  color: var(--jx-error);
 }
