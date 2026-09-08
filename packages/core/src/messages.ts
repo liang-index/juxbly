@@ -11,7 +11,7 @@
  */
 import type { LlmStep, ToolDefinition } from '@juxbly/dsl'
 import type { ChatMessage, PageAnalysis } from './runtime'
-import type { RunSummary, Settings } from './tool-record'
+import type { OnboardingFlags, RunState, RunSummary, Settings } from './tool-record'
 
 /** Shown in the panel for every real llm call (BYOK transparency). */
 export interface TokenUsage {
@@ -27,6 +27,17 @@ export type ExtensionMessage =
       conversation: ChatMessage[]
       pageAnalysis: PageAnalysis
       /**
+       * A4 level ①: true on the single conservative retry, asking the model for the
+       * plainest, most literal reading of the page instead of a clever one.
+       */
+      conservative?: boolean
+      /**
+       * The clarification cap reaching the prompt: the model must answer with a draft
+       * instead of another question. The cap is enforced in the panel as well — a prompt
+       * is a request, the cap is a rule (§9.1).
+       */
+      noMoreQuestions?: boolean
+      /**
        * A3 visual fallback: screenshot attached only after the DOM route
        * failed (base64 PNG). First builds never carry one — a screenshot means page
        * pixels leave this machine for the user's own endpoint, so it must be an
@@ -41,6 +52,11 @@ export type ExtensionMessage =
       reply?: ChatMessage
       tool?: ToolDefinition
       /**
+       * What the call cost. BYOK transparency (UI_SPEC §9 rule 4): every real model call
+       * is paid for by the user, so the panel shows it even when the answer is a question.
+       */
+      usage?: TokenUsage
+      /**
        * A2 candidates: the model may return several; the content script
        * scores them locally (§5.6) and presents the best. Absent → fall back to `tool`;
        * old behaviour unchanged, backward compatible.
@@ -49,6 +65,12 @@ export type ExtensionMessage =
       error?: string
     }
   | { kind: 'build:save_tool'; tool: ToolDefinition }
+  /**
+   * The reply to `build:save_tool`. Storage is the background's to write (§7.1), so the
+   * content script has to be told whether it worked — a save that silently failed would
+   * leave the user with a tool they believe they have.
+   */
+  | { kind: 'build:save_tool_result'; ok: boolean; error?: string }
   // Run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
@@ -61,7 +83,34 @@ export type ExtensionMessage =
       usage?: TokenUsage
       error?: string
     }
-  | { kind: 'run:report'; toolId: string; summary: RunSummary }
+  /**
+   * The run layer's closing message (stage 1-10). `summary` feeds Tool Health, `runState`
+   * is what the next run starts from (§8.1: the llm cache decision lives in the record,
+   * and only the content script has executed the steps that produced it), and `ok` is
+   * what separates "the tool worked" from "the tool ran and failed" — the two cases
+   * differ in what the background is allowed to conclude from them.
+   */
+  | { kind: 'run:report'; toolId: string; summary: RunSummary; ok?: boolean; runState?: RunState }
+  /**
+   * The mirror of `run:report`: a run starts by asking what the previous one left behind.
+   * Without it the content script would rebuild the run state from scratch on every page
+   * load, and an unchanged page would pay for the same model call again and again.
+   */
+  | { kind: 'run:load_state'; toolId: string }
+  | { kind: 'run:load_state_result'; toolId: string; runState: RunState | null }
+  /**
+   * "Don't keep" on the retention line (UI_SPEC §7.3) — the first writer of the delete
+   * path. Stage 1-13 reuses it from the management surface.
+   */
+  | { kind: 'tool:delete'; toolId: string }
+  | { kind: 'tool:delete_result'; ok: boolean; toolId: string; error?: string }
+  /**
+   * The four one-shot milestones (§8.1). The content script cannot read storage, and the
+   * run panel needs `first_tool_built` to choose the promise line — so the flags are
+   * asked for, exactly like settings. No secret travels in either direction.
+   */
+  | { kind: 'onboarding:get' }
+  | { kind: 'onboarding:get_result'; flags: OnboardingFlags | null }
   // Health (content script → background; the semantic check calls the model, key stays in background)
   | { kind: 'health:semantic_check'; requestId: string; fields: string[]; sample: unknown[] }
   | {
@@ -102,6 +151,25 @@ export type InternalPong = Extract<ExtensionMessage, { kind: 'internal:pong' }>
 export type RunLlmMessage = Extract<ExtensionMessage, { kind: 'run:llm' }>
 export type RunLlmResultMessage = Extract<ExtensionMessage, { kind: 'run:llm_result' }>
 
+/** The run layer's messages (stage 1-10, §7.2). */
+export type RunQueryToolsMessage = Extract<ExtensionMessage, { kind: 'run:query_tools' }>
+export type RunQueryToolsResultMessage = Extract<ExtensionMessage, {
+  kind: 'run:query_tools_result'
+}>
+export type RunReportMessage = Extract<ExtensionMessage, { kind: 'run:report' }>
+export type RunLoadStateMessage = Extract<ExtensionMessage, { kind: 'run:load_state' }>
+export type RunLoadStateResultMessage = Extract<ExtensionMessage, { kind: 'run:load_state_result' }>
+export type ToolDeleteMessage = Extract<ExtensionMessage, { kind: 'tool:delete' }>
+export type ToolDeleteResultMessage = Extract<ExtensionMessage, { kind: 'tool:delete_result' }>
+export type OnboardingGetResultMessage = Extract<ExtensionMessage, {
+  kind: 'onboarding:get_result'
+}>
+
+export type BuildProposeMessage = Extract<ExtensionMessage, { kind: 'build:propose' }>
+export type BuildProposeResultMessage = Extract<ExtensionMessage, { kind: 'build:propose_result' }>
+export type BuildSaveToolMessage = Extract<ExtensionMessage, { kind: 'build:save_tool' }>
+export type BuildSaveToolResultMessage = Extract<ExtensionMessage, { kind: 'build:save_tool_result' }>
+
 /**
  * Messages cross a trust boundary: anything that arrives over the runtime message
  * channel is `unknown` until proven otherwise.
@@ -122,4 +190,30 @@ export function isPong(message: unknown): message is InternalPong {
 
 export function isRunLlm(message: unknown): message is RunLlmMessage {
   return hasKind(message, 'run:llm')
+}
+
+/** The run layer's three panel → background messages (§7.2). */
+export function isRunQueryTools(message: unknown): message is RunQueryToolsMessage {
+  return hasKind(message, 'run:query_tools')
+}
+
+export function isRunReport(message: unknown): message is RunReportMessage {
+  return hasKind(message, 'run:report')
+}
+
+export function isRunLoadState(message: unknown): message is RunLoadStateMessage {
+  return hasKind(message, 'run:load_state')
+}
+
+export function isToolDelete(message: unknown): message is ToolDeleteMessage {
+  return hasKind(message, 'tool:delete')
+}
+
+/** The build flow's two panel → background messages (§7.2). */
+export function isBuildPropose(message: unknown): message is BuildProposeMessage {
+  return hasKind(message, 'build:propose')
+}
+
+export function isBuildSaveTool(message: unknown): message is BuildSaveToolMessage {
+  return hasKind(message, 'build:save_tool')
 }

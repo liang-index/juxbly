@@ -12,6 +12,8 @@
  */
 export * from './errors'
 export * from './extract'
+export * from './candidate-scoring'
 export * from './llm'
 export * from './render'
+export * from './register'
 export * from './transform'

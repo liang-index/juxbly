@@ -173,7 +173,11 @@ export class ToolRuntime {
   }
 
   private context(options: RunOptions): ExecutionContext {
-    return { tabId: options.tabId, signal: options.signal, ports: this.ports }
+    return {
+      ...(options.tabId === undefined ? {} : { tabId: options.tabId }),
+      signal: options.signal,
+      ports: this.ports,
+    }
   }
 }
 

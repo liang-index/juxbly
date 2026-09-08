@@ -57,6 +57,29 @@ export function buildPrompt(spec: PromptSpec): LlmMessage[] {
   ]
 }
 
+/**
+ * The A3 visual fallback's layout (§12.3 applies to pixels exactly as it applies to
+ * text): the screenshot is **data**, so it travels in its own message with the untrusted
+ * notice, and the instruction comes last — the last thing the model reads is Juxbly's
+ * instruction, never the page's.
+ *
+ * A screenshot is sent only after the DOM route has failed (§7.2). Nothing here decides
+ * when that is; `packages/ui` owns the escalation.
+ */
+export function buildVisionMessages(screenshot: string, instruction: string): LlmMessage[] {
+  return [
+    { role: 'system', content: DEFAULT_SYSTEM_PROMPT },
+    {
+      role: 'user',
+      content: [
+        { type: 'text', text: `${DATA_NOTICE}\n\nThe image below is a screenshot of a web page.` },
+        { type: 'image_url', image_url: { url: screenshot } },
+      ],
+    },
+    { role: 'user', content: instruction },
+  ]
+}
+
 /** Anything that is not already text becomes readable text; nothing else is sent. */
 export function stringifyData(input: unknown): string {
   if (typeof input === 'string') return input

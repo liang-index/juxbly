@@ -212,6 +212,42 @@ Show usage numbers that **belong to the user alone**, in the tool overview and t
 
 > The value of this section is not the feature; it is turning "zero telemetry" from an invisible virtue into something users can perceive — and are willing to spread on your behalf.
 
+### 7.5 Highlight layer (build confirmation, stage 1-9)
+
+The one signature moment of the product: instead of reading a plan, the user sees the actual
+elements the tool would read, lit up on their own page.
+
+| Item | Rule |
+|---|---|
+| Contract | `HighlightTarget { field: string; selector: string; rect: DOMRect }` (`packages/ui/src/highlight/highlight-layer.ts`) — the UI-internal shape the build panel turns a proposal into |
+| Truthfulness | A field whose selector matched nothing gets **no box**. Highlighting a neighbour would be a claim about what the tool will extract |
+| Coverage cap | At most **6 rows** are lit (`MAX_HIGHLIGHT_ROWS`). Confirmation is recognisable, not a census |
+| Positioning | Boxes are `position: fixed` inside Juxbly's shadow root, positioned from `getBoundingClientRect()`, so the host page is never mutated. **The layer is a child of the shadow root, never of the panel** — the panel carries a `transform` (drag positioning), and any transformed ancestor becomes the containing block for `fixed` descendants, which shifts every box by the panel's own offset |
+| Re-measure | Re-measured on scroll / resize (passive, capture): a box that drifts off its element is worse than no box |
+| Motion | Stagger `--jx-stagger` (70ms), signature `--jx-motion-signature` (600ms). Under `prefers-reduced-motion` the stagger collapses to 0 and the glow degrades to the instant fade — **mandatory, not optional** |
+| Correction | Clicking a box re-points that field for **every** row: a field selector is relative to the container (`ARCHITECTURE` §5.2), so "apply to all" is not a separate feature |
+| Replay | The glow runs again whenever the proposal changes, including a correction — the glow *is* the confirmation |
+
+> The timing constants live in `packages/ui/src/highlight/glow.ts` and are asserted against
+> `tokens.css` in a test: a component cannot read a custom property through `style.animationDelay`,
+> so the restatement is unavoidable — and therefore must be kept honest by a test rather than by
+> discipline.
+
+### 7.6 Run panel (stage 1-10)
+
+| Item | Rule |
+|---|---|
+| Invocation | A matching page opens the panel on its own. The global shortcut opens the tool when one matches this page and the composer when none does — **never both at once** |
+| Cost model | `extract` runs on every page load (local and free); the model runs only on the first run, when the input hash changes, or on manual refresh. **A view switch re-renders local data and runs nothing** (§7.1) |
+| Several tools on one page | `ARCHITECTURE` §12 allows it: a tab row at the top switches which definition runs. Switching a tool is not a reason to re-spend tokens — the cache is per tool |
+| Loading | One restrained line, **not** the build stage's analysing animation: a saved tool is expected to feel instant |
+| Stale | When a run fails after a successful one, the last result stays on screen behind one line saying it is not the latest. Blanking the panel would read as data loss |
+| Action area | Always visible: view switcher + refresh. `Copy` / `CSV` / `JSON` are **reserved slots** belonging to 1-15 — they must never be collapsed into a menu (§7.3 segment ③) |
+| Empty | 0 rows is the empty state, never the error state (§7) |
+| Position | Draggable, **never persisted** (deferred on purpose). Collapsing returns to the floating ball and keeps the session (§8) |
+| Cancellation | Navigating away mid-run aborts it; an aborted run reports nothing and poisons no cache (`ARCHITECTURE` §9.2) |
+| Panel carries `transform` | Dragging is done with `transform`, which makes the panel the containing block for any `fixed` descendant — see §7.5: no fixed overlay may live inside it |
+
 ---
 
 ## 8. Keyboard interaction grammar

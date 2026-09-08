@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { createMockAdapter } from '@juxbly/browser'
 import type { ToolRecord } from '@juxbly/core'
 import type { ToolDefinition } from '@juxbly/dsl'
-import { DEFAULT_TOOL_USAGE, loadTool, loadTools, saveTool, TOOLS_KEY } from '@juxbly/storage'
+import {
+  DEFAULT_TOOL_USAGE,
+  deleteTool,
+  loadTool,
+  loadTools,
+  recordRunResult,
+  saveTool,
+  TOOLS_KEY,
+} from '@juxbly/storage'
 
 /**
  * `juxbly:tools` — `docs/ARCHITECTURE.md` §8.1.
@@ -117,5 +125,72 @@ describe('saveTool', () => {
 
     const stored = await loadTool(adapter, 'tool_1')
     expect(stored?.versions).toHaveLength(1)
+  })
+})
+
+describe('recordRunResult (stage 1-10, §8.1)', () => {
+  it('counts the run and moves the timestamp — and nothing else', async () => {
+    const adapter = createMockAdapter({ storage: { [TOOLS_KEY]: { tool_1: record() } } })
+
+    await recordRunResult(adapter, 'tool_1', { at: '2026-09-07T12:00:00.000Z' })
+
+    const stored = await loadTool(adapter, 'tool_1')
+    expect(stored?.usage.run_count).toBe(1)
+    expect(stored?.usage.last_run_at).toBe('2026-09-07T12:00:00.000Z')
+    // A run is not an export: those two fields are 1-15's, and inflating them here would
+    // make "recently used" lie in the management surface (1-13).
+    expect(stored?.usage.export_count).toBe(0)
+    expect(stored?.usage.last_export_at).toBeNull()
+    expect(stored?.updated_at).toBe('2026-09-07T12:00:00.000Z')
+  })
+
+  it('keeps counting across runs', async () => {
+    const adapter = createMockAdapter({ storage: { [TOOLS_KEY]: { tool_1: record() } } })
+
+    await recordRunResult(adapter, 'tool_1', { at: '2026-09-07T12:00:00.000Z' })
+    await recordRunResult(adapter, 'tool_1', { at: '2026-09-07T13:00:00.000Z' })
+
+    const stored = await loadTool(adapter, 'tool_1')
+    expect(stored?.usage.run_count).toBe(2)
+    expect(stored?.usage.last_run_at).toBe('2026-09-07T13:00:00.000Z')
+  })
+
+  it('stores the run state the engine handed back, and keeps the old one when handed none', async () => {
+    const adapter = createMockAdapter({ storage: { [TOOLS_KEY]: { tool_1: record() } } })
+
+    await recordRunResult(adapter, 'tool_1', {
+      at: '2026-09-07T12:00:00.000Z',
+      runState: { last_extract_hash: 'abc123', last_llm_outputs: { summary: 'text' } },
+    })
+    expect((await loadTool(adapter, 'tool_1'))?.run_state).toEqual({
+      last_extract_hash: 'abc123',
+      last_llm_outputs: { summary: 'text' },
+    })
+
+    // A cancelled run reports nothing (§9.2); the previous cache must survive it.
+    await recordRunResult(adapter, 'tool_1', { at: '2026-09-07T13:00:00.000Z' })
+    expect((await loadTool(adapter, 'tool_1'))?.run_state.last_extract_hash).toBe('abc123')
+  })
+
+  it('writes nothing for a tool that is no longer there', async () => {
+    const adapter = createMockAdapter()
+
+    await expect(recordRunResult(adapter, 'tool_404', { at: '2026-09-07T12:00:00.000Z' })).resolves.toBe(false)
+    expect(adapter.calls.filter((call) => call.method === 'storage.set')).toHaveLength(0)
+  })
+})
+
+describe('deleteTool (C1: removal is the only exit, no archive tier)', () => {
+  it('removes the whole record', async () => {
+    const adapter = createMockAdapter({ storage: { [TOOLS_KEY]: { tool_1: record() } } })
+
+    await expect(deleteTool(adapter, 'tool_1')).resolves.toBe(true)
+    await expect(loadTools(adapter)).resolves.toEqual({})
+  })
+
+  it('reports false instead of inventing a deletion', async () => {
+    const adapter = createMockAdapter()
+
+    await expect(deleteTool(adapter, 'tool_404')).resolves.toBe(false)
   })
 })

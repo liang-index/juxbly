@@ -32,12 +32,17 @@ const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs']
 const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.output', '.wxt', 'coverage'])
 
 /**
- * Files allowed to *mention* the key at all: the type that declares it, and the storage
- * module whose comment states its lifetime. Neither reads the field.
+ * Files allowed to *mention* the key at all: the type that declares it, and the two
+ * storage modules whose comments state its lifetime. None of them reads the field —
+ * `packages/storage/src/onboarding.ts` is here for `OnboardingFlags.api_key_requested`,
+ * the one-shot "was the user ever asked for a key" milestone. It is a flag name, not the
+ * key, and it lives next to the settings module for the same reason: both are the
+ * storage-layer description of the key's journey through the product.
  */
 const MENTION_WHITELIST = new Set([
   'packages/core/src/tool-record.ts',
   'packages/storage/src/settings.ts',
+  'packages/storage/src/onboarding.ts',
 ])
 
 /** The only package allowed to read the field (`packages/llm`, background context). */

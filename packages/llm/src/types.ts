@@ -13,9 +13,19 @@ export type { LlmPort } from '@juxbly/core'
 /** OpenAI-compatible chat roles. V1 sends no assistant turns and no tool calls. */
 export type LlmRole = 'system' | 'user'
 
+/**
+ * A message is either plain text or a list of parts. Parts exist for exactly one reason:
+ * the A3 visual fallback sends a screenshot, and an image cannot be smuggled into a
+ * string. Everything else in the repository keeps sending plain strings.
+ */
+export type LlmContentPart =
+  | { type: 'text'; text: string }
+  /** A data URL — the screenshot never leaves the request body as a file. */
+  | { type: 'image_url'; image_url: { url: string } }
+
 export interface LlmMessage {
   role: LlmRole
-  content: string
+  content: string | LlmContentPart[]
 }
 
 /**

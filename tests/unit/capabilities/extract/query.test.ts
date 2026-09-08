@@ -61,6 +61,24 @@ describe('queryAll', () => {
     expect(titles).toEqual(['Wireless keyboard'])
   })
 
+  it('sees the scope\'s own shadow root when the scope is a shadow host', () => {
+    // The chromestatus shape: the repeating unit is a custom element whose content lives
+    // in its own shadow root. A relative field query against that container is the §5.2
+    // shape, and it must not come back empty just because the host is not its own
+    // descendant.
+    const host = document.createElement('prod-row')
+    document.body.append(host)
+    const root = host.attachShadow({ mode: 'open' })
+    root.innerHTML = '<span class="name">First</span><span class="name">Second</span>'
+
+    expect(queryAll(host, '.name').map((element) => element.textContent)).toEqual([
+      'First',
+      'Second',
+    ])
+    // And the container itself is still found from above.
+    expect(queryAll(document, 'prod-row')).toEqual([host])
+  })
+
   it('throws on an invalid selector instead of returning nothing', () => {
     const document = loadFixturePage('list-page.html')
 

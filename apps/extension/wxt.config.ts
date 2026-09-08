@@ -45,6 +45,19 @@ export default defineConfig({
           new URL('../../packages/browser/src/index.ts', import.meta.url),
         ),
         '@juxbly/dsl': fileURLToPath(new URL('../../packages/dsl/src/index.ts', import.meta.url)),
+        // Stage 1-9: the content script analyses the page, scores the model's candidates
+        // with a dry run of `extract`, and queries the DOM through the same helper the
+        // capability uses.
+        '@juxbly/analyzer': fileURLToPath(
+          new URL('../../packages/analyzer/src/index.ts', import.meta.url),
+        ),
+        '@juxbly/capabilities': fileURLToPath(
+          new URL('../../packages/capabilities/src/index.ts', import.meta.url),
+        ),
+        // Stage 1-10: the content script runs saved tools with the 1-7 engine.
+        '@juxbly/runtime': fileURLToPath(
+          new URL('../../packages/runtime/src/index.ts', import.meta.url),
+        ),
       },
     },
   }),

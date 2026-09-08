@@ -23,6 +23,12 @@ export type BallEvent =
 export interface BallStateMachine {
   current(): BallState
   send(event: BallEvent): BallState
+  /**
+   * Notifies on every accepted transition — including ones sent from outside React
+   * (the build flow drives the ball from `packages/ui/src/build`). Without it, a state
+   * the machine had already changed to would stay invisible on screen.
+   */
+  subscribe(listener: (state: BallState) => void): () => void
 }
 
 /**
@@ -71,22 +77,31 @@ const TRANSITIONS: Readonly<Record<BallState, Partial<Record<BallEvent['kind'], 
 
 export function createBallStateMachine(): BallStateMachine {
   let state: BallState = 'idle'
+  const listeners = new Set<(state: BallState) => void>()
+
+  function apply(next: BallState): BallState {
+    if (next === state) return state
+    state = next
+    for (const listener of [...listeners]) listener(state)
+    return state
+  }
 
   return {
     current: () => state,
 
+    subscribe(listener) {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    },
+
     send(event: BallEvent): BallState {
       // `close` means the same thing in every state (§8 keyboard grammar: collapse
       // without losing anything), so it is handled outside the table.
-      if (event.kind === 'close') {
-        state = 'idle'
-        return state
-      }
+      if (event.kind === 'close') return apply('idle')
 
       const next = TRANSITIONS[state][event.kind]
       if (next === undefined) return state
-      state = next
-      return state
+      return apply(next)
     },
   }
 }

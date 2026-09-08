@@ -1,0 +1,130 @@
+/**
+ * Run panel styles — `docs/UI_SPEC.md` §7 / §7.3, transcribed from the RUN screen of
+ * `docs/prototypes/juxbly-prototype-v1.html`.
+ *
+ * Same rule as every other stylesheet in `packages/ui`: tokens are referenced, never
+ * restated (§11.4), and the panel borrows nothing from the host page (§1).
+ *
+ * The result area is five segments in a fixed order (① header, ② body, ③ actions,
+ * ④ promise, ⑤ retention) — all of them static information, none of them a dialog.
+ */
+
+.jx-run-panel {
+  /* Slightly wider than the build panel: a table needs the room, a chat does not. */
+  width: 380px;
+  max-height: min(560px, 80vh);
+  cursor: default;
+}
+
+.jx-run-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* §2.2 / §7.3 ①: 6px dot, same value the management page uses for the same tool. */
+.jx-run-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--jx-radius-pill);
+  flex: none;
+}
+
+.jx-run-name {
+  color: var(--jx-text-primary);
+  font-size: 12px;
+  margin-right: auto;
+}
+
+/* text-meta: 10.5px / muted (§7.3 ①). */
+.jx-run-meta {
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+.jx-run-tools {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.jx-run-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.jx-run-result {
+  min-height: 0;
+}
+
+/* Loading is restrained on purpose: a saved tool should feel instant (§7). */
+.jx-run-loading {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 11px;
+}
+
+.jx-run-state {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jx-run-state-line {
+  margin: 0;
+  color: var(--jx-text-secondary);
+}
+
+.jx-run-state-hint {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+/* Only the error branch uses the error colour — 0 rows never does (§7). */
+.jx-run-state--error .jx-run-state-line {
+  color: var(--jx-error);
+}
+
+.jx-run-reasons {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+.jx-run-stale {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+.jx-run-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jx-space-group);
+  /* Always visible, never collapsed into a menu (§7.3 ③). */
+}
+
+.jx-run-views {
+  display: flex;
+  gap: 2px;
+}
+
+.jx-run-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+.jx-run-line--promise {
+  color: var(--jx-text-secondary);
+}

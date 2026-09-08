@@ -1,0 +1,88 @@
+/**
+ * Highlight styles — the product's one signature moment (UI_SPEC §7.5): boxes light up in
+ * sequence (`--jx-stagger`) and settle into a soft glow (`--jx-motion-signature`).
+ *
+ * Everything here is `position: fixed` and lives in Juxbly's shadow root, so the boxes
+ * float above the host page without ever being inserted into it — the host page is never
+ * modified, and host CSS never touches these rules (UI_SPEC §11.1).
+ *
+ * `pointer-events` is the one non-obvious rule: the layer is transparent to the page so
+ * the user can still scroll and read, while each box re-enables clicks because clicking a
+ * box is how a field gets corrected.
+ */
+
+.jx-highlight-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 590;
+}
+
+.jx-highlight {
+  position: fixed;
+  pointer-events: auto;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--jx-accent);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-accent-dim);
+  cursor: pointer;
+  animation-name: jx-glow;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.jx-highlight:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 3px;
+}
+
+.jx-highlight.is-picking {
+  border-color: var(--jx-warn);
+  background: rgba(251, 191, 36, 0.18);
+}
+
+.jx-highlight-label {
+  position: absolute;
+  top: -17px;
+  left: -2px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--jx-accent);
+  color: var(--jx-on-accent);
+  font-size: 10.5px;
+  line-height: 15px;
+  white-space: nowrap;
+}
+
+@keyframes jx-glow {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 0 0 rgba(94, 234, 212, 0.55);
+  }
+  45% {
+    opacity: 1;
+    box-shadow: 0 0 0 10px rgba(94, 234, 212, 0);
+  }
+  100% {
+    opacity: 0.9;
+    box-shadow: 0 0 0 0 rgba(94, 234, 212, 0);
+  }
+}
+
+/* Reduced motion is mandatory (UI_SPEC §7.5): the signature degrades to a plain fade, the
+   stagger to nothing (the component sets both delay and duration). */
+@media (prefers-reduced-motion: reduce) {
+  .jx-highlight {
+    animation-name: jx-glow-fade;
+  }
+}
+
+@keyframes jx-glow-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.9;
+  }
+}

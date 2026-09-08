@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { BallState } from './ball-state'
+import type { BallState, BallStateMachine } from './ball-state'
 import { t, type CopyKey } from '../copy'
 import { useBallState } from './use-ball-state'
 
@@ -26,14 +26,16 @@ export interface FloatingBallProps {
   /** Evaluated once at mount: whether this page has saved tools (drives the one-shot pulse). */
   hasSavedTools: boolean
   /**
-   * Panel toggle. 1-8 ships no panel, so the default is a no-op — the click still
-   * compresses/rebounds and advances the state machine (Scope 4: placeholder allowed).
+   * Shared machine, so the build flow can move the ball from another component
+   * (stage 1-9). Omitted → the ball owns a private one, as it did in 1-8.
    */
-  onToggle?: () => void
+  machine?: BallStateMachine
+  /** Panel toggle, owned by whoever mounted the panel. */
+  onToggle?: (open: boolean) => void
 }
 
-export function FloatingBall({ hasSavedTools, onToggle }: FloatingBallProps) {
-  const { state, send } = useBallState()
+export function FloatingBall({ hasSavedTools, machine, onToggle }: FloatingBallProps) {
+  const { state, send } = useBallState(machine)
   const [pulsing, setPulsing] = useState(hasSavedTools)
 
   // One-shot pulse, exactly once per mount. `animationend` removes the class; the
@@ -48,14 +50,14 @@ export function FloatingBall({ hasSavedTools, onToggle }: FloatingBallProps) {
   }, [hasSavedTools])
 
   const handleClick = (): void => {
-    // Toggle semantics: idle → open the (future) panel; anywhere else → collapse (§8:
+    // Toggle semantics: idle → open the panel; anywhere else → collapse (§8:
     // Esc and the shortcut share this meaning).
     if (state === 'idle') {
       send({ kind: 'open-chat' })
-      onToggle?.()
+      onToggle?.(true)
     } else {
       send({ kind: 'close' })
-      onToggle?.()
+      onToggle?.(false)
     }
   }
 
