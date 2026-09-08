@@ -94,6 +94,24 @@ export class ToolRuntime {
           )
         }
 
+        // The engine is the only thing that runs a tool *by itself*, and a `copy` export is
+        // the one step that must never run by itself: `navigator.clipboard` needs a user
+        // gesture, and a tool that auto-runs on page load overwriting the clipboard the
+        // user just filled is the worst possible failure of the reuse promise (1-15 AC5).
+        // The panel's Copy button does not go through a step at all — it calls the
+        // clipboard port directly from the click — so *every* `copy` step that reaches
+        // here is unattended, and refusing is the only honest answer. Refusing loudly also
+        // beats the alternative: without a gesture the platform call fails anyway, as an
+        // unattributed error three layers down. Checked before the input variable is
+        // resolved so the refusal names the real cause even when the data is broken too.
+        if (step.type === 'export' && step.format === 'copy') {
+          throw new StepFailure(
+            'CAPABILITY_FAILED',
+            'an export step may not use the "copy" format: writing the clipboard needs a user gesture, so a run can never deliver it — the panel Copy button is the only path',
+            index,
+          )
+        }
+
         const stepStartedAt = Date.now()
         // `extract` is the only step that produces data without consuming any (§5.2).
         const items = step.type === 'extract' ? [] : bag.records(step.input_from)

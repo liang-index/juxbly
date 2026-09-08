@@ -25,6 +25,8 @@ import type {
   TokenUsage,
 } from '@juxbly/core'
 import type { ToolDefinition } from '@juxbly/dsl'
+import { capSample } from '@juxbly/health'
+import type { RunHealthVerdict, RunManualCheck } from './ports'
 import type { ViewName } from '../views'
 
 export type RunPhase = 'loading' | 'ready' | 'empty' | 'error'
@@ -47,6 +49,14 @@ export interface RunSessionState {
   firstToolBuilt: boolean
   /** Set once "Don't keep" has been confirmed — the host collapses the panel. */
   discarded: boolean
+  /**
+   * The background's latest health verdict for the active tool (stage 1-11). Null when
+   * nothing has been reported yet — `healthy` renders nothing, so "unknown" and
+   * "healthy" look the same on purpose.
+   */
+  health: RunHealthVerdict | null
+  /** The manual semantic check's lifecycle; null until the user asked for one. */
+  check: RunManualCheck | null
 }
 
 export interface RunStepOptions {
@@ -65,7 +75,11 @@ export interface RunSessionPorts {
     summary: RunSummary
     ok: boolean
     runState?: RunState
-  }): Promise<void>
+    error?: RunError
+    extract?: { hitCount: number; fieldPresence: Record<string, number> }
+    sample?: unknown[]
+  }): Promise<RunHealthVerdict | null>
+  checkHealth(input: { fields: string[]; sample: unknown[] }): Promise<RunManualCheck | null>
   discard(toolId: string): Promise<boolean>
   /**
    * The host's engine call. The session never builds a runtime: which capabilities exist
@@ -83,6 +97,8 @@ export interface RunSession {
   /** Local re-render only — see rule 1 above. */
   setView(view: ViewName): void
   refresh(): Promise<void>
+  /** The user's "check once": spends their tokens on purpose, bypasses the throttle (§10). */
+  checkNow(): Promise<void>
   cancel(): void
   discard(): Promise<boolean>
 }
@@ -99,6 +115,8 @@ const INITIAL: RunSessionState = {
   stale: false,
   firstToolBuilt: false,
   discarded: false,
+  health: null,
+  check: null,
 }
 
 export function createRunSession(ports: RunSessionPorts): RunSession {
@@ -171,12 +189,14 @@ export function createRunSession(ports: RunSessionPorts): RunSession {
         stale: false,
       })
 
-      await ports.report({
+      const health = await ports.report({
         toolId: tool.tool_id,
         summary: outcome.summary,
         ok: true,
         ...(outcome.runState === undefined ? {} : { runState: outcome.runState }),
+        ...healthInputs(outcome, items),
       })
+      setState({ ...(health === null ? {} : { health }) })
       return
     }
 
@@ -187,7 +207,13 @@ export function createRunSession(ports: RunSessionPorts): RunSession {
       stale: (state.items?.length ?? 0) > 0,
       usage: spentTokens(outcome.usage),
     })
-    await ports.report({ toolId: tool.tool_id, summary: outcome.summary, ok: false })
+    const health = await ports.report({
+      toolId: tool.tool_id,
+      summary: outcome.summary,
+      ok: false,
+      ...healthInputs(outcome, null),
+    })
+    setState({ ...(health === null ? {} : { health }) })
   }
 
   return {
@@ -234,6 +260,27 @@ export function createRunSession(ports: RunSessionPorts): RunSession {
       const tool = activeTool()
       if (tool === null) return
       await run(tool, true)
+    },
+
+    async checkNow(): Promise<void> {
+      const tool = activeTool()
+      if (tool === null || state.items === null || state.items.length === 0) return
+
+      const fields = extractFieldNames(tool)
+      if (fields.length === 0) return
+
+      setState({ check: { pending: true } })
+      const result = await ports.checkHealth({
+        fields,
+        sample: capSample(state.items),
+      })
+      setState({
+        check:
+          result === null
+            ? // No reply is "no answer": the badge says so rather than inventing a verdict.
+              { pending: false, ok: false }
+            : result,
+      })
     },
 
     cancel(): void {
@@ -294,6 +341,55 @@ function asRows(value: unknown): readonly Record<string, unknown>[] | null {
 
   if (rows === null) return null
   return rows as readonly Record<string, unknown>[]
+}
+
+/** The field names the tool's extract step promises — what the semantic layer judges against. */
+function extractFieldNames(tool: ToolDefinition): string[] {
+  const extract = tool.steps.find((step) => step.type === 'extract')
+  if (extract === undefined || !('fields' in extract)) return []
+  return Object.keys((extract as { fields: Record<string, string> }).fields)
+}
+
+/**
+ * The health inputs a run carries to the report (stage 1-11): the engine's error (the
+ * execution layer reads its extract codes), the extract's structure statistics
+ * (fingerprinted by the background), and a `capSample`d (`SEMANTIC_SAMPLE_SIZE`) set of
+ * records for the semantic layer. Everything is optional — a signal the run could not produce (extract
+ * never ran, no rows to sample) is simply absent, and the background judges with the rest.
+ */
+export function healthInputs(
+  outcome: RunOutcome,
+  items: readonly Record<string, unknown>[] | null,
+): { error?: RunError; extract?: { hitCount: number; fieldPresence: Record<string, number> }; sample?: unknown[] } {
+  const extract = extractStatsOf(outcome)
+  const sample = items === null ? undefined : capSample(items)
+
+  return {
+    ...(outcome.error === undefined ? {} : { error: outcome.error }),
+    ...(extract === undefined ? {} : { extract }),
+    ...(sample === undefined || sample.length === 0 ? {} : { sample }),
+  }
+}
+
+/** The extract result's statistics, wherever the engine left them in the variable bag. */
+function extractStatsOf(
+  outcome: RunOutcome,
+): { hitCount: number; fieldPresence: Record<string, number> } | undefined {
+  for (const value of Object.values(outcome.outputs)) {
+    if (typeof value !== 'object' || value === null) continue
+    const candidate = value as { hitCount?: unknown; fieldPresence?: unknown }
+    if (
+      typeof candidate.hitCount === 'number' &&
+      typeof candidate.fieldPresence === 'object' &&
+      candidate.fieldPresence !== null
+    ) {
+      return {
+        hitCount: candidate.hitCount,
+        fieldPresence: candidate.fieldPresence as Record<string, number>,
+      }
+    }
+  }
+  return undefined
 }
 
 /** §7.1: the default view is the one the build-stage model suggested, stored in `render.view`. */

@@ -17,6 +17,23 @@ import { buildStepMessages } from './build-prompt'
 import { callLlm, DEFAULT_API_BASE_URL } from './client'
 import type { LlmFetch } from './client'
 import { isLlmError } from './errors'
+import type { LlmEndpoint } from './types'
+
+export { DEFAULT_API_BASE_URL }
+
+/**
+ * Reads the settings once and answers one question: is there a usable endpoint here?
+ * `null` means "not configured yet" — onboarding's cue (1-13), not an error to warn
+ * about. This helper is why nothing outside `packages/llm` ever reads the key field:
+ * the background asks for an endpoint and gets one or nothing (§12.2).
+ */
+export async function loadLlmEndpoint(adapter: Parameters<typeof loadSettings>[0]): Promise<LlmEndpoint | null> {
+  const settings = await loadSettings(adapter)
+  const apiKey = settings?.api_key ?? ''
+  const model = settings?.model ?? ''
+  if (apiKey.trim() === '' || model.trim() === '') return null
+  return { baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL, apiKey, model }
+}
 
 const log: Logger = createLogger('CAPABILITY')
 
@@ -47,22 +64,15 @@ export async function handleRunLlm(
   })
 
   try {
-    const settings = await loadSettings(adapter)
-    const apiKey = settings?.api_key ?? ''
-    const model = settings?.model ?? ''
-
-    if (apiKey.trim() === '' || model.trim() === '') {
+    const endpoint = await loadLlmEndpoint(adapter)
+    if (endpoint === null) {
       // Not an error to warn about: 1-13's onboarding step picks the user up from here.
       return fail('NOT_CONFIGURED')
     }
 
     const response = await callLlm(
       {
-        endpoint: {
-          baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL,
-          apiKey,
-          model,
-        },
+        endpoint,
         messages: buildStepMessages(step, input),
         ...(deps.timeoutMs === undefined ? {} : { timeoutMs: deps.timeoutMs }),
       },

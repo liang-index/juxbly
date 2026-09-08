@@ -22,16 +22,47 @@ function builder(order: number[]): (version: number) => Migration {
   })
 }
 
+/** A pre-1-11 record: health exists but carries none of the four-layer fields. */
+const oldRecord = {
+  tool_id: 'tool_1',
+  health: { status: 'healthy', recent_runs: [] },
+}
+
 describe('runMigrations', () => {
-  it('has an empty chain today', () => {
-    expect(migrations).toEqual([])
+  it('the real chain is the V1 health schema, and only that', () => {
+    expect(migrations).toHaveLength(1)
+    expect(migrations[0]?.version).toBe(1)
+    expect(migrations[0]?.description).toContain('ToolHealth')
   })
 
-  it('does nothing at all when the chain is empty', async () => {
-    const adapter = createMockAdapter({ storage: { 'juxbly:tools': { tool_1: {} } } })
+  it('the V1 migration fills the health fields on old records — and deletes nothing', async () => {
+    const adapter = createMockAdapter({ storage: { 'juxbly:tools': { tool_1: oldRecord } } })
 
-    await expect(runMigrations(adapter)).resolves.toBe(0)
-    expect(adapter.calls.filter((call) => call.method === 'storage.set')).toEqual([])
+    await expect(runMigrations(adapter)).resolves.toBe(1)
+
+    const stored = await adapter.storage.get<{ tool_1: { health: Record<string, unknown> } }>(
+      'juxbly:tools',
+    )
+    expect(stored?.tool_1?.health).toMatchObject({
+      status: 'healthy',
+      recent_runs: [],
+      structure_fingerprint: null,
+      last_semantic_check: null,
+      consecutive_clean_runs: 0,
+    })
+    // The tool itself survived: a migration never removes a record (§8.1).
+    expect(Object.keys((await adapter.storage.get('juxbly:tools')) ?? {})).toEqual(['tool_1'])
+  })
+
+  it('the V1 migration is idempotent — a completed record is left untouched', async () => {
+    const adapter = createMockAdapter({ storage: { 'juxbly:tools': { tool_1: oldRecord } } })
+
+    await runMigrations(adapter)
+    const setsAfterFirst = adapter.calls.filter((call) => call.method === 'storage.set').length
+    expect(setsAfterFirst).toBe(1)
+
+    await runMigrations(adapter)
+    expect(adapter.calls.filter((call) => call.method === 'storage.set').length).toBe(setsAfterFirst)
   })
 
   it('runs migrations in version order even when the list is not', async () => {

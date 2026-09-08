@@ -228,6 +228,13 @@ interface ExportStep {
 }
 ```
 
+`copy` is a legal value in the DSL and **the run engine refuses it** (`packages/runtime`,
+pinned by a test): writing the clipboard needs a user gesture, so a run — which is by
+definition unattended — can never deliver it. The panel's Copy button is the only path to
+the clipboard and calls the port directly from the click, never through a step. The step
+stays in the type so a hand-written tool fails with a named reason instead of being
+rejected as unknown syntax.
+
 ### 5.3 url_pattern matching semantics
 
 ```ts
@@ -464,23 +471,49 @@ interface RunOutcome {
   error?: RunError
 }
 
-// ── Health evaluation (packages/health) ─────────────────────────────────────────
+// ── Health evaluation (packages/health, stage 1-11) ─────────────────────────────
+//
+// Transcribed once in `packages/core/src/runtime.ts` (§5.5: core is the type SSOT);
+// the shapes below are the contract `packages/health` implements. `HealthInput` carries
+// no page content and no extracted values — that is what makes the evaluation pure and
+// the §10 state machine exhaustible by tests.
 
 interface HealthInput {
-  tool: ToolDefinition
-  record: ToolRecord
-  extract: ExtractResult | null
-  error?: ExtractError
+  previous: ToolHealth
+  extractError?: ExtractError | null
+  summary: RunSummary
+  fingerprint: StructureFingerprint | null
+  semantic?: SemanticCheck | null
+  semanticError?: boolean
+  now?: number
+  forceSemanticCheck?: boolean
 }
 
 interface HealthEvaluation {
   status: HealthStatus
-  /** Which layer fired — the check panel uses this to explain "why yellow / why red" (product baseline §9.3, the check capability) */
-  layer: 'execution' | 'result' | 'structure' | 'semantic'
+  changed: boolean
+  /** Why, in one sentence — shown in the panel, never carrying page content (§10). */
   reason: string
-  /** True only for the semantic layer — the only token-consuming layer, must stay transparent (product baseline §14 scope note) */
-  tokenUsed: boolean
+  /** The four per-layer verdicts — the check panel explains "why yellow / why red" with these. */
+  layers: {
+    execution: 'ok' | 'failed'
+    result: 'ok' | 'deviated' | 'no-baseline'
+    structure: 'ok' | 'drifted' | 'no-baseline'
+    semantic: 'not-run' | 'ok' | 'suspicious' | 'error'
+  }
+  fingerprint: StructureFingerprint | null
+  consecutiveCleanRuns: number
+  /** Whether a semantic check should run; the caller owns actually running it (§10). */
+  semanticCheckRequested: boolean
 }
+
+/**
+ * Stage 1-11 thresholds, constants in `packages/health/src/constants.ts` (retuned in
+ * 2-4 against a real corpus, without touching the judgement): 10-run window; 2 clean
+ * runs to recover; 6 h semantic throttle; 5-record semantic sample; result baseline
+ * needs ≥ 3 historical runs; structure drift = container count below 50 % of baseline
+ * or a field-presence share dropping ≥ 0.4. `tag_path` is stored but never judged (C4).
+ */
 
 // ── Repair session (packages/repair) ────────────────────────────────────────────
 
@@ -542,16 +575,21 @@ interface RenderResult {
   truncated: boolean
 }
 
-// ── export output ────────────────────────────────────────────────────────────
+// ── export output (packages/capabilities/export, stage 1-15) ─────────────────
 
+/**
+ * The `export` capability's result (typed in `packages/core` `capability.ts`).
+ *
+ * `bytes` is a measure for the UI ("what did this export cost"), not a promise of exact
+ * on-disk size: for csv / json it is the serialized string length, for copy the number of
+ * characters placed on the clipboard. The exported content itself never travels back (it
+ * is banned from logs and messages alike).
+ */
 interface ExportResult {
-  ok: boolean
   format: 'copy' | 'csv' | 'json'
-  /** Number of exported records. **The exported content itself never travels back** (banned from logs and messages alike) */
+  /** Number of exported records. */
   itemCount: number
-  /** Filename for csv / json downloads; undefined for copy */
-  filename?: string
-  error?: string
+  bytes?: number
 }
 
 // ── Browser Adapter (packages/browser — the only package that wraps chrome.* capabilities, see §6.4) ──
@@ -828,9 +866,10 @@ class CapabilityRegistry {
 Registering the same type twice throws: two implementations of one step type would make
 the meaning of that step depend on registration order.
 
-V1 registers four capabilities — `extract`, `transform`, `llm` and `render`. `export`
-(§6.3's `clipboard.write` / `downloads` consumer) joins at the same call in stage 1-15;
-the engine needs no change when it does, which is the point of having a registry.
+V1 registers five capabilities — `extract`, `transform`, `llm`, `render` and `export`. The
+fifth, `export` (§6.3's `clipboard.write` / `downloads` consumer, delivering copy / csv /
+json), joined through the same registration call in stage 1-15; the engine needed no change
+when it did, which is the point of having a registry.
 
 ### 6.3 Permission list
 
@@ -899,8 +938,8 @@ The exception is enforced by two guardrails (not by convention):
 
 | Component | Location | Responsibilities |
 |---|---|---|
-| Content Script | per tab, document_idle | floating ball host, chat / run panels (Shadow DOM isolation), highlight layer, page analysis, extract / transform / render / copy execution |
-| Background SW | persistent | message routing, llm step execution (BYOK key never enters the page context), storage gateway, CSV download |
+| Content Script | per tab, document_idle | floating ball host, chat / run panels (Shadow DOM isolation), highlight layer, page analysis, extract / transform / render / copy execution (downloads relay to background), export usage record |
+| Background SW | persistent | message routing, llm step execution (BYOK key never enters the page context), storage gateway, CSV / JSON download |
 | Popup | extension icon | tool overview entry (tools matching the current page + a link to the management page) |
 | Options | extension page | BYOK settings (key / endpoint / model), floating ball toggle |
 
@@ -955,12 +994,29 @@ type ExtensionMessage =
   | { kind: 'onboarding:get' }
   | { kind: 'onboarding:get_result'; flags: OnboardingFlags | null }
   // health (content script → background; semantic-layer checks call the model, whose key lives only in background)
+  // The message channel is the MANUAL "check once" path — the user's action, their tokens, the
+  // throttle deliberately bypassed. The AUTOMATIC path never crosses messaging: the run:report
+  // handler evaluates health and opens the gate only for a result/structure deviation plus the
+  // six-hour throttle (§10). The sample is page data: wrapped as a data section by the prompt
+  // builder, capped by `capSample` (SEMANTIC_SAMPLE_SIZE, 5) before it is sent, never
+  // stored, never logged.
   | { kind: 'health:semantic_check'; requestId: string; fields: string[]; sample: unknown[] }
   | { kind: 'health:semantic_check_result'; requestId: string; ok: boolean
-      ; verdict?: 'ok' | 'suspicious'; reason?: string; usage?: TokenUsage }
+      ; verdict?: 'ok' | 'suspicious'; reason?: string; usage?: TokenUsage
+      /** Failure carries the §5.5 llm error category, never a fabricated verdict: a failed
+       *  check must read as "no answer" and changes no status (§10). */
+      ; error?: string }
   // export (content script → background)
   | { kind: 'export:download_csv'; filename: string; csv: string }
   | { kind: 'export:download_json'; filename: string; json: string }
+  // The reply to a download request (stage 1-15). A refused download — permission gap,
+  // quota, an intercepting browser — is reported so the panel surfaces it and offers a
+  // retry instead of silently losing the result.
+  | { kind: 'export:download_result'; ok: boolean; error?: string }
+  // A successful export (copy, csv or json) records usage; storage is the background's to
+  // write (§7.1). The two download messages above carry no tool id, so the three formats
+  // share this one bookkeeping hop after they deliver (stage 1-15).
+  | { kind: 'export:record_usage'; toolId: string }
   // settings (popup / options ↔ background)
   | { kind: 'settings:get' }
   // Reply carries the public subset only — `api_key` never crosses back (§12). (Stage 1-8)
@@ -1262,10 +1318,15 @@ V1 scope of the four-layer checks: **execution, result, structure-fingerprint, a
 | Structure fingerprint | drift from the `structure_fingerprint` baseline — **V1 uses only the container count and field presence signals**; `tag_path` is recorded but does not participate in judgement (§8.1) | → `degraded` (can escalate to `broken` when the drift is pronounced and the result layer is off at the same time) | no |
 | Semantic | the model judges whether "elements were hit" equals "the right content was obtained" | serves as the **escalation basis** for `degraded` → `broken`; produces no state on its own | **yes** (via background; must be shown transparently) |
 
-> The semantic layer is the only one of the four that calls the model, so it **does not run on every execution**. Trigger principle (a constraint at this document's level):
-> the semantic check fires only when execution- and result-layer signals are normal but the structure-fingerprint layer has judged `degraded`, or when the result layer deviates repeatedly with no explanation in `run_state` changes;
-> triggering is throttled per tool (the minimum interval is defined by an implementation constant, no per-site configuration).
-> Implementation details land with the corresponding stage, but **the judgement signals and state mapping follow this section**.
+> The semantic layer is the only one of the four that calls the model, so it **does not run on every execution**. Trigger principle, as landed in stage 1-11:
+> the check fires only when the execution layer is ok **and** the result layer or the structure-fingerprint layer judged a deviation this run;
+> it is throttled per tool — at most once per `SEMANTIC_CHECK_MIN_INTERVAL_MS` (6 h; an implementation constant in `packages/health/src/constants.ts`, retuned in 2-4 without touching the judgement);
+> the user's manual "check once" bypasses the throttle (their action, their tokens).
+> A failed or timed-out check records `layers.semantic = 'error'` and changes **no** status: no network is not a broken tool.
+> The evaluation itself is a pure function (`evaluateHealth`, `packages/health`) that the background's `run:report` handler feeds on every run;
+> the sample sent to the model is capped at `SEMANTIC_SAMPLE_SIZE` (5) records and wrapped as a data section like any other llm call (§12.3).
+> The cap is a privacy bound, so it has **exactly one enforcer**: `capSample` (`packages/health/src/sample.ts`), which every caller — the content script's `healthInputs` and both background paths — goes through. It is idempotent, so capping twice is harmless; re-implementing `slice(0, N)` at a call site is not.
+> `broken` never heals itself — only a repaired version confirmed in 1-12 resets the state — and a degraded tool recovers after **two consecutive clean runs**.
 
 ```text
                       extract throws ───────────────┐

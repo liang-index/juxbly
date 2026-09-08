@@ -51,6 +51,13 @@ export default defineConfig({
         '@juxbly/analyzer': fileURLToPath(
           new URL('../../packages/analyzer/src/index.ts', import.meta.url),
         ),
+        // Stage 1-15: the serialisers the run panel's export buttons and the export
+        // capability share. Must precede `@juxbly/capabilities` so the shorter key does not
+        // swallow it, and it pulls no `ui` dependency — which is what keeps the shared
+        // serialisation from creating a ui↔capabilities cycle.
+        '@juxbly/capabilities/export': fileURLToPath(
+          new URL('../../packages/capabilities/src/export/index.ts', import.meta.url),
+        ),
         '@juxbly/capabilities': fileURLToPath(
           new URL('../../packages/capabilities/src/index.ts', import.meta.url),
         ),

@@ -148,11 +148,43 @@ export const en = {
     },
     saved: 'Saved to your tools',
     undo: 'Don’t keep',
+    // The ③ action area's three export actions (UI_SPEC §7.3). Success lines are light and
+    // factual; the failure line points at the retry that is already on screen (§9).
+    export: {
+      copy: 'Copy',
+      csv: 'CSV',
+      json: 'JSON',
+      copied: 'Copied',
+      downloading: 'Download started',
+      failed: 'The export failed. Try again.',
+      aria: {
+        copy: 'Copy result to clipboard',
+        csv: 'Download result as CSV',
+        json: 'Download result as JSON',
+      },
+    },
     discard: {
       confirm: 'Remove this tool?',
       confirm_body: 'It stops running on this page.',
       confirm_ok: 'Remove',
       cancel: 'Keep',
+    },
+    // Health presentation (UI_SPEC §7 / stage 1-11): degraded is a corner "?" that never
+    // interrupts; broken is an error state with a direction and a repair CTA. The
+    // per-case *reasons* come from the health engine (state machine), in English, and
+    // are shown as-is — they are diagnostics, not locale copy.
+    health: {
+      aria: 'This tool may not be reading the page correctly',
+      broken: 'This tool can no longer read this page.',
+      repair: 'Fix this tool',
+      retry: 'Refresh to try again.',
+      check: 'Check once',
+      checking: 'Checking…',
+      check_failed: 'The check did not run. No status was changed.',
+      check_ok: 'The content still looks right.',
+      check_suspicious: 'The content does not look right.',
+      tokens: 'tokens used',
+      last_check: 'Last check',
     },
   },
   views: {

@@ -7,6 +7,7 @@ import {
   deleteTool,
   loadTool,
   loadTools,
+  recordExportResult,
   recordRunResult,
   saveTool,
   TOOLS_KEY,
@@ -41,6 +42,7 @@ function record(overrides: Partial<ToolRecord> = {}): ToolRecord {
       recent_runs: [],
       structure_fingerprint: null,
       last_semantic_check: null,
+      consecutive_clean_runs: 0,
     },
     run_state: { last_extract_hash: null, last_llm_outputs: {} },
     usage: { ...DEFAULT_TOOL_USAGE },
@@ -176,6 +178,47 @@ describe('recordRunResult (stage 1-10, §8.1)', () => {
     const adapter = createMockAdapter()
 
     await expect(recordRunResult(adapter, 'tool_404', { at: '2026-09-07T12:00:00.000Z' })).resolves.toBe(false)
+    expect(adapter.calls.filter((call) => call.method === 'storage.set')).toHaveLength(0)
+  })
+})
+
+describe('recordExportResult (stage 1-15, §8.1)', () => {
+  it('counts the export and moves last_export_at — and nothing else', async () => {
+    const adapter = createMockAdapter({
+      storage: {
+        [TOOLS_KEY]: {
+          tool_1: record({
+            usage: { ...DEFAULT_TOOL_USAGE, run_count: 3, last_run_at: '2026-09-06T10:00:00.000Z' },
+          }),
+        },
+      },
+    })
+
+    await recordExportResult(adapter, 'tool_1', '2026-09-07T12:00:00.000Z')
+
+    const stored = await loadTool(adapter, 'tool_1')
+    expect(stored?.usage.export_count).toBe(1)
+    expect(stored?.usage.last_export_at).toBe('2026-09-07T12:00:00.000Z')
+    // An export is not a run: run fields stay where the run writer left them (§8.1).
+    expect(stored?.usage.run_count).toBe(3)
+    expect(stored?.usage.last_run_at).toBe('2026-09-06T10:00:00.000Z')
+  })
+
+  it('keeps counting across exports', async () => {
+    const adapter = createMockAdapter({ storage: { [TOOLS_KEY]: { tool_1: record() } } })
+
+    await recordExportResult(adapter, 'tool_1', '2026-09-07T12:00:00.000Z')
+    await recordExportResult(adapter, 'tool_1', '2026-09-07T13:00:00.000Z')
+
+    const stored = await loadTool(adapter, 'tool_1')
+    expect(stored?.usage.export_count).toBe(2)
+    expect(stored?.usage.last_export_at).toBe('2026-09-07T13:00:00.000Z')
+  })
+
+  it('writes nothing when the tool is gone (a refused export must not count)', async () => {
+    const adapter = createMockAdapter()
+
+    await expect(recordExportResult(adapter, 'tool_404', '2026-09-07T12:00:00.000Z')).resolves.toBe(false)
     expect(adapter.calls.filter((call) => call.method === 'storage.set')).toHaveLength(0)
   })
 })

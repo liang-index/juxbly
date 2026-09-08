@@ -105,7 +105,9 @@ describe('api key — source scan', () => {
     expect(SOURCE_FILES.length).toBeGreaterThan(10)
   })
 
-  it('mentions the key only where the contract puts it', () => {
+  // The scan walks every source file on disk; the repo outgrew the default 5 s
+  // test timeout, and a guard that fails on repo size is a guard that gets ignored.
+  it('mentions the key only where the contract puts it', { timeout: 30_000 }, () => {
     const offenders = SOURCE_FILES.filter(
       (file) =>
         KEY_MENTION.test(readFileSync(join(REPO_ROOT, file), 'utf8')) &&
@@ -116,7 +118,7 @@ describe('api key — source scan', () => {
     expect(offenders).toEqual([])
   })
 
-  it('reads Settings.api_key in packages/llm and nowhere else', () => {
+  it('reads Settings.api_key in packages/llm and nowhere else', { timeout: 30_000 }, () => {
     const offenders = SOURCE_FILES.filter(
       (file) =>
         KEY_FIELD_READ.test(readFileSync(join(REPO_ROOT, file), 'utf8')) &&

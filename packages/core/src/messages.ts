@@ -10,8 +10,13 @@
  * Types only. DSL types come in through `import type` (erased at compile time).
  */
 import type { LlmStep, ToolDefinition } from '@juxbly/dsl'
-import type { ChatMessage, PageAnalysis } from './runtime'
-import type { OnboardingFlags, RunState, RunSummary, Settings } from './tool-record'
+import type {
+  ChatMessage,
+  HealthEvaluation,
+  PageAnalysis,
+  RunError,
+} from './runtime'
+import type { OnboardingFlags, RunState, RunSummary, Settings, ToolHealth } from './tool-record'
 
 /** Shown in the panel for every real llm call (BYOK transparency). */
 export interface TokenUsage {
@@ -89,8 +94,36 @@ export type ExtensionMessage =
    * and only the content script has executed the steps that produced it), and `ok` is
    * what separates "the tool worked" from "the tool ran and failed" — the two cases
    * differ in what the background is allowed to conclude from them.
+   *
+   * Stage 1-11 adds the health inputs, all **optional** so a 1-10-era sender stays valid:
+   * `error` is the run engine's failure (the execution layer reads its extract codes),
+   * `extract` carries the structure statistics health fingerprints (statistics only —
+   * never the records), and `sample` is at most a few records for the semantic layer.
+   * The sample is page data crossing to the background, where the key lives anyway (§7.1);
+   * it is wrapped as a data section by the prompt builder and never stored, never logged.
    */
-  | { kind: 'run:report'; toolId: string; summary: RunSummary; ok?: boolean; runState?: RunState }
+  | {
+      kind: 'run:report'
+      toolId: string
+      summary: RunSummary
+      ok?: boolean
+      runState?: RunState
+      error?: RunError
+      extract?: { hitCount: number; fieldPresence: Record<string, number> }
+      sample?: unknown[]
+    }
+  /**
+   * The reply to `run:report` (stage 1-11): the freshly stored health plus the four-layer
+   * verdict, so the panel can render the badge immediately instead of re-reading storage.
+   * `ok` is false when the tool was deleted mid-flight — nothing was written.
+   */
+  | {
+      kind: 'run:report_result'
+      toolId: string
+      ok: boolean
+      health?: ToolHealth
+      evaluation?: Pick<HealthEvaluation, 'status' | 'changed' | 'reason' | 'layers'>
+    }
   /**
    * The mirror of `run:report`: a run starts by asking what the previous one left behind.
    * Without it the content script would rebuild the run state from scratch on every page
@@ -120,10 +153,29 @@ export type ExtensionMessage =
       verdict?: 'ok' | 'suspicious'
       reason?: string
       usage?: TokenUsage
+      /**
+       * Present only when `ok` is false: the same category codes as `run:llm_result`
+       * (§5.5), because "no key yet" and "the endpoint is down" are different next
+       * actions for the user, and a failed check must read as "no answer" — never as
+       * a fabricated verdict (§10: no network is not a broken tool).
+       */
+      error?: string
     }
   // Export (content script → background)
   | { kind: 'export:download_csv'; filename: string; csv: string }
   | { kind: 'export:download_json'; filename: string; json: string }
+  /**
+   * The reply to a download request (stage 1-15). A download can be refused — by a
+   * permission gap, quota or an intercepting browser — and the panel must surface that and
+   * offer a retry, never pretend a refused download was delivered.
+   */
+  | { kind: 'export:download_result'; ok: boolean; error?: string }
+  /**
+   * A successful export (copy, csv or json) records usage. Storage is the background's to
+   * write (§7.1), and the strict §7.2 download messages carry no tool id, so the three
+   * formats share this one bookkeeping hop after they deliver (stage 1-15).
+   */
+  | { kind: 'export:record_usage'; toolId: string }
   // Settings (popup / options ↔ background)
   | { kind: 'settings:get' }
   | {
@@ -157,12 +209,25 @@ export type RunQueryToolsResultMessage = Extract<ExtensionMessage, {
   kind: 'run:query_tools_result'
 }>
 export type RunReportMessage = Extract<ExtensionMessage, { kind: 'run:report' }>
+export type RunReportResultMessage = Extract<ExtensionMessage, { kind: 'run:report_result' }>
 export type RunLoadStateMessage = Extract<ExtensionMessage, { kind: 'run:load_state' }>
 export type RunLoadStateResultMessage = Extract<ExtensionMessage, { kind: 'run:load_state_result' }>
 export type ToolDeleteMessage = Extract<ExtensionMessage, { kind: 'tool:delete' }>
 export type ToolDeleteResultMessage = Extract<ExtensionMessage, { kind: 'tool:delete_result' }>
+export type ExportDownloadCsvMessage = Extract<ExtensionMessage, { kind: 'export:download_csv' }>
+export type ExportDownloadJsonMessage = Extract<ExtensionMessage, { kind: 'export:download_json' }>
+export type ExportDownloadResultMessage = Extract<ExtensionMessage, {
+  kind: 'export:download_result'
+}>
+export type ExportRecordUsageMessage = Extract<ExtensionMessage, { kind: 'export:record_usage' }>
 export type OnboardingGetResultMessage = Extract<ExtensionMessage, {
   kind: 'onboarding:get_result'
+}>
+export type HealthSemanticCheckMessage = Extract<ExtensionMessage, {
+  kind: 'health:semantic_check'
+}>
+export type HealthSemanticCheckResultMessage = Extract<ExtensionMessage, {
+  kind: 'health:semantic_check_result'
 }>
 
 export type BuildProposeMessage = Extract<ExtensionMessage, { kind: 'build:propose' }>
@@ -209,6 +274,21 @@ export function isToolDelete(message: unknown): message is ToolDeleteMessage {
   return hasKind(message, 'tool:delete')
 }
 
+export function isExportDownloadCsv(message: unknown): message is ExportDownloadCsvMessage {
+  return hasKind(message, 'export:download_csv')
+}
+
+export function isExportDownloadJson(message: unknown): message is ExportDownloadJsonMessage {
+  return hasKind(message, 'export:download_json')
+}
+
+/** `toolId` is the only non-kind field; check it as well, like the download messages. */
+export function isExportRecordUsage(
+  message: unknown,
+): message is ExportRecordUsageMessage & { kind: 'export:record_usage'; toolId: string } {
+  return hasKind(message, 'export:record_usage') && typeof (message as { toolId?: unknown }).toolId === 'string'
+}
+
 /** The build flow's two panel → background messages (§7.2). */
 export function isBuildPropose(message: unknown): message is BuildProposeMessage {
   return hasKind(message, 'build:propose')
@@ -216,4 +296,27 @@ export function isBuildPropose(message: unknown): message is BuildProposeMessage
 
 export function isBuildSaveTool(message: unknown): message is BuildSaveToolMessage {
   return hasKind(message, 'build:save_tool')
+}
+
+/**
+ * The semantic health check (stage 1-11). The payload is page data crossing a trust
+ * boundary, so the arrays are checked as arrays here and their elements are narrowed
+ * again by the handler — `sample` is `unknown[]` on purpose: records are whatever the
+ * extract step produced, and no shape is trusted before the prompt wraps them as data.
+ */
+export function isHealthSemanticCheck(
+  message: unknown,
+): message is HealthSemanticCheckMessage & {
+  requestId: string
+  fields: string[]
+  sample: unknown[]
+} {
+  if (!hasKind(message, 'health:semantic_check')) return false
+  const m = message as { requestId?: unknown; fields?: unknown; sample?: unknown }
+  return (
+    typeof m.requestId === 'string' &&
+    Array.isArray(m.fields) &&
+    m.fields.every((f) => typeof f === 'string') &&
+    Array.isArray(m.sample)
+  )
 }

@@ -38,6 +38,7 @@ export function emptyHealth(): ToolHealth {
     recent_runs: [],
     structure_fingerprint: null,
     last_semantic_check: null,
+    consecutive_clean_runs: 0,
   }
 }
 
@@ -121,6 +122,52 @@ export async function recordRunResult(
     run_state: input.runState ?? record.run_state,
     updated_at: input.at,
   }
+  await adapter.storage.set(TOOLS_KEY, tools)
+  return true
+}
+
+/** Returns false when there is no record for this tool — an export of a deleted tool is not a write. */
+export async function recordExportResult(
+  adapter: BrowserAdapter,
+  toolId: string,
+  at: string,
+): Promise<boolean> {
+  const tools = await loadTools(adapter)
+  const record = tools[toolId]
+  if (record === undefined) return false
+
+  // Only the export fields move; `run_count` / `last_run_at` are 1-10's to write and a
+  // *run* must not be conflated with an *export* (§8.1).
+  const usage: ToolUsage = {
+    ...DEFAULT_TOOL_USAGE,
+    ...record.usage,
+    export_count: record.usage.export_count + 1,
+    last_export_at: at,
+  }
+
+  tools[toolId] = { ...record, usage, updated_at: at }
+  await adapter.storage.set(TOOLS_KEY, tools)
+  return true
+}
+
+/**
+ * Stores what a run's health evaluation produced (stage 1-11, §8.1): the new `ToolHealth`
+ * — status, the appended `recent_runs` window, the fingerprint baseline, the semantic
+ * check when one ran, the recovery counter — wholesale. The *judgement* belongs to
+ * `evaluateHealth` (pure, in `@juxbly/health`); this function is deliberately dumb, so
+ * a bug here can corrupt one record but never invent a verdict.
+ */
+export async function recordHealthResult(
+  adapter: BrowserAdapter,
+  toolId: string,
+  health: ToolHealth,
+  at: string,
+): Promise<boolean> {
+  const tools = await loadTools(adapter)
+  const record = tools[toolId]
+  if (record === undefined) return false
+
+  tools[toolId] = { ...record, health, updated_at: at }
   await adapter.storage.set(TOOLS_KEY, tools)
   return true
 }
