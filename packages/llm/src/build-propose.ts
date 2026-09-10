@@ -186,6 +186,8 @@ export function buildInstruction(input: InstructionInput): string {
     'Rules:',
     '- No control flow, no code, no scripts. Steps run in order, once.',
     '- Prefer the container and field selectors offered in the data section; they already exist on the page.',
+    '- Build selectors from stable anchors only: semantic custom-element tags (e.g. shreddit-post), aria-* and data-* attributes, stable class names, or structural position (:nth-of-type).',
+    "- Never use hashed or generated class names (like css-1x2y3z or jss1234): they change on the site's next deploy and the tool will break.",
     '- Field selectors are relative to the container selector.',
     '- "link" reads href, "image" reads src, "text" reads text.',
   )

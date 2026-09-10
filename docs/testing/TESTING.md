@@ -32,6 +32,32 @@ pnpm test:bench                  # benchmark (Phase 2+)
 pnpm test:bench -- --case C-03   # one case
 ```
 
+## Web Corpus
+
+`tests/benchmark/corpus/` holds the snapshotted pages Phase 2 measures against, one directory
+per case id. Two checks guard it, and they need different things:
+
+| Check | Runs in | Needs |
+|---|---|---|
+| Corpus health — distribution, completeness, secret scan, offline loadability | `pnpm test` | nothing external |
+| Snapshot capture — the pipeline that writes a snapshot | `pnpm test` (skipped without a browser) | Chromium, and network for a live site |
+
+Capture is the only supported write path into the corpus (`scripts/snapshot-site.mjs`), and it
+refuses rather than warns: a page whose bucket does not survive measurement, a path its
+robots.txt forbids, a snapshot carrying a credential, and a snapshot containing CJK text — the
+public tree stays CJK-free ([`DOC_VISIBILITY.md`](../contributing/DOC_VISIBILITY.md)) — are all
+rejected with a reason and nothing is written. Nothing is overridable from the command line;
+the one knob is `MAX_SNAPSHOT_BYTES` in `apps/playground/lib/corpus.mjs`, which is a reviewable
+edit rather than a flag. Attributes whose name marks a credential slot
+(`data-algolia-search-key`, `data-token-hash`, …) are dropped from the snapshot — the element
+stays, the credential slot does not — because the repository's own secret scanner cannot tell a
+client-side key from a leak, and CI runs it on the tree.
+
+CI runs the health check. It does not download a browser, so the capture cases report as
+skipped there; run `pnpm exec playwright install chromium` to exercise them locally.
+`pnpm test:corpus` (equivalently `node scripts/check-corpus.mjs`) runs the whole health check on
+its own, which is what a maintainer wants after touching `corpus-sources.mjs`.
+
 ## Naming
 
 Test files mirror their source: `match-url.ts` → `match-url.test.ts`. Test names state the behaviour and the case, e.g. `it('rejects forward references to variables produced later')`.

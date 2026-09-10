@@ -1,0 +1,42 @@
+{
+  "id": "B-04",
+  "url": "https://webpack.js.org/concepts/",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:17:50.989Z",
+  "sizeBytes": 174012,
+  "verifiedOn": "2026-09-10",
+  "title": "Concepts | webpack",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://webpack.js.org/"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 94431,
+    "assetCount": 2,
+    "nodeCount": 1148,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 414,
+    "hashedClassTokens": 3,
+    "maxRepeatingCount": 168
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://webpack.js.org/robots.txt"
+  },
+  "notes": "Docusaurus: client-side navigation over a docs tree.",
+  "personalDataHits": []
+}

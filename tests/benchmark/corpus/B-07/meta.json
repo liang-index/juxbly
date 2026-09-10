@@ -1,0 +1,41 @@
+{
+  "id": "B-07",
+  "url": "https://yarnpkg.com/",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:16.787Z",
+  "sizeBytes": 11623,
+  "verifiedOn": "2026-09-10",
+  "title": "Home page | Yarn",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://yarnpkg.com/getting-started"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 259890,
+    "assetCount": 1,
+    "nodeCount": 339,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 58,
+    "hashedClassTokens": 8,
+    "maxRepeatingCount": 194
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "BSD-2-Clause",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://yarnpkg.com/robots.txt"
+  },
+  "notes": "Gatsby-built docs: hydration plus client-side route transitions.",
+  "personalDataHits": []
+}

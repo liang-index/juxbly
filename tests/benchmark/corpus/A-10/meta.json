@@ -1,0 +1,41 @@
+{
+  "id": "A-10",
+  "url": "https://www.kernel.org/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:22.584Z",
+  "sizeBytes": 20350,
+  "verifiedOn": "2026-09-10",
+  "title": "The Linux Kernel Archives",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 109,
+    "repeatingSelector": "td."
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 13860,
+    "assetCount": 3,
+    "nodeCount": 328,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 11,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 109
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "GPL-2.0 (project site)",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://www.kernel.org/robots.txt"
+  },
+  "notes": "Release table plus news list on one page: two candidate containers, only one of them the answer.",
+  "personalDataHits": []
+}

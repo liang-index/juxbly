@@ -1,0 +1,44 @@
+{
+  "id": "B-08",
+  "url": "https://bun.sh/",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:53.443Z",
+  "sizeBytes": 256235,
+  "verifiedOn": "2026-09-10",
+  "title": "Bun \u2014 A fast all-in-one JavaScript runtime",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://bun.sh/blog/bun-joins-anthropic"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 140683,
+    "assetCount": 1,
+    "nodeCount": 3203,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 649,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 301
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://bun.sh/robots.txt"
+  },
+  "notes": "3200 nodes rendered entirely client-side; a large DOM with no server-rendered equivalent.",
+  "personalDataHits": [
+    "email"
+  ]
+}

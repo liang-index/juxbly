@@ -1,0 +1,42 @@
+{
+  "id": "B-05",
+  "url": "https://styled-components.com/",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:33.509Z",
+  "sizeBytes": 405605,
+  "verifiedOn": "2026-09-10",
+  "title": "styled-components",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://styled-components.com/docs"
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 9681,
+    "assetCount": 3,
+    "nodeCount": 2025,
+    "shadowRootCount": 1,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 221,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 430
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://styled-components.com/robots.txt"
+  },
+  "notes": "A CSS-in-JS library homepage that (measured) uses readable class names \u2014 kept for its routing, not its styling.",
+  "personalDataHits": []
+}

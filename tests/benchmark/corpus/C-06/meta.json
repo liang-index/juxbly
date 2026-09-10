@@ -1,0 +1,49 @@
+{
+  "id": "C-06",
+  "url": "https://material-web.dev/components/button/",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:37.477Z",
+  "sizeBytes": 1038605,
+  "verifiedOn": "2026-09-10",
+  "title": "Material Web - Buttons",
+  "bucketEvidence": {
+    "verdict": "122 of 325 shadow roots carry content",
+    "shadowRootCount": 325,
+    "shadowRootWithContentCount": 122,
+    "customElementCount": 346,
+    "shadowHostSample": [
+      "nav-drawer",
+      "top-app-bar",
+      "md-icon-button",
+      "md-icon-button",
+      "md-icon-button"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 13325,
+    "assetCount": 4,
+    "nodeCount": 1485,
+    "shadowRootCount": 325,
+    "shadowRootWithContentCount": 122,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 346,
+    "classTokenCount": 100,
+    "hashedClassTokens": 7,
+    "maxRepeatingCount": 325
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "Apache-2.0",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://material-web.dev/robots.txt"
+  },
+  "notes": "126 content-bearing root(s) and a demo panel whose markup exists only inside them.",
+  "personalDataHits": []
+}

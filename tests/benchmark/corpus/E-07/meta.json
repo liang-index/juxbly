@@ -1,0 +1,52 @@
+{
+  "id": "E-07",
+  "url": "https://www.gatsbyjs.com/docs/quick-start/",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:21:31.251Z",
+  "sizeBytes": 197182,
+  "verifiedOn": "2026-09-10",
+  "title": "Quick Start | Gatsby",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.81",
+    "hashedClassTokens": 126,
+    "hashedClassRatio": 0.813,
+    "classTokenCount": 155,
+    "hashedSample": [
+      "css-1jgzl0j",
+      "_1nrsguc",
+      "_1hqpeon3m",
+      "_1nrsgu0",
+      "_1nrsgud"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 0,
+    "assetCount": 0,
+    "nodeCount": 641,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 1,
+    "customElementCount": 0,
+    "classTokenCount": 155,
+    "hashedClassTokens": 126,
+    "maxRepeatingCount": 102
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.gatsbyjs.com/robots.txt"
+  },
+  "notes": "Build-time generated utility names: 126 of 155 tokens.",
+  "personalDataHits": [
+    "email"
+  ]
+}

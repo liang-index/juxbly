@@ -1,0 +1,41 @@
+{
+  "id": "A-01",
+  "url": "https://books.toscrape.com/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:03.691Z",
+  "sizeBytes": 50538,
+  "verifiedOn": "2026-09-10",
+  "title": "All products | Books to Scrape - Sandbox",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 100,
+    "repeatingSelector": "i.icon-star"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 227803,
+    "assetCount": 3,
+    "nodeCount": 542,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 46,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 100
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://books.toscrape.com/robots.txt"
+  },
+  "notes": "Product grid: title, price, rating, availability. 100 repeated units \u2014 the baseline shape.",
+  "personalDataHits": []
+}

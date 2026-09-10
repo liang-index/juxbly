@@ -1,0 +1,42 @@
+{
+  "id": "A-09",
+  "url": "https://nginx.org/en/docs/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:19.073Z",
+  "sizeBytes": 13972,
+  "verifiedOn": "2026-09-10",
+  "title": "nginx documentation",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 152,
+    "repeatingSelector": "li."
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 7928,
+    "assetCount": 1,
+    "nodeCount": 380,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 9,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 152
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "BSD-2-Clause",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://nginx.org/robots.txt"
+  },
+  "notes": "Documentation hub: nested link groups, very few class names to anchor on.",
+  "personalDataHits": []
+}

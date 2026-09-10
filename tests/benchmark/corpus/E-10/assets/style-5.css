@@ -1,0 +1,59 @@
+/* NEUBAU WEBFONTS: NB INTERNTIONAL PRO EDITION, MMXXI */
+
+@font-face {
+    font-family: 'nb_international_pro';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalproreg-webfont.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'nb_international_pro';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalproita-webfont.woff2') format('woff2');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'nb_international_pro';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalpromed-webfont.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'nb_international_pro';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalpromedita-webfont.woff2') format('woff2');
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Bold font variable mapped to font weight of 600 and 700 */
+@font-face {
+    font-family: 'nb_international_pro';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalprobol-webfont.woff2') format('woff2');
+    font-weight: 600 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'nb_international_pro';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalprobolita-webfont.woff2') format('woff2');
+    font-weight: 600 700;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* Mono used with buttons and code */
+@font-face {
+    font-family: 'nb_international_promono';
+    src: url('https://cdn.vaadin.com/website/antlers/v2/assets/fonts/nbinternationalpro/nbinternationalpromono-webfont.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}

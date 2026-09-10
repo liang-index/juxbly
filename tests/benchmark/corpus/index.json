@@ -1,0 +1,363 @@
+{
+  "generatedAt": "2026-09-10T16:28:04.724Z",
+  "count": 50,
+  "buckets": {
+    "A": 12,
+    "B": 10,
+    "C": 10,
+    "D": 8,
+    "E": 10
+  },
+  "snapshots": [
+    {
+      "id": "A-01",
+      "bucket": "A",
+      "url": "https://books.toscrape.com/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 50538
+    },
+    {
+      "id": "A-02",
+      "bucket": "A",
+      "url": "https://quotes.toscrape.com/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 11009
+    },
+    {
+      "id": "A-03",
+      "bucket": "A",
+      "url": "https://webscraper.io/test-sites/tables",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 51853
+    },
+    {
+      "id": "A-04",
+      "bucket": "A",
+      "url": "https://scrapeme.live/shop/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 55641
+    },
+    {
+      "id": "A-05",
+      "bucket": "A",
+      "url": "https://docs.python.org/3/library/functions.html",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 322157
+    },
+    {
+      "id": "A-06",
+      "bucket": "A",
+      "url": "https://www.crummy.com/software/BeautifulSoup/bs4/doc/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 369720
+    },
+    {
+      "id": "A-07",
+      "bucket": "A",
+      "url": "https://www.postgresql.org/docs/current/functions-math.html",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 72085
+    },
+    {
+      "id": "A-08",
+      "bucket": "A",
+      "url": "https://www.sqlite.org/lang.html",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 33756
+    },
+    {
+      "id": "A-09",
+      "bucket": "A",
+      "url": "https://nginx.org/en/docs/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 13972
+    },
+    {
+      "id": "A-10",
+      "bucket": "A",
+      "url": "https://www.kernel.org/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 20350
+    },
+    {
+      "id": "A-11",
+      "bucket": "A",
+      "url": "https://go.dev/doc/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 52187
+    },
+    {
+      "id": "A-12",
+      "bucket": "A",
+      "url": "https://www.gnu.org/software/emacs/manual/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 14626
+    },
+    {
+      "id": "B-01",
+      "bucket": "B",
+      "url": "https://svelte.dev/docs/kit/routing",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 327496
+    },
+    {
+      "id": "B-02",
+      "bucket": "B",
+      "url": "https://vuejs.org/guide/essentials/template-syntax.html",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 106485
+    },
+    {
+      "id": "B-03",
+      "bucket": "B",
+      "url": "https://nuxt.com/docs/guide/directory-structure/app",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 214909
+    },
+    {
+      "id": "B-04",
+      "bucket": "B",
+      "url": "https://webpack.js.org/concepts/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 174012
+    },
+    {
+      "id": "B-05",
+      "bucket": "B",
+      "url": "https://styled-components.com/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 405605
+    },
+    {
+      "id": "B-06",
+      "bucket": "B",
+      "url": "https://crates.io/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 47809
+    },
+    {
+      "id": "B-07",
+      "bucket": "B",
+      "url": "https://yarnpkg.com/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 11623
+    },
+    {
+      "id": "B-08",
+      "bucket": "B",
+      "url": "https://bun.sh/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 256235
+    },
+    {
+      "id": "B-09",
+      "bucket": "B",
+      "url": "https://docs.github.com/en",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 38496
+    },
+    {
+      "id": "B-10",
+      "bucket": "B",
+      "url": "https://prettier.io/docs/en/index.html",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 32308
+    },
+    {
+      "id": "C-01",
+      "bucket": "C",
+      "url": "https://chromestatus.com/features",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 84785
+    },
+    {
+      "id": "C-02",
+      "bucket": "C",
+      "url": "https://chromestatus.com/roadmap",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 167430
+    },
+    {
+      "id": "C-03",
+      "bucket": "C",
+      "url": "https://shoelace.style/components/button",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 405638
+    },
+    {
+      "id": "C-04",
+      "bucket": "C",
+      "url": "https://shoelace.style/components/input",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 310154
+    },
+    {
+      "id": "C-05",
+      "bucket": "C",
+      "url": "https://material-web.dev/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 511109
+    },
+    {
+      "id": "C-06",
+      "bucket": "C",
+      "url": "https://material-web.dev/components/button/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 1038605
+    },
+    {
+      "id": "C-07",
+      "bucket": "C",
+      "url": "https://lit.dev/docs/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 197265
+    },
+    {
+      "id": "C-08",
+      "bucket": "C",
+      "url": "https://lit.dev/docs/components/events/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 295018
+    },
+    {
+      "id": "C-09",
+      "bucket": "C",
+      "url": "https://redux-toolkit.js.org/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 27147
+    },
+    {
+      "id": "C-10",
+      "bucket": "C",
+      "url": "https://open-wc.org/guides/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 18316
+    },
+    {
+      "id": "D-01",
+      "bucket": "D",
+      "url": "https://quotes.toscrape.com/scroll",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 24745
+    },
+    {
+      "id": "D-02",
+      "bucket": "D",
+      "url": "https://dev.to/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 564053
+    },
+    {
+      "id": "D-03",
+      "bucket": "D",
+      "url": "https://mastodon.social/explore",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 111589
+    },
+    {
+      "id": "D-04",
+      "bucket": "D",
+      "url": "https://mastodon.online/explore",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 104342
+    },
+    {
+      "id": "D-05",
+      "bucket": "D",
+      "url": "https://hachyderm.io/explore",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 119728
+    },
+    {
+      "id": "D-06",
+      "bucket": "D",
+      "url": "https://react.dev/learn",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 257640
+    },
+    {
+      "id": "D-07",
+      "bucket": "D",
+      "url": "https://ant.design/docs/react/introduce",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 372634
+    },
+    {
+      "id": "D-08",
+      "bucket": "D",
+      "url": "https://www.scrapethissite.com/pages/ajax-javascript/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 10179
+    },
+    {
+      "id": "E-01",
+      "bucket": "E",
+      "url": "https://emotion.sh/docs/introduction",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 55147
+    },
+    {
+      "id": "E-02",
+      "bucket": "E",
+      "url": "https://infinite-scroll.com/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 42517
+    },
+    {
+      "id": "E-03",
+      "bucket": "E",
+      "url": "https://mui.com/material-ui/getting-started/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 252094
+    },
+    {
+      "id": "E-04",
+      "bucket": "E",
+      "url": "https://mui.com/material-ui/react-button/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 738677
+    },
+    {
+      "id": "E-05",
+      "bucket": "E",
+      "url": "https://chakra-ui.com/docs/components/button",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 479747
+    },
+    {
+      "id": "E-06",
+      "bucket": "E",
+      "url": "https://emotion.sh/docs/styled",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 103105
+    },
+    {
+      "id": "E-07",
+      "bucket": "E",
+      "url": "https://www.gatsbyjs.com/docs/quick-start/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 197182
+    },
+    {
+      "id": "E-08",
+      "bucket": "E",
+      "url": "https://www.gatsbyjs.com/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 188949
+    },
+    {
+      "id": "E-09",
+      "bucket": "E",
+      "url": "https://react-hook-form.com/get-started",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 395632
+    },
+    {
+      "id": "E-10",
+      "bucket": "E",
+      "url": "https://mui.com/material-ui/customization/theming/",
+      "verifiedOn": "2026-09-10",
+      "sizeBytes": 421302
+    }
+  ]
+}

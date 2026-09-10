@@ -12,5 +12,6 @@ const { origin } = await startPlaygroundServer({ port: Number(process.env.PORT ?
 console.log(`playground serving on ${origin}`)
 console.log(`  lifecycle page  ${origin}/lifecycle.html`)
 console.log(`  fixture pages   ${origin}/pages/`)
+console.log(`  web corpus      ${origin}/corpus/ (index at ${origin}/corpus-index)`)
 console.log(`  recorded model  ${origin}/v1`)
 console.log('Ctrl-C to stop')

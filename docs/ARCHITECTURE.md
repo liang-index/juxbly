@@ -86,12 +86,12 @@ The directory layout follows EC §7 — semantic boundaries: a stranger can infe
 
 | Module | Responsibility | Key exports | Depends on | Side effects / output |
 |---|---|---|---|---|
-| `packages/core` | Domain models and the cross-context message protocol | `ToolRecord`, `HealthStatus`, `ExtensionMessage` and other types | none | none (pure types) |
+| `packages/core` | Domain models, the cross-context message protocol, and the shared selector-anchor rule | `ToolRecord`, `HealthStatus`, `ExtensionMessage` and other types; `isHashedClassToken()`, `isFragileSelector()` | none | none (pure types and pure functions) |
 | `packages/dsl` | DSL type definitions, schema validation, URL matching | `validateToolDefinition()`, `matchUrl()`, `parseUrlPattern()` | core | none (pure functions) |
 | `packages/runtime` | Step orchestration, the variable bag, llm-cache decisions, capability registry | `ToolRuntime`, `CapabilityRegistry` | core, dsl | no direct side effects (through injected ports) |
 | `packages/capabilities` | The five capability executors (extract / transform / llm / render / export) | one `CapabilityDefinition` implementation each | core, dsl, browser (interface), ui (render views only) | DOM reads, clipboard writes |
 | `packages/browser` | Browser Adapter: chrome API abstraction + mock implementation | the `BrowserAdapter` interface | core | **the only package that wraps chrome.* capabilities** (assembly-layer exception in §6.4.1) |
-| `packages/analyzer` | Page analysis: visible-text simplification, structural features, dynamic custom-element scan, shadow expansion | `analyzePage()` | none | none (pure DOM reads) |
+| `packages/analyzer` | Page analysis: visible-text simplification, structural features, dynamic custom-element scan, shadow expansion | `analyzePage()` | core | none (pure DOM reads) |
 | `packages/health` | Breakage evaluation and the health state machine | `evaluateHealth()` | core, dsl | none (results are written through storage) |
 | `packages/repair` | Repair sessions, version creation and rollback | `commitRepair()`, `rollbackTo()`, `fromHealth()`, `fromUserEdit()`, `buildContextMessage()` | core, dsl | none — pure record transformations; the background writes (§7.1) |
 | `packages/ui` | Floating ball, chat panel, run panel, highlight layer, three views, onboarding nodes, popup, options | React components, `installGlow()`, `introLine()`, `shouldRequestKey()`, `overviewRows()` | core, dsl | DOM rendering (Shadow DOM isolation) |
@@ -275,6 +275,10 @@ Validated **twice** — before saving and before every run. Any failure rejects:
 6. A `regex`'s `pattern` must pass the safe-regex check (no catastrophic-backtracking constructs).
 7. `url_pattern` must be parseable by `parseUrlPattern`.
 8. A `type` outside §5.2 or an unknown field → reject. This is what stops the DSL from quietly growing (EC §20 agent prohibitions).
+9. No selector in an `extract` step — the container `selector` and every `fields` value, in both modes — may anchor on a
+   **hashed class** (build output like `css-1x2y3z`): it changes on the site's next deploy, so a definition that passes today is
+   guaranteed to break later. Rejected with `SELECTOR_FRAGILE`. The hashed-class rule itself lives in `@juxbly/core`
+   (`selector.ts`) and is shared with the analyzer's selector policy, so generation and validation cannot drift apart.
 
 ### 5.5 Runtime contracts
 

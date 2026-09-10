@@ -16,6 +16,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "pnpm build && node apps/playground/e2e/lifecycle.mjs",
+    "test:corpus": "node scripts/check-corpus.mjs",
     "test:bench": "node scripts/stage-placeholder.mjs 2-3"
   },
   "devDependencies": {

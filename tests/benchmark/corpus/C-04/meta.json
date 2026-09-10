@@ -1,0 +1,49 @@
+{
+  "id": "C-04",
+  "url": "https://shoelace.style/components/input",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:20.104Z",
+  "sizeBytes": 310154,
+  "verifiedOn": "2026-09-10",
+  "title": "Input",
+  "bucketEvidence": {
+    "verdict": "123 of 278 shadow roots carry content",
+    "shadowRootCount": 278,
+    "shadowRootWithContentCount": 123,
+    "customElementCount": 278,
+    "shadowHostSample": [
+      "sl-button",
+      "sl-menu-item",
+      "sl-icon",
+      "sl-menu-item",
+      "sl-icon"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 81240,
+    "assetCount": 5,
+    "nodeCount": 2635,
+    "shadowRootCount": 278,
+    "shadowRootWithContentCount": 123,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 278,
+    "classTokenCount": 186,
+    "hashedClassTokens": 31,
+    "maxRepeatingCount": 484
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://shoelace.style/robots.txt"
+  },
+  "notes": "Component reference where the fields sit one root deeper than the container.",
+  "personalDataHits": []
+}

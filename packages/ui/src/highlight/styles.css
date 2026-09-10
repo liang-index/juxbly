@@ -9,13 +9,29 @@
  * `pointer-events` is the one non-obvious rule: the layer is transparent to the page so
  * the user can still scroll and read, while each box re-enables clicks because clicking a
  * box is how a field gets corrected.
+ *
+ * ## The stacking ladder
+ *
+ * Every surface lives in the same shadow root, so their order relative to each other is a
+ * number in this file and nowhere else. The values are the prototype's
+ * (`docs/prototypes/juxbly-prototype-v1.html`: `.jx-hl-layer` 500, `.jx-ball` 600,
+ * `.jx-panel` 700) and the order is load-bearing, not cosmetic — a box is
+ * `pointer-events: auto`, and a tool whose field selector matches a full-viewport
+ * container draws a box that covers the whole screen. With the panel underneath it, the
+ * panel's own buttons stop receiving clicks and the last step of the build flow —
+ * confirm — becomes unreachable while looking perfectly fine (found on excalidraw.com,
+ * stage 1-14 dogfood; a DOM-dispatched click still worked, which is how the input path
+ * was cleared as the cause).
+ *
+ * `tests/unit/ui/layering.test.ts` holds the three values to this order.
  */
 
 .jx-highlight-layer {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 590;
+  /* Ladder: 500 — bottom of the three, above the host page. */
+  z-index: 500;
 }
 
 .jx-highlight {

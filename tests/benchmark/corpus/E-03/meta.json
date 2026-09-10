@@ -1,0 +1,50 @@
+{
+  "id": "E-03",
+  "url": "https://mui.com/material-ui/getting-started/",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:20:53.555Z",
+  "sizeBytes": 252094,
+  "verifiedOn": "2026-09-10",
+  "title": "Overview - Material UI",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.55",
+    "hashedClassTokens": 113,
+    "hashedClassRatio": 0.549,
+    "classTokenCount": 206,
+    "hashedSample": [
+      "__className_fa2f99",
+      "__className_d1796c",
+      "__className_34246c",
+      "__className_c5436a",
+      "css-14uhdw1"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 83651,
+    "assetCount": 3,
+    "nodeCount": 462,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 206,
+    "hashedClassTokens": 113,
+    "maxRepeatingCount": 40
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://mui.com/robots.txt"
+  },
+  "notes": "MUI emits emotion classes (`MuiButton-root`, `css-1a2b3c`) over a deep DOM \u2014 113 of 207 tokens.",
+  "personalDataHits": []
+}

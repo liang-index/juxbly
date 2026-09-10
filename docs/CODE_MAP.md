@@ -20,7 +20,7 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 
 | Package | Owns | Key exports | Must not |
 |---|---|---|---|
-| `packages/core` | domain models, cross-context message protocol, message-boundary guards and patch shapers (`messages.ts`, `settings.ts` — code every bundle needs, the content script's included) | `ToolRecord`, `HealthStatus`, `ExtensionMessage`, `sanitizeSettingsPatch`, `buildSettingsPatch` | hold business logic; touch the platform or storage |
+| `packages/core` | domain models, cross-context message protocol, message-boundary guards and patch shapers (`messages.ts`, `settings.ts` — code every bundle needs, the content script's included), and the shared selector-anchor rule (`selector.ts`) | `ToolRecord`, `HealthStatus`, `ExtensionMessage`, `sanitizeSettingsPatch`, `buildSettingsPatch`, `isHashedClassToken`, `isFragileSelector` | hold business logic; touch the platform or storage |
 | `packages/dsl` | DSL types, schema validation, URL matching | `validateToolDefinition`, `matchUrl`, `parseUrlPattern` | import `chrome.*`, touch the DOM |
 | `packages/runtime` | step orchestration, variable bag, llm cache decision, capability registry | `ToolRuntime`, `CapabilityRegistry`, `createRuntimePorts`, `stableHash`, `VariableBag` | call platform APIs directly; produce side effects except through injected ports |
 | `packages/capabilities` | the five executors | `CapabilityDefinition` implementations | bypass the registry, silently swallow failures |

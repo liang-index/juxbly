@@ -1,0 +1,2441 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>Chrome Platform Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+  <meta name="theme-color" content="#366597">
+
+  <link rel="stylesheet" href="assets/style-1.css">
+
+  <link rel="icon" href="/static/img/crstatus_192.png">
+
+  <!-- iOS: run in full-screen mode and display upper status bar as translucent -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="apple-touch-icon" href="/static/img/crstatus_128.png">
+  <link rel="apple-touch-icon-precomposed" href="/static/img/crstatus_128.png">
+  <link rel="shortcut icon" href="/static/img/crstatus_128.png">
+
+  
+
+  
+  
+
+  <link rel="stylesheet" href="assets/style-2.css">
+
+  
+  <style id="googleidentityservice_button_styles" nonce="">.qJTHM{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;color:#202124;direction:ltr;-webkit-touch-callout:none;font-family:Roboto-Regular,arial,sans-serif;-webkit-font-smoothing:antialiased;font-weight:400;margin:0;overflow:hidden;-webkit-text-size-adjust:100%}.ynRLnc{left:-9999px;position:absolute;top:-9999px}.L6cTce{display:none}.bltWBb{overflow-wrap:break-word;word-break:break-word}.hSRGPd{color:#1a73e8;cursor:pointer;font-weight:500;text-decoration:none}.Bz112c-W3lGp{height:16px;width:16px}.Bz112c-E3DyYd{height:20px;width:20px}.Bz112c-r9oPif{height:24px;width:24px}.Bz112c-u2z5K{height:36px;width:36px}.Bz112c-uaxL4e{border-radius:10px}.LgbsSe-Bz112c{display:block}.S9gUrf-YoZ4jf{border:none;margin:0;padding:0}.S9gUrf-YoZ4jf *{border:none;margin:0;padding:0}.fFW7wc-ibnC6b>.aZ2wEe>div{border-color:#4285f4}.P1ekSe-ZMv3u{-webkit-transition:height .2s linear;transition:height .2s linear}.P1ekSe-ZMv3u>div:first-child{background-color:#1a73e8!important;-webkit-transition:width .3s linear;transition:width .3s linear}.P1ekSe-ZMv3u>div:nth-child(2){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.P1ekSe-ZMv3u>div:nth-child(3){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.haAclf{display:inline-block}.nsm7Bb-HzV7m-LgbsSe{border-radius:4px;box-sizing:border-box;-webkit-transition:background-color .218s,border-color .218s;transition:background-color .218s,border-color .218s;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-webkit-appearance:none;background-color:#fff;background-image:none;border:1px solid #dadce0;color:#3c4043;cursor:pointer;font-family:Google Sans,arial,sans-serif;font-size:.875rem;height:40px;letter-spacing:.25px;outline:none;overflow:hidden;padding:0 12px;position:relative;text-align:center;vertical-align:middle;white-space:nowrap;width:auto}.nsm7Bb-HzV7m-LgbsSe.TzA9Ye-LgbsSe{font-size:14px}@media screen and (-ms-high-contrast:active){.nsm7Bb-HzV7m-LgbsSe{border:2px solid windowText;color:windowText}}@media screen and (preferes-contrast:more){.nsm7Bb-HzV7m-LgbsSe{color:#000}}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe{font-size:.875rem;height:32px;letter-spacing:.25px;padding:0 10px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.TzA9Ye-LgbsSe{font-size:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe{font-size:.6875rem;height:20px;letter-spacing:.3px;padding:0 8px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.TzA9Ye-LgbsSe{font-size:11px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe{padding:0;width:40px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe{width:32px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe{width:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK{border-radius:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.pSzOP-SxQuSe{border-radius:16px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.purZT-SxQuSe{border-radius:10px}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc{border:1px solid #8e918f;background-color:#131314;color:#e3e3e3}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc{border:none;color:#fff}.nsm7Bb-HzV7m-LgbsSe.MFS4be-v3pZbf-Ia7Qfc{background-color:#1a73e8}.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{background-color:#202124;color:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{color:#fff}}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:18px;margin-right:8px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:14px;min-width:14px;width:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:10px;min-width:10px;width:10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin-left:8px;margin-right:-4px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:10px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:8px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:4px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:3px;border-bottom-left-radius:3px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;align-items:center;background-color:#fff;height:36px;margin-left:-10px;margin-right:12px;min-width:36px;width:36px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c,.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:28px;margin-left:-8px;margin-right:10px;min-width:28px;width:28px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:16px;margin-left:-6px;margin-right:8px;min-width:16px;width:16px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:3px;margin-left:2px;margin-right:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:8px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;-webkit-flex-direction:row;-webkit-box-orient:horizontal;-webkit-box-direction:normal;flex-direction:row;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:nowrap;flex-wrap:nowrap;height:100%;position:relative;width:100%}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX{-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:1;-webkit-box-flex:1;flex-grow:1;font-family:Google Sans,arial,sans-serif;font-weight:500;overflow:hidden;text-overflow:ellipsis;vertical-align:top}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-weight:300}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:0;-webkit-box-flex:0;flex-grow:0}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-MJoBVe{-webkit-transition:background-color .218s;transition:background-color .218s;bottom:0;left:0;position:absolute;right:0;top:0}.nsm7Bb-HzV7m-LgbsSe:focus,.nsm7Bb-HzV7m-LgbsSe:hover{box-shadow:none;border-color:rgb(210,227,252);outline:none}.nsm7Bb-HzV7m-LgbsSe:focus-within{outline:2px solid #00639b;border-color:transparent}.nsm7Bb-HzV7m-LgbsSe:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.08)}.nsm7Bb-HzV7m-LgbsSe:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.1)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.08)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.12)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.24)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.32)}.nsm7Bb-HzV7m-LgbsSe .n1UuX-DkfjY{border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;height:20px;margin-left:-4px;margin-right:8px;min-width:20px;width:20px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-family:Roboto;font-size:12px;text-align:left}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .fmcmS,.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .ssJRIf{overflow:hidden;text-overflow:ellipsis}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;color:#5f6368;fill:#5f6368;font-size:11px;font-weight:400}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.i5vt6e-to915-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#c4c7c5;fill:#c4c7c5}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#e8eaed;fill:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff,.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#000;fill:#000}}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .Bz112c{height:18px;margin:-3px -3px -3px 2px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:0;border-bottom-left-radius:0;border-top-right-radius:3px;border-bottom-right-radius:3px;margin-left:12px;margin-right:-10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.L5Fo6c-sM5MNb{border:0;display:block;left:0;position:relative;top:0}.L5Fo6c-bF1uUb{border-radius:4px;bottom:0;cursor:pointer;left:0;position:absolute;right:0;top:0}.L5Fo6c-bF1uUb:focus{border:none;outline:none}sentinel{}</style>
+
+  
+  
+
+  
+  
+
+  
+<link id="googleidentityservice" type="text/css" media="all" href="about:blank" rel="stylesheet"></head>
+
+<body class="">
+  <chromedash-app apptitle="Chrome Platform Status" googlesigninclientid="999517574127-7ueh2a17bv1ave9thlgtap19pt5qjp4g.apps.googleusercontent.com" devmode="False" bannermessage="" bannertime="None"><template shadowrootmode="open"><!---->
+          <div id="app-content-container">
+            <div class="main-toolbar">
+              <div class="toolbar-content">
+                <chromedash-header><template shadowrootmode="open"><!---->
+      <header data-testid="header">
+        <sl-icon-button data-testid="menu" variant="text" library="material" class="menu" style="font-size: 2.4rem;" name="menu_20px"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="menu_20px" library="material"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" viewbox="0 -960 960 960" width="20" part="svg" fill="currentColor"><path d="M144-264v-72h672v72H144Zm0-180v-72h672v72H144Zm0-180v-72h672v72H144Z"></path></svg></template></sl-icon>
+      </button>
+    </template>
+        </sl-icon-button>
+        <aside>
+          <a href="/roadmap" target="_top">
+            <h1>
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" role="presentation">
+              <!--?lit$984166611$-->Chrome Platform Status
+            </h1>
+          </a>
+        </aside>
+        <nav><!--?lit$984166611$--> <div class="flex-container">
+        <!--?lit$984166611$-->
+      <!--?lit$984166611$--> <slot></slot> 
+    
+      </div></nav>
+      </header>
+    </template>
+                  <slot></slot>
+                </chromedash-header>
+              </div>
+            </div>
+
+            <div id="content">
+              <div>
+                <chromedash-drawer defaultopen=""><template shadowrootmode="open"><!----> <nav><!--?lit$984166611$-->
+      <sl-drawer label="Menu" placement="start" class="drawer-placement-start" contained="" noheader="" style="--size: 200px;" open=""><template shadowrootmode="open"><!---->
+      <div part="base" class=" drawer drawer--open drawer--start drawer--contained ">
+        <div part="overlay" class="drawer__overlay" tabindex="-1"></div>
+
+        <div part="panel" class="drawer__panel" role="dialog" aria-modal="true" tabindex="0" aria-hidden="false" aria-labelledby="title">
+          <!--?lit$984166611$-->
+                <header part="header" class="drawer__header">
+                  <h2 part="title" class="drawer__title" id="title">
+                    <!-- If there's no label, use an invisible character to prevent the header from collapsing -->
+                    <slot name="label"> <!--?lit$984166611$-->Menu </slot>
+                  </h2>
+                  <div part="header-actions" class="drawer__header-actions">
+                    <slot name="header-actions"></slot>
+                    <sl-icon-button part="close-button" exportparts="base:close-button__base" class="drawer__close" name="x-lg" library="system" label="Close"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="Close" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="x-lg" library="system"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewbox="0 0 16 16" part="svg">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
+    </svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+                  </div>
+                </header>
+              
+
+          <slot part="body" class="drawer__body"></slot>
+
+          <footer part="footer" class="drawer__footer">
+            <slot name="footer"></slot>
+          </footer>
+        </div>
+      </div>
+    </template>
+        <!--?lit$984166611$--> <!--?lit$984166611$--><a href="/roadmap" active="">
+      <span><!--?lit$984166611$-->Roadmap</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$--><a href="/release-notes">
+      <span><!--?lit$984166611$-->Release notes</span>
+      <!--?lit$984166611$-->
+            <sl-tooltip content="Preview" distance="8"><template shadowrootmode="open"><!---->
+      <sl-popup part="base" exportparts="
+          popup:base__popup,
+          arrow:base__arrow
+        " flip="" shift="" arrow="" hover-bridge="" class=" tooltip " placement="top" distance="8" skidding="0" strategy="absolute"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--has-arrow ">
+        <slot></slot>
+        <!--?lit$984166611$--><div part="arrow" class="popup__arrow" role="presentation"></div>
+      </div>
+    </template>
+        <!--?lit$984166611$-->
+        <slot slot="anchor" aria-describedby="tooltip"></slot>
+
+        <!--?lit$984166611$-->
+        <div part="body" id="tooltip" class="tooltip__body" role="tooltip" aria-live="off" hidden="">
+          <slot name="content"><!--?lit$984166611$-->Preview</slot>
+        </div>
+      </sl-popup>
+    </template>
+              <sl-icon name="info-circle" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+            </sl-tooltip>
+          
+    </a>
+        <!--?lit$984166611$--><a href="/features">
+      <span><!--?lit$984166611$-->All features</span>
+      <!--?lit$984166611$-->
+    </a> <!--?lit$984166611$--><a href="/features?q=shipping_year:2026">
+      <span><!--?lit$984166611$-->Shipping 2026</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$--><a href="/features?q=shipping_year:2027">
+      <span><!--?lit$984166611$-->Shipping 2027</span>
+      <!--?lit$984166611$-->
+    </a> <!--?lit$984166611$-->
+        <hr>
+        <div class="section-header">Stats</div>
+        <!--?lit$984166611$--><a href="/metrics/css/popularity">
+      <span><!--?lit$984166611$-->CSS</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$--><a href="/metrics/css/animated">
+      <span><!--?lit$984166611$-->CSS Animation</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$--><a href="/metrics/feature/popularity">
+      <span><!--?lit$984166611$-->JS/HTML</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$--><a href="/metrics/webfeature/popularity">
+      <span><!--?lit$984166611$-->Web Features</span>
+      <!--?lit$984166611$-->
+    </a>
+        <hr>
+        <div class="section-header">Reports</div>
+        <!--?lit$984166611$--><a href="/reports/spec_mentors">
+      <span><!--?lit$984166611$-->Spec Mentors</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$--><a href="/reports/external_reviews">
+      <span><!--?lit$984166611$-->External Reviews</span>
+      <!--?lit$984166611$-->
+    </a>
+        <!--?lit$984166611$-->
+      </sl-drawer>
+    </nav> </template>
+                </chromedash-drawer>
+              </div>
+              <div style="margin-left:210px;">
+                <chromedash-banner><template shadowrootmode="open"><!----></template>
+                </chromedash-banner>
+                <div id="content-flex-wrapper">
+                  <!--?lit$984166611$-->
+        <div id="content-component-wrapper" wide=""><!--?lit$984166611$--><chromedash-roadmap-page><template shadowrootmode="open"><!---->
+      <div id="subheader">
+        <div>
+          <h3>Roadmap</h3>
+        </div>
+      </div>
+      <section id="releases-section">
+        <div class="timeline-controls">
+          <button id="previous-button" aria-label="Button to move to previous release">
+            Previous
+          </button>
+          <button id="next-button" aria-label="Button to move to later release">
+            Next
+          </button>
+          <!--?lit$984166611$-->
+      <sl-icon id="help-button" library="material" name="help_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="24" viewbox="0 -960 960 960" width="24" part="svg" fill="currentColor"><path d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg></template>
+      </sl-icon>
+    
+        </div>
+        <chromedash-roadmap class="" aria-label="List of milestone releases" style="margin-left: 0px; left: -508.5px;"><template shadowrootmode="open"><!---->
+      <!--?lit$984166611$--><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Released</h1>
+        <h1 class="chrome_version layout horizontal center ">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+      </span>
+     Chrome <!--?lit$984166611$-->153
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->was
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Aug 19 -
+                    <!--?lit$984166611$-->Sep 10
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-08-26T05:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-08-26T05:00:00.000Z"><!--?lit$984166611$-->2 weeks ago</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Aug 26, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features in this release:</div>
+          <!--?lit$984166611$--><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Deprecated</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6320639375966208" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6320639375966208?gate=5489629172203520"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6320639375966208">
+            <!--?lit$984166611$-->Deprecate and remove: Attribution Reporting API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5162221567082496" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5162221567082496?gate=6568954269138944"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5162221567082496">
+            <!--?lit$984166611$-->Deprecate and Remove: document.requestStorageAccessFor
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6552486106234880" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6552486106234880?gate=6452762736984064"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6552486106234880">
+            <!--?lit$984166611$-->Deprecate and Remove Protected Audience
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5194473869017088" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5194473869017088?gate=6562951716798464"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5194473869017088">
+            <!--?lit$984166611$-->Deprecate and Remove: Related Website Sets (RWS)
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5076349064708096" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5076349064708096?gate=5847356679520256"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5076349064708096">
+            <!--?lit$984166611$-->Deprecate and Remove: Shared Storage API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5121089536262144" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5121089536262144?gate=5111691778719744"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5121089536262144">
+            <!--?lit$984166611$-->Remove non-standard navigations targeted at _current
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Enabled by default</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5153829504024576" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5153829504024576?gate=6067694366490624"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5153829504024576">
+            <!--?lit$984166611$-->Capability elements: &lt;camera&gt; and &lt;microphone&gt;
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5113656292540416" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5113656292540416?gate=6110241444986880"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5113656292540416">
+            <!--?lit$984166611$-->Immersive Audio Model and Formats (IAMF) decoding support
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6312504658624512" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6312504658624512">
+            <!--?lit$984166611$-->Interoperable dispatch timing for transitionrun and media query events
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5095183554314240" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5095183554314240?gate=4700765030580224"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5095183554314240">
+            <!--?lit$984166611$-->Iterator Join
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6249068542164992" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6249068542164992?gate=6511364124311552"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6249068542164992">
+            <!--?lit$984166611$-->Joint Iteration
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5908461532610560" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5908461532610560?gate=6039066052263936"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5908461532610560">
+            <!--?lit$984166611$-->scroll-axis-lock
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5067363861004288" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5067363861004288?gate=6477880110481408"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5067363861004288">
+            <!--?lit$984166611$-->Single-axis scroll containers
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5078190552907776" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5078190552907776?gate=5074255557165056"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5078190552907776">
+            <!--?lit$984166611$-->WebAudio: Configurable render quantum
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5094091886034944" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5094091886034944?gate=6498100941291520"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5094091886034944">
+            <!--?lit$984166611$-->WebGPU: `buffer_view` feature
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5309598397497344" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5309598397497344">
+            <!--?lit$984166611$-->XML parsing in Rust for non-XSLT scenarios
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->In developer trial (Behind a flag)</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5811907077472256" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5811907077472256">
+            <!--?lit$984166611$-->SpeechRecognitionResult Timestamps (WebSpeech API)
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6185007701557248" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6185007701557248">
+            <!--?lit$984166611$-->Spell Check Custom Dictionary API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5387465121726464" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5387465121726464">
+            <!--?lit$984166611$-->Support Long Animation Frames API in Web Workers
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5194104408506368" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5194104408506368">
+            <!--?lit$984166611$-->WebTransport headers and responseHeaders
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!----><!---->
+        <h3 class="feature_shipping_type"><!--?lit$984166611$-->Origin trial</h3>
+        <ul>
+          <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5201297767792640" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5201297767792640?gate=5361868559482880"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5201297767792640">
+            <!--?lit$984166611$-->JS Self-Profiling Markers
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+        </ul>
+      <!----><!----><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Stepped rollout</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5162221567082496" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5162221567082496">
+            <!--?lit$984166611$-->Deprecate and Remove: document.requestStorageAccessFor
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5194473869017088" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5194473869017088">
+            <!--?lit$984166611$-->Deprecate and Remove: Related Website Sets (RWS)
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!---->
+      <!--?lit$984166611$--><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Stable</h1>
+        <h1 class="chrome_version layout horizontal center ">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+      </span>
+     Chrome <!--?lit$984166611$-->154
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->was
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Sep 2 -
+                    <!--?lit$984166611$-->Sep 24
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-09-09T05:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-09-09T05:00:00.000Z"><!--?lit$984166611$-->yesterday</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Sep 9, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features in this release:</div>
+          <!--?lit$984166611$--><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Enabled by default</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5080055102439424" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5080055102439424?gate=6072396625870848"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5080055102439424">
+            <!--?lit$984166611$-->Add options bag to WebSocket constructor
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5198951632470016" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5198951632470016?gate=6595848137998336"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5198951632470016">
+            <!--?lit$984166611$-->Algorithm Updates in WebCrypto
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5214647044145152" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5214647044145152?gate=6551884683935744"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5214647044145152">
+            <!--?lit$984166611$-->Avoid caching module failures
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6210300985606144" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6210300985606144?gate=6167177091743744"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6210300985606144">
+            <!--?lit$984166611$-->CORS enforcement for Background Fetch
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="4832783806627840" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/4832783806627840?gate=6279878547734528"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/4832783806627840">
+            <!--?lit$984166611$-->CSS4 text-decoration-skip-spaces
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5109685301673984" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5109685301673984?gate=6191471012216832"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5109685301673984">
+            <!--?lit$984166611$-->CSS scroll-marker-group modes
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5178263526834176" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5178263526834176?gate=6555321377095680"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5178263526834176">
+            <!--?lit$984166611$-->CSS text-decoration-inset
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5114591051907072" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5114591051907072?gate=6116938171416576"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5114591051907072">
+            <!--?lit$984166611$-->Expose CSSStyleValue hierarchy to Worker contexts
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5158507786665984" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5158507786665984?gate=6176253840326656"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5158507786665984">
+            <!--?lit$984166611$-->Fetch API: Forward reason from AbortController to fetch Response
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5145402365050880" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5145402365050880?gate=5525688097570816"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5145402365050880">
+            <!--?lit$984166611$-->FontFace width attribute and font-width descriptor
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5205192866922496" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5205192866922496?gate=6089497379995648"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5205192866922496">
+            <!--?lit$984166611$-->Iterator Includes
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6209615938322432" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6209615938322432">
+            <!--?lit$984166611$-->Light dismiss improvements for popovers and dialogs
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6225598451154944" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6225598451154944?gate=6680716673941504"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6225598451154944">
+            <!--?lit$984166611$-->Local Network Access restrictions for Background Fetch
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5108373464547328" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5108373464547328?gate=5102892096421888"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5108373464547328">
+            <!--?lit$984166611$-->Responsively-sized &lt;iframe&gt;
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5126146013396992" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5126146013396992?gate=5084775405715456"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5126146013396992">
+            <!--?lit$984166611$-->Secure Payment Confirmation: Locale Validation
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="4779920606756864" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/4779920606756864?gate=4534172013166592"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/4779920606756864">
+            <!--?lit$984166611$-->Support targetAddressSpace option for WebSockets
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5075144470036480" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5075144470036480?gate=6125215051546624"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5075144470036480">
+            <!--?lit$984166611$-->Window Shape API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->In developer trial (Behind a flag)</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5172464636133376" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5172464636133376">
+            <!--?lit$984166611$-->Support for specialized WebHID devices on Android
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!----><!---->
+        <h3 class="feature_shipping_type"><!--?lit$984166611$-->Origin trial</h3>
+        <ul>
+          <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6210457816924160" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6210457816924160?gate=6479261834805248"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Needs work" class="needs-work" name="autorenew_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M4.729 12.792q-.333-.625-.531-1.323T4 10q0-2.521 1.771-4.292Q7.542 3.938 10.125 4L8.938 2.812 10 1.75l3 3-3 3-1.062-1.062L10.125 5.5q-1.958-.042-3.292 1.292Q5.5 8.125 5.5 10q0 .458.083.875.084.417.25.813ZM10 18.25l-3-3 3-3 1.062 1.062L9.875 14.5q1.958.042 3.292-1.292Q14.5 11.875 14.5 10q0-.458-.083-.875-.084-.417-.25-.813l1.104-1.104q.333.625.531 1.323T16 10q0 2.5-1.771 4.281Q12.458 16.062 9.875 16l1.187 1.188Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6210457816924160">
+            <!--?lit$984166611$-->Private Verification Tokens
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+        </ul>
+      <!----><!----><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Stepped rollout</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5194817700364288" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5194817700364288">
+            <!--?lit$984166611$-->Optional browser optimization for Service Workers
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5075144470036480" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5075144470036480">
+            <!--?lit$984166611$-->Window Shape API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!----><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Next up</h1>
+        <h1 class="chrome_version layout horizontal center chrome_version--beta">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+                <span class="channel-tag"><!--?lit$984166611$-->BETA</span>
+              
+      </span>
+     Chrome <!--?lit$984166611$-->155
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->between
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Sep 16 -
+                    <!--?lit$984166611$-->Oct 8
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-09-23T05:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-09-23T05:00:00.000Z"><!--?lit$984166611$-->in 2 weeks</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Sep 23, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features planned in this release:</div>
+          <!--?lit$984166611$--><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Enabled by default</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5201832664629248" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5201832664629248?gate=5182130005475328"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5201832664629248">
+            <!--?lit$984166611$-->Additional Windowing Controls
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5152215540039680" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5152215540039680?gate=4765188386586624"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5152215540039680">
+            <!--?lit$984166611$-->CSS corner shorthand properties 
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5324559251275776" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5324559251275776?gate=6579011069280256"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5324559251275776">
+            <!--?lit$984166611$-->CSS random() function
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5146996093616128" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5146996093616128?gate=5558436461936640"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5146996093616128">
+            <!--?lit$984166611$-->CSS Symbols()
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5099333963874304" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5099333963874304?gate=6251005352214528"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5099333963874304">
+            <!--?lit$984166611$-->Digital Credentials API (issuance support)
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5191512456560640" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5191512456560640?gate=6058378127343616"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5191512456560640">
+            <!--?lit$984166611$-->Import Text (Text Modules)
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5114042131808256" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5114042131808256?gate=6594362739916800"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5114042131808256">
+            <!--?lit$984166611$-->JPEG XL decoding support (image/jxl) in blink
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5197863732772864" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5197863732772864?gate=6474161734156288"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5197863732772864">
+            <!--?lit$984166611$-->Margin-trim
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5068277495758848" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5068277495758848?gate=5472147766116352"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Needs work" class="needs-work" name="autorenew_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M4.729 12.792q-.333-.625-.531-1.323T4 10q0-2.521 1.771-4.292Q7.542 3.938 10.125 4L8.938 2.812 10 1.75l3 3-3 3-1.062-1.062L10.125 5.5q-1.958-.042-3.292 1.292Q5.5 8.125 5.5 10q0 .458.083.875.084.417.25.813ZM10 18.25l-3-3 3-3 1.062 1.062L9.875 14.5q1.958.042 3.292-1.292Q14.5 11.875 14.5 10q0-.458-.083-.875-.084-.417-.25-.813l1.104-1.104q.333.625.531 1.323T16 10q0 2.5-1.771 4.281Q12.458 16.062 9.875 16l1.187 1.188Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5068277495758848">
+            <!--?lit$984166611$-->Media element pseudo-classes
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5082950457884672" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5082950457884672?gate=5168819537707008"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5082950457884672">
+            <!--?lit$984166611$-->Pause media playback on not-visible iframes
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5122501071994880" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5122501071994880?gate=6399236343201792"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5122501071994880">
+            <!--?lit$984166611$-->PredefinedColorSpace srgb-linear and display-p3-linear
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5054329641893888" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5054329641893888?gate=5996320374521856"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5054329641893888">
+            <!--?lit$984166611$-->Renewed HTML insertion&amp;streaming methods
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5152834368700416" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5152834368700416?gate=6500019899334656"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5152834368700416">
+            <!--?lit$984166611$-->Web app HTML install element
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5183481574850560" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5183481574850560?gate=5163467027251200"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5183481574850560">
+            <!--?lit$984166611$-->Web Install API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5194104408506368" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5194104408506368?gate=5770753428553728"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5194104408506368">
+            <!--?lit$984166611$-->WebTransport headers and responseHeaders
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!----><!----><!----><!----><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Stepped rollout</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6253669501763584" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6253669501763584">
+            <!--?lit$984166611$-->Enforce cloud storage
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!----><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Dev</h1>
+        <h1 class="chrome_version layout horizontal center chrome_version--dev">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+                <span class="channel-tag"><!--?lit$984166611$-->DEV</span>
+              
+      </span>
+     Chrome <!--?lit$984166611$-->156
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->coming
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Sep 30 -
+                    <!--?lit$984166611$-->Oct 22
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-10-07T05:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-10-07T05:00:00.000Z"><!--?lit$984166611$-->in 4 weeks</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Oct 7, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features planned in this release:</div>
+          <!--?lit$984166611$--><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Deprecated</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6366274495053824" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6366274495053824?gate=5364408546099200"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6366274495053824">
+            <!--?lit$984166611$-->Remove FencedFrame element and window.fence APIs
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Enabled by default</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5100672946143232" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5100672946143232?gate=5910108950364160"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Needs work" class="needs-work" name="autorenew_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M4.729 12.792q-.333-.625-.531-1.323T4 10q0-2.521 1.771-4.292Q7.542 3.938 10.125 4L8.938 2.812 10 1.75l3 3-3 3-1.062-1.062L10.125 5.5q-1.958-.042-3.292 1.292Q5.5 8.125 5.5 10q0 .458.083.875.084.417.25.813ZM10 18.25l-3-3 3-3 1.062 1.062L9.875 14.5q1.958.042 3.292-1.292Q14.5 11.875 14.5 10q0-.458-.083-.875-.084-.417-.25-.813l1.104-1.104q.333.625.531 1.323T16 10q0 2.5-1.771 4.281Q12.458 16.062 9.875 16l1.187 1.188Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5100672946143232">
+            <!--?lit$984166611$-->closest-corner and farthest-corner radii for circle() and ellipse() basic shapes
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5078177326170112" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5078177326170112?gate=6503444473053184"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Needs work" class="needs-work" name="autorenew_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M4.729 12.792q-.333-.625-.531-1.323T4 10q0-2.521 1.771-4.292Q7.542 3.938 10.125 4L8.938 2.812 10 1.75l3 3-3 3-1.062-1.062L10.125 5.5q-1.958-.042-3.292 1.292Q5.5 8.125 5.5 10q0 .458.083.875.084.417.25.813ZM10 18.25l-3-3 3-3 1.062 1.062L9.875 14.5q1.958.042 3.292-1.292Q14.5 11.875 14.5 10q0-.458-.083-.875-.084-.417-.25-.813l1.104-1.104q.333.625.531 1.323T16 10q0 2.5-1.771 4.281Q12.458 16.062 9.875 16l1.187 1.188Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5078177326170112">
+            <!--?lit$984166611$-->CSS Image Animation
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="6327898878377984" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/6327898878377984?gate=6247925882683392"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/6327898878377984">
+            <!--?lit$984166611$-->CSS pseudo-class for navigation source element
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5075532483657728" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5075532483657728?gate=5187337646243840"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5075532483657728">
+            <!--?lit$984166611$-->Enhanced Canvas TextMetrics
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5161589557821440" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5161589557821440">
+            <!--?lit$984166611$-->IndexedDB: SQLite backend
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5168674259468288" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5168674259468288?gate=6548457602023424"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Not started" class="not-started" name="arrow_circle_right_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m10 13 3-3-3-3-1.062 1.062 1.187 1.188H7v1.5h3.125l-1.187 1.188Zm0 5q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5168674259468288">
+            <!--?lit$984166611$-->Optional descriptors for registered custom properties
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5422782593761280" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5422782593761280?gate=6378381510836224"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5422782593761280">
+            <!--?lit$984166611$-->SVG textPath side attribute
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5663304168112128" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5663304168112128?gate=5657119415205888"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Approved" class="approved" name="check_circle_filled_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m8.938 13 4.958-4.938L12.833 7l-3.895 3.875-1.771-1.75-1.063 1.063ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5663304168112128">
+            <!--?lit$984166611$-->WebGPU: WGSL Fragment Depth
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5091582546149376" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5091582546149376?gate=6245176267898880"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5091582546149376">
+            <!--?lit$984166611$-->WebRTC Diagnostic Logging API
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!----><!----><!----><!----><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Stepped rollout</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5152728072060928" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5152728072060928">
+            <!--?lit$984166611$-->Local network access restrictions
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+                  <span class="tooltip" id="outdated-icon" title="Feature outdated - last checked for overall accuracy more than four weeks ago">
+                    <sl-icon name="exclamation-circle-fill" data-tooltip="" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill" viewbox="0 0 16 16" part="svg">
+  <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4m.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2"></path>
+</svg></template></sl-icon>
+                  </span>
+                
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!---->
+      <!--?lit$984166611$--><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Later</h1>
+        <h1 class="chrome_version layout horizontal center chrome_version--dev_plus_one">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+      </span>
+     Chrome <!--?lit$984166611$-->157
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->coming
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Oct 14 -
+                    <!--?lit$984166611$-->Nov 5
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-10-21T05:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-10-21T05:00:00.000Z"><!--?lit$984166611$-->next month</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Oct 21, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features planned in this release:</div>
+          <!--?lit$984166611$--><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Enabled by default</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5083335148437504" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5083335148437504?gate=5058871472291840"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5083335148437504">
+            <!--?lit$984166611$-->Disallow spaces in non-file:// URL hosts
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5177569273053184" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5177569273053184?gate=6458129559715840"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5177569273053184">
+            <!--?lit$984166611$-->Web Bluetooth: BluetoothRemoteGATTServer.maxWriteWithoutResponseSize
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!----><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5138797158334464" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/5138797158334464?gate=6578000333242368"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: In-progress" class="in-progress" name="pending_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="M6 11.25q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q6.521 8.75 6 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q10.521 8.75 10 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365Zm4 0q.521 0 .885-.365.365-.364.365-.885t-.365-.885Q14.521 8.75 14 8.75t-.885.365q-.365.364-.365.885t.365.885q.364.365.885.365ZM10 18q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5138797158334464">
+            <!--?lit$984166611$-->Web Bluetooth: Make BluetoothRemoteGATTServer an EventTarget
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!----><!----><!----><!----><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Stepped rollout</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="5083335148437504" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/5083335148437504">
+            <!--?lit$984166611$-->Disallow spaces in non-file:// URL hosts
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!----><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Later</h1>
+        <h1 class="chrome_version layout horizontal center chrome_version--dev_plus_one">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+      </span>
+     Chrome <!--?lit$984166611$-->158
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->coming
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Oct 28 -
+                    <!--?lit$984166611$-->Nov 19
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-11-04T06:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-11-04T06:00:00.000Z"><!--?lit$984166611$-->in 2 months</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Nov 4, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features planned in this release:</div>
+          <!--?lit$984166611$--><!----><!----><!----><!----><!----><!----><!----><!----><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Stepped rollout</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="4709671889534976" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!----><sl-icon aria-hidden="true" library="default"><template shadowrootmode="open"><!----></template></sl-icon></template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/4709671889534976">
+            <!--?lit$984166611$-->Deprecate and remove XSLT
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!----><!---->
+          <chromedash-roadmap-milestone-card style="width:492.5px;" showdates=""><template shadowrootmode="open"><!---->
+      <section class="release">
+        <!--?lit$984166611$--> <!--?lit$984166611$-->
+      <div class="layout vertical center">
+        <h1 class="channel_label"><!--?lit$984166611$-->Later</h1>
+        <h1 class="chrome_version layout horizontal center chrome_version--dev_plus_one">
+          <!--?lit$984166611$-->
+      <span class="chrome-logo">
+        <!--?lit$984166611$-->
+      </span>
+     Chrome <!--?lit$984166611$-->159
+        </h1>
+      </div>
+      <!--?lit$984166611$-->
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Beta</span> <!--?lit$984166611$-->coming
+                  <span class="milestone_info-beta">
+                    <!--?lit$984166611$-->Nov 11 -
+                    <!--?lit$984166611$-->Dec 10
+                  </span>
+                </h3>
+              </div>
+              <div class="milestone_info layout horizontal center-center">
+                <h3>
+                  <span class="channel_label">Stable</span>
+                  <!--?lit$984166611$--><sl-relative-time class="no-squeeze" date="2026-11-18T06:00:00.000Z"><template shadowrootmode="open"><!----> <time datetime="2026-11-18T06:00:00.000Z"><!--?lit$984166611$-->in 2 months</time> </template>
+    </sl-relative-time>
+                  <span class="release-stable">(<!--?lit$984166611$-->Nov 18, 2026)</span>
+                  <!--?lit$984166611$-->
+      <sl-icon-button name="info-circle" id="info-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="info-circle" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <sl-popup anchor="info-button" placement="bottom" strategy="fixed"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--fixed ">
+        <slot></slot>
+        <!--?lit$984166611$-->
+      </div>
+    </template>
+        <div class="popup-content">
+          New versions are offered to users gradually. <br>
+          See
+          <a id="detailed-info-link" href="https://chromiumdash.appspot.com/schedule" target="_blank">detailed dates</a>.
+        </div>
+      </sl-popup>
+    
+                </h3>
+              </div>
+            
+     <!--?lit$984166611$-->
+      <div class="features_list">
+        <!--?lit$984166611$-->
+        <div class="features_header"><!--?lit$984166611$-->Features planned in this release:</div>
+          <!--?lit$984166611$--><!----><!----><!---->
+          <h3 class="feature_shipping_type"><!--?lit$984166611$-->Enabled by default</h3>
+          <ul>
+            <!--?lit$984166611$--><!----> <!--?lit$984166611$-->
+      <li data-feature-id="4797798639730688" class="hbox align-top ">
+        <chromedash-review-status-icon><template shadowrootmode="open"><!---->
+        <a href="/feature/4797798639730688?gate=6409001346007040"><!--?lit$984166611$-->
+      <sl-icon library="material" title="Reviews: Not started" class="not-started" name="arrow_circle_right_20px" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" part="svg" fill="currentColor"><path d="m10 13 3-3-3-3-1.062 1.062 1.187 1.188H7v1.5h3.125l-1.187 1.188Zm0 5q-1.646 0-3.104-.625-1.458-.625-2.552-1.719t-1.719-2.552Q2 11.646 2 10q0-1.667.625-3.115.625-1.447 1.719-2.541Q5.438 3.25 6.896 2.625T10 2q1.667 0 3.115.625 1.447.625 2.541 1.719 1.094 1.094 1.719 2.541Q18 8.333 18 10q0 1.646-.625 3.104-.625 1.458-1.719 2.552t-2.541 1.719Q11.667 18 10 18Zm0-1.5q2.708 0 4.604-1.896T16.5 10q0-2.708-1.896-4.604T10 3.5q-2.708 0-4.604 1.896T3.5 10q0 2.708 1.896 4.604T10 16.5Zm0-6.5Z"></path></svg></template></sl-icon>
+    </a>
+      </template></chromedash-review-status-icon>
+        <span>
+          <a id="feature_link" href="/feature/4797798639730688">
+            <!--?lit$984166611$-->Web Bluetooth getDevices() and forget()
+          </a>
+          <!--?lit$984166611$-->
+        </span>
+        <span class="spacer"></span>
+        <span class="icon_row">
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+          <!--?lit$984166611$-->
+        </span>
+      </li>
+     <!---->
+          </ul>
+        <!----><!----><!----><!----><!----><!----><!----><!----><!---->
+          
+      </div>
+     
+      </section>
+    </template>
+          </chromedash-roadmap-milestone-card>
+        <!---->
+    </template>
+        </chromedash-roadmap>
+      </section>
+    </template></chromedash-roadmap-page></div>
+      
+                </div>
+                <!--?lit$984166611$-->
+              </div>
+            </div>
+            <chromedash-footer><template shadowrootmode="open"><!---->
+      <div id="footer-spacer"></div>
+      <footer>
+        <div>
+          <a href="https://github.com/GoogleChrome/chromium-dashboard/wiki/" target="_blank" rel="noopener">Help</a>
+          <a href="https://groups.google.com/a/chromium.org/forum/#!newtopic/blink-dev" target="_blank" rel="noopener">Discuss</a>
+          <a href="https://github.com/GoogleChrome/chromium-dashboard/issues" target="_blank" rel="noopener">File an issue</a>
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a>
+        </div>
+      </footer>
+    </template></chromedash-footer>
+          </div>
+        </template><div><div class="S9gUrf-YoZ4jf" style="position: relative;"><div></div></div></div>
+  </chromedash-app>
+
+  
+
+  
+  
+
+
+<chromedash-toast><template shadowrootmode="open"><!---->
+      <span id="msg"><!--?lit$984166611$--></span>
+      <a href="#" id="action"><!--?lit$984166611$--></a>
+    </template></chromedash-toast></body></html>

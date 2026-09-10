@@ -55,6 +55,7 @@ export default defineConfig({
           include: [
             'tests/unit/**/*.test.ts',
             'tests/integration/**/*.test.ts',
+            'tests/benchmark/**/*.test.ts',
             'packages/*/src/**/*.test.ts',
           ],
         },

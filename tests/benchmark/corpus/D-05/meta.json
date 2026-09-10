@@ -1,0 +1,72 @@
+{
+  "id": "D-05",
+  "url": "https://hachyderm.io/explore",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:17:44.089Z",
+  "sizeBytes": 119728,
+  "verifiedOn": "2026-09-10",
+  "title": "Trending - Hachyderm.io",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 5 repeated structure(s): div|article. 20->80; article|div. 20->80; div|div.focusable.status__wrapper 16->77; div|span. 32->154; div|span.account__avatar.account__avatar--loading 0->3",
+    "grownGroups": 5,
+    "grownSample": [
+      "div|article. 20->80",
+      "article|div. 20->80",
+      "div|div.focusable.status__wrapper 16->77",
+      "div|span. 32->154",
+      "div|span.account__avatar.account__avatar--loading 0->3"
+    ],
+    "nodesBeforeScroll": 705,
+    "nodesAfterScroll": 973,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 23694,
+    "assetCount": 18,
+    "nodeCount": 923,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 5,
+    "customElementCount": 0,
+    "classTokenCount": 147,
+    "hashedClassTokens": 38,
+    "maxRepeatingCount": 112
+  },
+  "rights": {
+    "basis": "reviewed-tos",
+    "license": "AGPL-3.0 (Mastodon); public timeline",
+    "reviewedOn": "2026-09-10",
+    "reviewNote": "robots.txt read: only /media_proxy/, /interact/ and one API path disallowed; /explore is allowed."
+  },
+  "robots": {
+    "status": "unavailable",
+    "rule": null,
+    "url": "https://hachyderm.io/robots.txt"
+  },
+  "notes": "Growth is small (four new groups) \u2014 a useful negative-ish case for a threshold that is set too high.",
+  "personalDataHits": [
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email"
+  ]
+}

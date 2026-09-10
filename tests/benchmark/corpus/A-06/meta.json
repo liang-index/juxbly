@@ -1,0 +1,42 @@
+{
+  "id": "A-06",
+  "url": "https://www.crummy.com/software/BeautifulSoup/bs4/doc/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:11.542Z",
+  "sizeBytes": 369720,
+  "verifiedOn": "2026-09-10",
+  "title": "Beautiful Soup Documentation \u2014 Beautiful Soup 4.14.3 documentation",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 1459,
+    "repeatingSelector": "span.n"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 16544,
+    "assetCount": 3,
+    "nodeCount": 8805,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 69,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 1459
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.crummy.com/robots.txt"
+  },
+  "notes": "1459 repeated nodes: deep prose with code blocks, i.e. plenty of containers that are not records.",
+  "personalDataHits": []
+}

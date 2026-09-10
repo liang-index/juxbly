@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  Corpus pipeline fixture — bucket `A` (regular structure).
+
+  Used by `tests/benchmark/corpus.test.ts` to prove the capture pipeline works end to
+  end: a real browser renders it, `snapshot-site.mjs` writes a snapshot, and the artefact
+  has to come back with complete meta and no scripts in it.
+
+  It lives here rather than in `tests/fixtures/pages/` on purpose. Those fixtures belong
+  to the analyzer and selector tests and change when *those* change — sharing one would
+  mean a fix over there silently breaks the corpus pipeline test (which is exactly what
+  happened with `list-page.html` and its four siblings).
+
+  Properties it must keep, and why (see `BUCKET_THRESHOLDS` in
+  `apps/playground/lib/corpus.mjs`):
+    - 6 `li.product` siblings under one parent  -> bucket `A` (needs >= 5)
+    - no shadow roots, no hashed class names    -> bucket `A` rejects both
+    - no internal link with a different path    -> the bucket-`B` probe must come back false
+    - no scroll growth                          -> the bucket-`D` probe must come back false
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Regular list</title>
+  </head>
+  <body>
+    <h1>Catalogue</h1>
+    <ul class="products">
+      <li class="product">
+        <span class="title">Wireless keyboard</span>
+        <span class="price">$49.00</span>
+        <span class="stock">In stock</span>
+      </li>
+      <li class="product">
+        <span class="title">Wireless mouse</span>
+        <span class="price">$29.00</span>
+        <span class="stock">In stock</span>
+      </li>
+      <li class="product">
+        <span class="title">USB-C hub</span>
+        <span class="price">$39.00</span>
+        <span class="stock">Low stock</span>
+      </li>
+      <li class="product">
+        <span class="title">Mechanical keyboard</span>
+        <span class="price">$89.00</span>
+        <span class="stock">In stock</span>
+      </li>
+      <li class="product">
+        <span class="title">Laptop stand</span>
+        <span class="price">$35.00</span>
+        <span class="stock">Out of stock</span>
+      </li>
+      <li class="product">
+        <span class="title">Desk lamp</span>
+        <span class="price">$54.00</span>
+        <span class="stock">In stock</span>
+      </li>
+    </ul>
+  </body>
+</html>

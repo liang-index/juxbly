@@ -1,0 +1,42 @@
+{
+  "id": "A-07",
+  "url": "https://www.postgresql.org/docs/current/functions-math.html",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:27.125Z",
+  "sizeBytes": 72085,
+  "verifiedOn": "2026-09-10",
+  "title": "PostgreSQL: Documentation: 18: 9.3.\u00a0Mathematical Functions and Operators",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 180,
+    "repeatingSelector": "code.returnvalue"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 246127,
+    "assetCount": 3,
+    "nodeCount": 1488,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 66,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 180
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "PostgreSQL licence",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.postgresql.org/robots.txt"
+  },
+  "notes": "Dense multi-column table with inline markup inside cells.",
+  "personalDataHits": []
+}

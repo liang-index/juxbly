@@ -1,0 +1,42 @@
+{
+  "id": "A-11",
+  "url": "https://go.dev/doc/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:41.078Z",
+  "sizeBytes": 52187,
+  "verifiedOn": "2026-09-10",
+  "title": "Documentation - The Go Programming Language",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 59,
+    "repeatingSelector": "a."
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 111011,
+    "assetCount": 2,
+    "nodeCount": 628,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 72,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 59
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "BSD-3-Clause",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://go.dev/robots.txt"
+  },
+  "notes": "Documentation hub: many small link groups, so the \"largest container\" heuristic has real competition.",
+  "personalDataHits": []
+}

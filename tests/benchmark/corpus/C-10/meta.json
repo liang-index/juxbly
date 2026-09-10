@@ -1,0 +1,46 @@
+{
+  "id": "C-10",
+  "url": "https://open-wc.org/guides/",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:54:06.584Z",
+  "sizeBytes": 18316,
+  "verifiedOn": "2026-09-10",
+  "title": "Guides: Open Web Components",
+  "bucketEvidence": {
+    "verdict": "2 of 3 shadow roots carry content",
+    "shadowRootCount": 3,
+    "shadowRootWithContentCount": 2,
+    "customElementCount": 7,
+    "shadowHostSample": [
+      "rocket-search",
+      "rocket-search-combobox"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 55093,
+    "assetCount": 9,
+    "nodeCount": 213,
+    "shadowRootCount": 3,
+    "shadowRootWithContentCount": 2,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 7,
+    "classTokenCount": 32,
+    "hashedClassTokens": 7,
+    "maxRepeatingCount": 37
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://open-wc.org/robots.txt"
+  },
+  "notes": "A thin C page: only two content-bearing roots, which is a useful floor for the bucket.",
+  "personalDataHits": []
+}

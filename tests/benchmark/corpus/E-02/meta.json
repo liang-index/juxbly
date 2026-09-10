@@ -1,0 +1,49 @@
+{
+  "id": "E-02",
+  "url": "https://infinite-scroll.com/",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:20:30.899Z",
+  "sizeBytes": 42517,
+  "verifiedOn": "2026-09-10",
+  "title": "Infinite Scroll",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.22",
+    "hashedClassTokens": 29,
+    "hashedClassRatio": 0.223,
+    "classTokenCount": 130,
+    "hashedSample": [
+      "hero__masthead",
+      "hero__title",
+      "hero__tagline",
+      "gh-button__title",
+      "chunky-button__text__plain"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 31738,
+    "assetCount": 1,
+    "nodeCount": 491,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 130,
+    "hashedClassTokens": 29,
+    "maxRepeatingCount": 29
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://infinite-scroll.com/robots.txt"
+  },
+  "notes": "Hashed classes on a small page: the E property without the size of a component library.",
+  "personalDataHits": []
+}

@@ -1,0 +1,42 @@
+{
+  "id": "A-04",
+  "url": "https://scrapeme.live/shop/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:17.532Z",
+  "sizeBytes": 55641,
+  "verifiedOn": "2026-09-10",
+  "title": "Shop \u2013 ScrapeMe",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 26,
+    "repeatingSelector": "li."
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 301253,
+    "assetCount": 11,
+    "nodeCount": 392,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 166,
+    "hashedClassTokens": 1,
+    "maxRepeatingCount": 26
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://scrapeme.live/robots.txt"
+  },
+  "notes": "WooCommerce product grid: a realistic storefront shape without a real storefront licence.",
+  "personalDataHits": []
+}

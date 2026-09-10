@@ -7,9 +7,18 @@
  * Sizing note: the prototype positions the ball absolutely against its demo viewport;
  * the real mount positions the shadow host (content script) and the ball fills it.
  * Geometry below is otherwise verbatim.
+ *
+ * `position: relative` is therefore not geometry — it is the ladder. `z-index` only
+ * applies to a positioned element, so without it the ball's rung is a number that does
+ * nothing, and the highlight layer (a later sibling in the same shadow root) paints over
+ * the ball. Relative with no offsets keeps the flow geometry the host relies on.
  */
 
 .jx-ball {
+  /* Ladder: 600 — above the highlight layer (500) so a viewport-covering box cannot
+     swallow the ball, below the panels (700). See `highlight/styles.css`. */
+  position: relative;
+  z-index: 600;
   width: 44px;
   height: 76px;
   /* Right-edge half-pill: flat side hugs the window border. */
