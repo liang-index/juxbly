@@ -86,6 +86,7 @@ content is wrong, but because it is process.
 | `docs/prototypes/` | the interactive prototype and its reader. A prototype is a **review tool, not part of the product**: `UI_SPEC.md` holds the rules, and `docs/assets/` carries the screenshots `README.md` needs |
 | `.internal-repo` | the marker that tells the CI guard it is running in the internal repository. **It must never appear in this tree** — the guard fails if it does |
 | `scripts/sync-public.mjs` | the maintainer tool that copies the public file set out of the internal repository. Only the internal side needs it, and it carries this inventory |
+| `tsconfig.typecheck-tmp.json` | a session-local typecheck configuration that excludes two test files whose fixtures trip content scanners; it reflects no baseline a contributor needs |
 | `AGENTS.md` | AI agent operating manual — internal governance and context-feeding rules |
 | `standard-dev-workflow-prompt-v2-open-source.md` | personal AI development workflow prompt |
 | `Juxbly_*.md` (repository root) | internal self-audit and competitive analysis |

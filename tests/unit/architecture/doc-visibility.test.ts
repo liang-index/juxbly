@@ -42,6 +42,7 @@ const INTERNAL_FILES = [
   'docs/testing/MANUAL_ACCEPTANCE.md',
   'scripts/sync-public.mjs',
   'standard-dev-workflow-prompt-v2-open-source.md',
+  'tsconfig.typecheck-tmp.json',
 ]
 
 /**

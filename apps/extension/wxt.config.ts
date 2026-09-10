@@ -44,12 +44,31 @@ export default defineConfig({
         '@juxbly/browser': fileURLToPath(
           new URL('../../packages/browser/src/index.ts', import.meta.url),
         ),
+        // Stage 1-12: reached from `storage` (the repair write path), which the background
+        // already imports — `repair` itself stays pure, so no runtime dependency moves with
+        // it beyond `core` types.
+        '@juxbly/repair': fileURLToPath(
+          new URL('../../packages/repair/src/index.ts', import.meta.url),
+        ),
+        // Stage 1-11 imported this in `background.ts` without registering it: typecheck and
+        // tests resolve through tsconfig paths / vitest, so only `wxt build` noticed. Added
+        // here with 1-12 because the same rule applies — register on first import.
+        '@juxbly/health': fileURLToPath(
+          new URL('../../packages/health/src/index.ts', import.meta.url),
+        ),
         '@juxbly/dsl': fileURLToPath(new URL('../../packages/dsl/src/index.ts', import.meta.url)),
         // Stage 1-9: the content script analyses the page, scores the model's candidates
         // with a dry run of `extract`, and queries the DOM through the same helper the
         // capability uses.
         '@juxbly/analyzer': fileURLToPath(
           new URL('../../packages/analyzer/src/index.ts', import.meta.url),
+        ),
+        // Stage 1-15: the serialisers the run panel's export buttons and the export
+        // capability share. Must precede `@juxbly/capabilities` so the shorter key does not
+        // swallow it, and it pulls no `ui` dependency — which is what keeps the shared
+        // serialisation from creating a ui↔capabilities cycle.
+        '@juxbly/capabilities/export': fileURLToPath(
+          new URL('../../packages/capabilities/src/export/index.ts', import.meta.url),
         ),
         '@juxbly/capabilities': fileURLToPath(
           new URL('../../packages/capabilities/src/index.ts', import.meta.url),

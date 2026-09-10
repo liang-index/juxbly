@@ -53,6 +53,15 @@ const STRUCTURAL_ATTRIBUTES = new Set([
   'strokeLinecap',
   'strokeLinejoin',
   'viewBox',
+  // Browser behaviour, not language: `autoComplete="off"` on a key field stops the
+  // browser from storing it, and `spellCheck={false}` stops it from being red-squiggled.
+  // Neither is a sentence a translator would ever see.
+  'autoComplete',
+  'autoCorrect',
+  'autoCapitalize',
+  'spellCheck',
+  'autoFocus',
+  'inputMode',
   'd',
   'cx',
   'cy',

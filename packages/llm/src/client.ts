@@ -20,6 +20,28 @@ import type { LlmRequest, LlmResponse } from './types'
 /** §8.1: `api_base_url` defaults to OpenAI when the user never set one. */
 export const DEFAULT_API_BASE_URL = 'https://api.openai.com/v1'
 
+/**
+ * The model used when the user picked a key but no model (§8.1: `model` is nullable).
+ *
+ * A missing model used to make the whole endpoint unconfigured — the user saved a key,
+ * saw "Saved.", and then hit a wall of `NOT_CONFIGURED` with nothing on screen naming
+ * the model as the reason. `gpt-4o-mini` is the cheapest model that exists under that
+ * literal name on OpenAI *and* on the OpenAI-compatible gateways the product points at
+ * (OpenRouter, Together, LM Studio), which is what makes it safe as a fallback rather
+ * than as a silent upsell: it is the name most likely to resolve everywhere.
+ *
+ * It is a fallback, never a hidden preference — whatever the user types wins, and the
+ * options form shows this name as the field's placeholder so the default is visible
+ * before it is relied on.
+ */
+export const DEFAULT_MODEL = 'gpt-4o-mini'
+
+/** The model a request actually goes out with: the user's, or the documented default. */
+export function modelOrDefault(model: string | null | undefined): string {
+  const trimmed = (model ?? '').trim()
+  return trimmed === '' ? DEFAULT_MODEL : trimmed
+}
+
 /** Long enough for a real answer, short enough that a hung endpoint is not forever. */
 export const DEFAULT_TIMEOUT_MS = 60_000
 

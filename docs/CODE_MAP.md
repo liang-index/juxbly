@@ -20,7 +20,7 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 
 | Package | Owns | Key exports | Must not |
 |---|---|---|---|
-| `packages/core` | domain models, cross-context message protocol | `ToolRecord`, `HealthStatus`, `ExtensionMessage` | contain runtime logic (types only) |
+| `packages/core` | domain models, cross-context message protocol, message-boundary guards and patch shapers (`messages.ts`, `settings.ts` — code every bundle needs, the content script's included) | `ToolRecord`, `HealthStatus`, `ExtensionMessage`, `sanitizeSettingsPatch`, `buildSettingsPatch` | hold business logic; touch the platform or storage |
 | `packages/dsl` | DSL types, schema validation, URL matching | `validateToolDefinition`, `matchUrl`, `parseUrlPattern` | import `chrome.*`, touch the DOM |
 | `packages/runtime` | step orchestration, variable bag, llm cache decision, capability registry | `ToolRuntime`, `CapabilityRegistry`, `createRuntimePorts`, `stableHash`, `VariableBag` | call platform APIs directly; produce side effects except through injected ports |
 | `packages/capabilities` | the five executors | `CapabilityDefinition` implementations | bypass the registry, silently swallow failures |
@@ -28,9 +28,9 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 | `packages/analyzer` | page analysis (visible text, structure, custom elements, shadow DOM) | `analyzePage` | mutate the page, call the model |
 | `packages/health` | health evaluation and state machine | `evaluateHealth` | write to storage (results are written by the caller) |
 | `packages/repair` | repair session, version creation, rollback | `RepairSession` | auto-apply a repaired tool without user confirmation |
-| `packages/storage` | `chrome.storage` wrapper, migrations | `loadTool`, `saveTool`, … | be used outside the background gateway path |
+| `packages/storage` | `chrome.storage` wrapper, migrations, background write handlers | `loadTool`, `saveTool`, `handleBuildSaveTool`, `handleToolRollback`, … | be used outside the background gateway path; mutate a `versions[]` entry outside `commitRepair` (1-12) |
 | `packages/llm` | BYOK client, prompt templates, injection defence, `run:llm` background handler | `callLlm`, `buildPrompt`, `handleRunLlm`, `createMockLlmPort` | execute outside the background context; log prompts containing keys |
-| `packages/ui` | React UI, Shadow DOM isolation, tokens | components | hard-code colour values; import icon libraries ad hoc |
+| `packages/ui` | React UI, Shadow DOM isolation, tokens, onboarding nodes, popup, options | components, `installGlow`, `shouldRequestKey`, `overviewRows` | hard-code colour values; import icon libraries ad hoc; **depend on `packages/storage`** (the UI is bundled into the page context, which must stay an import away from the key-reading module — §12.2) |
 | `apps/extension` | WXT entry assembly and manifest | — | hold business logic |
 | `apps/playground` | Web Corpus static server + benchmark runner | — | ship with the extension |
 
@@ -58,6 +58,8 @@ anything new in one of them.
 | add a message between contexts | `packages/core` protocol + [`ARCHITECTURE.md` §7.2](ARCHITECTURE.md) |
 | add an export format | `packages/capabilities/export` + `ExportStep.format` |
 | change user-facing copy | `packages/ui/src/copy/` (language rules: [`UI_SPEC.md` §9.5](UI_SPEC.md)) |
+| add a run-panel command | `packages/ui/src/commands/` + [`UI_SPEC.md` §10.4](UI_SPEC.md) — a command must name a clickable equivalent (`via`) |
+| change the config / inspect tabs | `packages/ui/src/run/{config-tab,inspect-tab}.tsx` + [`UI_SPEC.md` §10.2–§10.3](UI_SPEC.md) |
 | add a benchmark case | `tests/benchmark` (from stage 2-1) + [`contributing/BENCHMARK_GUIDE.md`](contributing/BENCHMARK_GUIDE.md) |
 | change what the extension is allowed to do | `apps/extension/manifest.ts` + [`ARCHITECTURE.md` §7.3](ARCHITECTURE.md) — the permission snapshot test fails on any change |
 | change the global shortcut | `apps/extension/manifest.ts` (`commands`). Chrome spells the Mac modifier `Command`, not `Cmd`, and rejects the manifest otherwise |

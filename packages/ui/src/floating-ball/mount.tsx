@@ -16,6 +16,8 @@ import { FloatingBall } from './FloatingBall'
 export interface FloatingBallOptions {
   adapter: BrowserAdapter
   hasSavedTools: boolean
+  /** Stage 1-13: the first-install glow — its own path, never shared with the pulse. */
+  installGlow?: boolean | undefined
   /** Panel toggle, owned by whoever mounted the panel (stage 1-9). */
   onToggle?: (open: boolean) => void
 }
@@ -41,6 +43,7 @@ export function mountFloatingBall(
     container,
     <FloatingBall
       hasSavedTools={hasSavedTools}
+      {...(options.installGlow === undefined ? {} : { installGlow: options.installGlow })}
       machine={machine}
       onToggle={(open) => onToggle?.(open)}
     />,

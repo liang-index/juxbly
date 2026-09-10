@@ -1,4 +1,5 @@
 import { t } from '../copy'
+import type { CopyKey } from '../copy'
 import type { TokenUsage, ValidationError } from '@juxbly/core'
 import { SAVE_FAILED, type BuildAdvice, type BuildPhase, type EscalationLevel } from './build-session'
 import type { BuildProposal } from './proposal'
@@ -16,6 +17,12 @@ import type { ChatMessage } from '@juxbly/core'
  */
 export interface ChatStreamProps {
   conversation: readonly ChatMessage[]
+  /**
+   * Stage 1-13 node ②: the opening line, above the conversation and only for the first
+   * open. Resolved by the caller from the flags — the stream renders state, it does not
+   * read storage.
+   */
+  introLine?: CopyKey | undefined
   phase: BuildPhase
   proposal: BuildProposal | null
   escalation: EscalationLevel
@@ -63,6 +70,7 @@ function fieldReason(error: ValidationError): string {
 }
 
 export function ChatStream({
+  introLine,
   conversation,
   phase,
   proposal,
@@ -89,6 +97,9 @@ export function ChatStream({
   return (
     <div className="jx-chat">
       <div className="jx-stream" role="log">
+        {/* Node ②: said once, inside the flow — not a bubble, not a tour (§7.3: no
+            onboarding overlays; the sentence is a message like any other). */}
+        {introLine === undefined ? null : <p className="jx-msg is-meta">{t(introLine)}</p>}
         {conversation.map((message, index) => (
           <p
             key={`${message.role}-${index}`}

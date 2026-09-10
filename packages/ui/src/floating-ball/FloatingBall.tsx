@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { BallState, BallStateMachine } from './ball-state'
 import { t, type CopyKey } from '../copy'
+import { INSTALL_GLOW_MS } from '../onboarding/first-glow'
 import { useBallState } from './use-ball-state'
 
 /**
@@ -26,6 +27,13 @@ export interface FloatingBallProps {
   /** Evaluated once at mount: whether this page has saved tools (drives the one-shot pulse). */
   hasSavedTools: boolean
   /**
+   * Stage 1-13: the first-install glow. Its own prop, not a second pulse flag: the two
+   * motions mean different things ("this page has tools" vs "you just installed this"),
+   * and the day they share a code path is the day they stop being honest. Off → the class
+   * is never added and nothing about the pulse path is touched.
+   */
+  installGlow?: boolean | undefined
+  /**
    * Shared machine, so the build flow can move the ball from another component
    * (stage 1-9). Omitted → the ball owns a private one, as it did in 1-8.
    */
@@ -34,9 +42,10 @@ export interface FloatingBallProps {
   onToggle?: (open: boolean) => void
 }
 
-export function FloatingBall({ hasSavedTools, machine, onToggle }: FloatingBallProps) {
+export function FloatingBall({ hasSavedTools, installGlow, machine, onToggle }: FloatingBallProps) {
   const { state, send } = useBallState(machine)
   const [pulsing, setPulsing] = useState(hasSavedTools)
+  const [glowing, setGlowing] = useState(installGlow === true)
 
   // One-shot pulse, exactly once per mount. `animationend` removes the class; the
   // timeout covers environments where the animation never runs (reduced motion, hidden
@@ -48,6 +57,15 @@ export function FloatingBall({ hasSavedTools, machine, onToggle }: FloatingBallP
     pulseTimer.current = setTimeout(() => setPulsing(false), PULSE_MS)
     return () => clearTimeout(pulseTimer.current)
   }, [hasSavedTools])
+
+  // The glow's own timer, the same reason the pulse has one: the class must never
+  // outlive its animation.
+  const glowTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  useEffect(() => {
+    if (installGlow !== true) return
+    glowTimer.current = setTimeout(() => setGlowing(false), INSTALL_GLOW_MS)
+    return () => clearTimeout(glowTimer.current)
+  }, [installGlow])
 
   const handleClick = (): void => {
     // Toggle semantics: idle → open the panel; anywhere else → collapse (§8:
@@ -64,13 +82,20 @@ export function FloatingBall({ hasSavedTools, machine, onToggle }: FloatingBallP
   return (
     <button
       type="button"
-      className={pulsing ? 'jx-ball is-pulsing' : 'jx-ball'}
+      className={
+        'jx-ball' +
+        (pulsing ? ' is-pulsing' : '') +
+        (glowing ? ' is-install-glow' : '')
+      }
       data-state={state}
       aria-label={t(STATE_LABEL_KEYS[state])}
       onClick={handleClick}
       onAnimationEnd={(event) => {
         if (event.animationName === 'jx-once-pulse' || event.animationName === 'jx-once-pulse-fade') {
           setPulsing(false)
+        }
+        if (event.animationName === 'jx-install-glow' || event.animationName === 'jx-install-glow-fade') {
+          setGlowing(false)
         }
       }}
     >

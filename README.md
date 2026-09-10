@@ -76,6 +76,23 @@ Browser APIs
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+## 4.1 Model access (BYOK)
+
+Juxbly speaks one protocol: the **OpenAI-compatible** chat-completions API. Anything that answers it works, which is why there is no provider integration list — you set a base URL, a key, and (optionally) a model.
+
+| Where | Base URL | Notes |
+|---|---|---|
+| OpenAI | `https://api.openai.com/v1` | the default; leave the endpoint blank to use it |
+| OpenRouter | `https://openrouter.ai/api/v1` | one key, many models, including free-tier models |
+| Google AI Studio | `https://generativelanguage.googleapis.com/v1beta/openai` | OpenAI-compatible endpoint; has a free tier |
+| Together | `https://api.together.xyz/v1` | |
+| Local (LM Studio / Ollama) | `http://localhost:1234/v1` (LM Studio) · `http://localhost:11434/v1` (Ollama) | nothing leaves the machine |
+
+- Key pages: [OpenAI](https://platform.openai.com/api-keys) · [OpenRouter](https://openrouter.ai/keys) · [Google AI Studio](https://aistudio.google.com/apikey)
+- **Yes, OpenRouter works** — it is the usual way to point at free-tier models. Use its base URL, paste an OpenRouter key, and set the model to whatever it lists (for example `openai/gpt-4o-mini`).
+- The model field is optional: leave it blank and `gpt-4o-mini` is used. Some providers only accept their own names (OpenRouter wants `vendor/model`), so set it explicitly if a call comes back saying the model is unknown.
+- **Some providers offer a free tier**, so this can cost nothing. Their terms change, so check them where you create the key.
+
 ## 5. Install (from source)
 
 ```bash

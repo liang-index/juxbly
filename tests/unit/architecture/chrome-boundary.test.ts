@@ -40,6 +40,11 @@ const ALLOWED_ASSEMBLY_APIS = [
   'runtime.onMessage',
   'tabs.query',
   'tabs.sendMessage',
+  // Stage 1-13: the toolbar overview's click — focus the tab already on this tool's page
+  // or open one when there is none (UI_SPEC §7.2). Same shape as the two above: a
+  // platform action with no business rule attached, and no `tabs` permission requested.
+  'tabs.create',
+  'tabs.update',
 ]
 
 const SOURCE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.mjs']
@@ -95,7 +100,9 @@ describe('architecture: platform API boundary', () => {
     expect(statSync(join(REPO_ROOT, PLATFORM_PACKAGE)).isDirectory()).toBe(true)
   })
 
-  it('no source file outside the sanctioned locations references platform APIs', () => {
+  // Same reason as key-leak's widened scan: the walk is O(source tree), and the tree
+  // outgrew the default 5 s timeout. A size-flaky guard is an ignored guard.
+  it('no source file outside the sanctioned locations references platform APIs', { timeout: 30_000 }, () => {
     const offenders: string[] = []
 
     for (const root of SCAN_ROOTS) {
