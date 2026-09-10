@@ -276,7 +276,10 @@ describe('listToolOverviews (stage 1-13, §7.2)', () => {
     const rows = await listToolOverviews(adapter)
     expect(rows).toHaveLength(1)
     expect(rows[0]?.domain).toBe('shop.example.com')
-    expect(rows[0]?.url.startsWith('https://shop.example.com')).toBe(true)
+    // Parsed and compared by host, not `startsWith`: a prefix check would also accept
+    // `https://shop.example.com.evil.test`, which is the substring-sanitisation mistake
+    // CodeQL's `js/incomplete-url-substring-sanitization` names.
+    expect(new URL(rows[0]?.url ?? '').hostname).toBe('shop.example.com')
   })
 
   it('counts an export as use — the more recent of the two wins, either way round', () => {

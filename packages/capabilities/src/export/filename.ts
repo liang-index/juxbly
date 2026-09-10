@@ -13,7 +13,16 @@ export function cleanFilename(name: string): string {
     .replace(/[^\p{L}\p{N} _.\-()]/gu, '-')
     // Collapse runs of hyphens and trim separators; drop the purely editorial edges.
     .replace(/-+/g, '-')
-    .replace(/^[\s.-]+|[\s.-]+$/g, '')
+    /**
+     * Trimmed as two anchored passes rather than one `/^[\s.-]+|[\s.-]+$/g`. The alternation
+     * was flagged by CodeQL's polynomial-ReDoS query, and the finding is fair: this input is
+     * a page title, i.e. uncontrolled, and a single anchored quantifier is linear by
+     * construction where the global alternation makes the engine try each branch at each
+     * position. Same result, no ambiguity — the same line `llm/client.ts` holds for the
+     * user-configured endpoint.
+     */
+    .replace(/^[\s.-]+/, '')
+    .replace(/[\s.-]+$/, '')
 
   if (cleaned === '') return 'juxbly-export'
   return cleaned
