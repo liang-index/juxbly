@@ -2,7 +2,7 @@
 
 Getting a working local environment. Target: a new contributor goes from `git clone` to a tool running on a real page without guessing.
 
-> **Status:** the extension skeleton builds and loads (stage 0-3 accepted): manifest, four entrypoints, a hidden Shadow DOM host, and the DSL packages. Features land stage by stage — anything that needs page analysis, a tool, or a model call is not built yet. See [`ROADMAP.md`](ROADMAP.md) for the order and [`contributing/SCOPE.md`](contributing/SCOPE.md) for what V1 refuses to become.
+> **Status:** Phase 1 is complete — the full tool lifecycle works end to end (build with highlight confirmation, run, health, repair, versioning, rollback) and is covered by an end-to-end script (`pnpm test:e2e`, [`apps/playground`](../apps/playground/index.html)). See [`ROADMAP.md`](ROADMAP.md) for what each phase added and [`contributing/SCOPE.md`](contributing/SCOPE.md) for what V1 refuses to become.
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ WXT builds to `.output/chrome-mv3`, at the repository root. Load it once:
 
 `pnpm dev` rebuilds content scripts without a full extension reload; the background service worker still needs the reload button in `chrome://extensions` after changes. **A manifest change always needs that reload**, and a page that was already open needs its own refresh before a changed content script runs in it.
 
-A successful load today means: no manifest errors, the popup opens, the options page opens (a placeholder, from the extension's *Details → Extension options* or by right-clicking the toolbar icon), and `div#juxbly-root` exists but is hidden on any page. The walkthrough below needs the floating ball, which arrives with stage 1-8.
+A successful load means: no manifest errors, the popup lists your tools, the options page opens (from the extension's *Details → Extension options* or by right-clicking the toolbar icon), and the floating ball appears on any page where it is not disabled.
 
 Then open any page with repeating structure (Hacker News is a good first target), click the floating ball, and type something like *"collect the title, points and comment count of each post"*. Confirm the highlight. Reload the page — the tool should be there again.
 
@@ -50,6 +50,7 @@ Then open any page with repeating structure (Hacker News is a good first target)
 | `pnpm lint` | ESLint |
 | `pnpm format` | Prettier write |
 | `pnpm test` | Vitest unit + integration |
+| `pnpm test:e2e` | the whole tool lifecycle in a real browser with the unpacked extension (builds first). Needs Playwright once per machine — see [Testing](#testing) |
 | `pnpm test:bench` | local web benchmark (from stage 2-3) |
 
 ## Repository layout
@@ -57,7 +58,7 @@ Then open any page with repeating structure (Hacker News is a good first target)
 ```text
 apps/
   extension/     WXT entry points: background, content script, popup, options
-  playground/    static server for the Web Corpus + benchmark runner (Phase 2)
+  playground/    fixture-page server + recorded model + harness API + the lifecycle script
 packages/
   core/          domain models and cross-context message protocol (types only)
   dsl/           Tool DSL types, schema validation, url_pattern matching
@@ -75,11 +76,9 @@ tests/
   benchmark/     from stage 2-1
 ```
 
-Every package directory exists, but only `core`, `dsl` and `ui` carry code today (stages
-0-3 and 1-1). The others hold a placeholder `src/index.ts` naming the stage that will fill
-them — an empty package is a reserved boundary, not a missing module. What each one will
-own, and what it must never do: [`ARCHITECTURE.md` §4](ARCHITECTURE.md) and
-[`CODE_MAP.md`](CODE_MAP.md).
+Every package directory carries code. `tests/benchmark/` is the Phase 2 corpus and stays empty
+until 2-1. What each package owns, and what it must never do:
+[`ARCHITECTURE.md` §4](ARCHITECTURE.md) and [`CODE_MAP.md`](CODE_MAP.md).
 
 ## Debugging
 
@@ -119,12 +118,44 @@ pnpm test path/to/file     # single file
 
 Integration tests drive the real `ToolRuntime` against fixture HTML with a **mock `BrowserAdapter`** and a **mock `LlmPort`**. No Chrome, no network, no key. Test scope, layers, and the regression trigger rule: [`testing/TESTING.md`](testing/TESTING.md).
 
+### End to end
+
+```bash
+pnpm install                        # playwright ships as a devDependency
+pnpm exec playwright install chromium   # once per machine — the browser itself
+pnpm test:e2e
+```
+
+The browser is a separate step on purpose: `pnpm install` deliberately does **not** download
+a ~170 MB Chromium for everyone who only wants the unit suite (the repo allows build scripts
+for `esbuild` only, so Playwright's own install hook never runs). The version is pinned —
+the Playwright release and the Chromium build it expects move together.
+
+`pnpm test:e2e` builds the extension, starts the playground, loads `.output/chrome-mv3` into a
+Chromium with a throwaway profile, and walks one tool through the whole lifecycle — build,
+confirm, save, run, break the page, repair, roll back. The model is a recording served on
+loopback and the page is served by the playground, so a run costs nothing and a red run means
+the product changed. It is headed on purpose: an MV3 extension is loaded by the browser, and
+headless Chromium does not load one. The browser comes from Playwright, not from your Chrome —
+unpacked extensions are refused by some Chrome builds.
+
+If Playwright already lives somewhere else on your machine — a shared cache, a CI image —
+point the harness at it instead and skip the download:
+`JUXBLY_PLAYWRIGHT_HOME=<directory containing node_modules>`.
+
+To walk the same path by hand instead, serve the pages and drive it yourself:
+
+```bash
+pnpm --filter @juxbly/playground serve   # /lifecycle.html, /pages/*, recorded model at /v1
+```
+
 ## Before you open a PR
 
 ```bash
 pnpm typecheck
 pnpm lint
 pnpm test
+pnpm test:e2e    # if your change touches a flow the lifecycle script walks
 ```
 
 If your change touches `packages/dsl`, `packages/runtime`, `packages/capabilities`, `packages/health`, `packages/analyzer`, or `packages/repair`, also run `pnpm test:bench` and report the delta.

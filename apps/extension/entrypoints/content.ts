@@ -191,8 +191,7 @@ async function mountBall(): Promise<void> {
   const shadow = mountHost()
   const ballMount = document.createElement('div')
   const panelMount = document.createElement('div')
-  const runMount = document.createElement('div')
-  shadow.append(panelMount, runMount, ballMount)
+  shadow.append(panelMount, ballMount)
 
   // The panels are created before the ball because the ball is what opens them; the ball
   // handle reaches the panels through this holder, since they are mounted first.
@@ -231,7 +230,15 @@ async function mountBall(): Promise<void> {
   })
 
   function mountRun(): void {
+    // Each mount gets its own container, and it is created here rather than once at startup
+    // because `destroy()` removes the element it was handed (the mount helper cannot know
+    // who owns the parent). Reusing one container meant the second mount — which is exactly
+    // what happens after a save — rendered the panel into a detached node: the run happened,
+    // nothing was on screen. Found by the stage 1-14 lifecycle, which is the first thing
+    // that ever saved a tool and expected its panel in the same page session.
     runHolder.current?.destroy()
+    const runMount = document.createElement('div')
+    shadow.insertBefore(runMount, ballMount)
     const runtime = createRuntime(adapter, () => {
       // Asked for at render time, not captured: the panel owns the element and can be
       // remounted, and a stale element would render results into a detached node.

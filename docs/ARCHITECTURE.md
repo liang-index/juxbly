@@ -98,7 +98,7 @@ The directory layout follows EC §7 — semantic boundaries: a stranger can infe
 | `packages/storage` | chrome.storage wrapper, data migration, the background side of the build/repair/rollback writes, overview rows and the three usage numbers | `loadTool()`, `saveTool()`, `handleBuildSaveTool()`, `handleToolRollback()`, `listToolOverviews()`, `summarizeUsage()` | core, browser, repair | chrome.storage.local reads and writes |
 | `packages/llm` | BYOK client, prompt templates, prompt-injection defence, the settings view and the connectivity probe | `callLlm()`, `buildPrompt()`, `handleRunLlm()`, `loadSettingsView()`, `runConnectivityTest()` | core, dsl (types), storage, browser (interface) | network requests (executed in the background context only) |
 | `apps/extension` | WXT entrypoint assembly: background / content / popup / options, manifest | — | all | process assembly (chrome.* calls limited to the §6.4.1 assembly-layer list) |
-| `apps/playground` | Local benchmark carrier (Web Corpus static serving + runner) | — | dsl, runtime | local dev server |
+| `apps/playground` | Local lifecycle carrier: serves the fixture pages, an OpenAI-compatible **recorded model**, and the harness API; runs the end-to-end lifecycle script (stage 1-14). Phase 2 hosts the benchmark runner here | `startPlaygroundServer()` | — (serves files and replays recordings; imports no product code) | local dev server |
 
 ---
 
@@ -907,8 +907,8 @@ type CapabilityPermission =
 
 - `packages/browser` is the **only package that wraps `chrome.*` capability**: chrome API semantics, error handling, and mock stand-ins are defined here; no other location may reach them directly or re-wrap them.
 - Capability, Runtime, UI, storage, and llm all depend on the `BrowserAdapter` interface; tests use the mock implementation (the operational form of the EC §5 prohibitions).
-- `apps/playground` provides a chrome-free Adapter stand-in backing the Web Corpus benchmarks.
-- The sole exception is the entrypoint assembly layer defined in §6.4.1.
+- `apps/playground` is a **development carrier that never ships** (§4), and it is the second sanctioned location: the lifecycle harness reads what the UI wrote by evaluating **inside the extension's own service worker**, because the alternative — asking the surface under test to report on itself — is not evidence. `chrome.storage.*` is therefore permitted there, and **nothing else**: the guardrail allows the `storage` namespace, not the directory. (Stage 1-14; it supersedes the earlier "chrome-free Adapter stand-in" description, which no longer matched what the harness does.)
+- The two exceptions above are the only ones: the entrypoint assembly layer (§6.4.1) and the playground's `storage.*`.
 
 **Confirmed minimal set** (interface in §5.5, port shapes in §6.1):
 
@@ -946,8 +946,8 @@ so switching to `chrome.*` or adding multi-browser targets later cannot bypass t
 
 The exception is enforced by two guardrails (not by convention):
 
-- ESLint `no-restricted-globals` (`chrome`) is lifted only for `packages/browser/**` and `apps/extension/entrypoints/background.ts`;
-- `tests/unit/architecture/chrome-boundary.test.ts` asserts that **every** chrome API appearing in entrypoints is on the list in the table above (a file + API double allowlist; guardrail strength no lower than the previous directory allowlist).
+- ESLint `no-restricted-globals` (`chrome`) is lifted only for `packages/browser/**`, `apps/extension/entrypoints/background.ts`, and `apps/playground/**` (stage 1-14: the harness evaluates inside the extension's own service worker; the directory ships with nothing);
+- `tests/unit/architecture/chrome-boundary.test.ts` asserts that **every** chrome API appearing in entrypoints is on the list in the table above (a file + API double allowlist; guardrail strength no lower than the previous directory allowlist), and that anything in `apps/playground/**` stays inside the `storage` namespace.
 
 > Expanding this list requires going back through the EC document change protocol; **never** move a call into the assembly layer just because it is "convenient".
 
@@ -963,6 +963,14 @@ The exception is enforced by two guardrails (not by convention):
 | Background SW | persistent | message routing, llm step execution (BYOK key never enters the page context), storage gateway, CSV / JSON download |
 | Popup | extension icon | tool overview entry (tools matching the current page + a link to the management page). Stage 1-13: search, recent-use ordering, click → focus or open the tab, the proactive help link at the bottom; **no delete / edit** (those belong to the management page) |
 | Options | extension page | BYOK settings (key / endpoint / model), floating ball toggle. Stage 1-13: masked key with replace / remove, the free-tier pointer, the one-click connectivity check, and the three honest local numbers (`UI_SPEC` §7.2 / §7.4) |
+
+> **Panel mount containers belong to the content script.** `mountRunPanel()` returns a handle whose
+> `destroy()` removes the container it was handed (it cannot know who owns the parent), so the host
+> must give **each mount its own container** — reusing one means the second mount renders into a
+> detached node, i.e. the panel never appears. The run panel is mounted twice in a page session by
+> design (a save remounts it so the freshly created tool is in the list), so this is the ordinary
+> path, not an edge case. Settled in stage 1-14 by the lifecycle script, which was the first thing
+> to save a tool and expect its panel without reloading.
 
 ### 7.2 Message protocol (defined in `packages/core`; all via `chrome.runtime.sendMessage`)
 
@@ -1564,6 +1572,7 @@ Repair success: the new version starts from healthy; old versions keep versions[
 | Unit | DSL validation rules, url_pattern matching, the four transform ops, the llm cache decision (hash comparison), health state machine transitions, **structure fingerprint comparison**, **semantic layer judgement (mock semantic port)** | `tests/unit/` |
 | Integration | ToolRuntime end-to-end (fixture HTML + mock BrowserAdapter + mock LlmPort) | `tests/integration/` |
 | Benchmark | Web Corpus real-site snapshots + Task Corpus + Ground Truth (established in Phase 2; the runner runs in apps/playground) | `tests/benchmark/` |
+| End-to-end | One tool through the whole lifecycle — discover → build (clarify + highlight) → save → run → health → repair → rollback — against an **unpacked extension in a real browser**, driven only through the UI. The model is a recording served on loopback and the page is served by the playground, so the run is repeatable and free; the four invariants asserted here (llm cache, view switching does not re-run, repair creates a version, highlight confirmation on both build and repair) are properties of the product as a whole, not of any one module | `apps/playground/e2e/`, run by `pnpm test:e2e` |
 | Regression | trigger: any change to `packages/dsl`, `packages/runtime`, `packages/capabilities`, or `packages/health` (EC §16) | CI |
 
 ---

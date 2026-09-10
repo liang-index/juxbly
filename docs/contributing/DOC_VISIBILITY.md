@@ -82,6 +82,7 @@ content is wrong, but because it is process.
 | `docs/DELTA.md` | change ledger — who changed what, and which stage it affects |
 | `docs/MAINTAINER_RUNBOOK.md` | maintainer operations |
 | `docs/testing/MANUAL_ACCEPTANCE.md` | the executable expansion of the per-stage acceptance criteria |
+| `docs/testing/PHASE1_CLOSURE_REPORT.md` | the Phase 1 closure acceptance report: the maintainer-facing record of what was verified, what was measured, and the known-issues list. Its **conclusions** are public (they are in `README.md` and `CHANGELOG.md`); the report itself is the deliberation record |
 | `docs/benchmark/*-spike-*.md` | pre-validation working notes; their conclusions already live in `README.md` |
 | `docs/prototypes/` | the interactive prototype and its reader. A prototype is a **review tool, not part of the product**: `UI_SPEC.md` holds the rules, and `docs/assets/` carries the screenshots `README.md` needs |
 | `.internal-repo` | the marker that tells the CI guard it is running in the internal repository. **It must never appear in this tree** — the guard fails if it does |

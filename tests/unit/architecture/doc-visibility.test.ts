@@ -40,6 +40,7 @@ const INTERNAL_FILES = [
   'docs/MAINTAINER_RUNBOOK.md',
   'docs/PRODUCT.md',
   'docs/testing/MANUAL_ACCEPTANCE.md',
+  'docs/testing/PHASE1_CLOSURE_REPORT.md',
   'scripts/sync-public.mjs',
   'standard-dev-workflow-prompt-v2-open-source.md',
   'tsconfig.typecheck-tmp.json',
