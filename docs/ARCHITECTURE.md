@@ -93,12 +93,12 @@ The directory layout follows EC §7 — semantic boundaries: a stranger can infe
 | `packages/browser` | Browser Adapter: chrome API abstraction + mock implementation | the `BrowserAdapter` interface | core | **the only package that wraps chrome.* capabilities** (assembly-layer exception in §6.4.1) |
 | `packages/analyzer` | Page analysis: visible-text simplification, structural features, dynamic custom-element scan, shadow expansion | `analyzePage()` | none | none (pure DOM reads) |
 | `packages/health` | Breakage evaluation and the health state machine | `evaluateHealth()` | core, dsl | none (results are written through storage) |
-| `packages/repair` | Repair sessions, version creation and rollback | `RepairSession` | core, dsl, runtime | storage writes (through browser) |
-| `packages/ui` | Floating ball, chat panel, run panel, highlight layer, three views, popup, options | React components | core, dsl | DOM rendering (Shadow DOM isolation) |
-| `packages/storage` | chrome.storage wrapper, data migration | `loadTool()`, `saveTool()` etc. | core, browser | chrome.storage.local reads and writes |
-| `packages/llm` | BYOK client, prompt templates, prompt-injection defence | `callLlm()`, `buildPrompt()`, `handleRunLlm()` | core, dsl (types), storage, browser (interface) | network requests (executed in the background context only) |
+| `packages/repair` | Repair sessions, version creation and rollback | `commitRepair()`, `rollbackTo()`, `fromHealth()`, `fromUserEdit()`, `buildContextMessage()` | core, dsl | none — pure record transformations; the background writes (§7.1) |
+| `packages/ui` | Floating ball, chat panel, run panel, highlight layer, three views, onboarding nodes, popup, options | React components, `installGlow()`, `introLine()`, `shouldRequestKey()`, `overviewRows()` | core, dsl | DOM rendering (Shadow DOM isolation) |
+| `packages/storage` | chrome.storage wrapper, data migration, the background side of the build/repair/rollback writes, overview rows and the three usage numbers | `loadTool()`, `saveTool()`, `handleBuildSaveTool()`, `handleToolRollback()`, `listToolOverviews()`, `summarizeUsage()` | core, browser, repair | chrome.storage.local reads and writes |
+| `packages/llm` | BYOK client, prompt templates, prompt-injection defence, the settings view and the connectivity probe | `callLlm()`, `buildPrompt()`, `handleRunLlm()`, `loadSettingsView()`, `runConnectivityTest()` | core, dsl (types), storage, browser (interface) | network requests (executed in the background context only) |
 | `apps/extension` | WXT entrypoint assembly: background / content / popup / options, manifest | — | all | process assembly (chrome.* calls limited to the §6.4.1 assembly-layer list) |
-| `apps/playground` | Local benchmark carrier (Web Corpus static serving + runner) | — | dsl, runtime | local dev server |
+| `apps/playground` | Local lifecycle carrier: serves the fixture pages, an OpenAI-compatible **recorded model**, and the harness API; runs the end-to-end lifecycle script (stage 1-14). Phase 2 hosts the benchmark runner here | `startPlaygroundServer()` | — (serves files and replays recordings; imports no product code) | local dev server |
 
 ---
 
@@ -228,6 +228,13 @@ interface ExportStep {
 }
 ```
 
+`copy` is a legal value in the DSL and **the run engine refuses it** (`packages/runtime`,
+pinned by a test): writing the clipboard needs a user gesture, so a run — which is by
+definition unattended — can never deliver it. The panel's Copy button is the only path to
+the clipboard and calls the port directly from the click, never through a step. The step
+stays in the type so a hand-written tool fails with a named reason instead of being
+rejected as unknown syntax.
+
 ### 5.3 url_pattern matching semantics
 
 ```ts
@@ -240,6 +247,17 @@ interface ExportStep {
  *  3. host comparison is case-insensitive
  */
 export function matchUrl(pattern: string, url: URL): boolean
+
+/**
+ * The one page the toolbar overview opens for a tool (stage 1-13, `UI_SPEC` §7.2).
+ *
+ * A pattern names a *set* of pages and a click needs one, so the wildcard is dropped and
+ * the site root the pattern already names is used: "amazon.com/s/*" → "https://amazon.com/s/".
+ * Guessing deeper would invent a page that may not exist. `null` for an unparseable
+ * pattern — this runs over every stored record, and one bad pattern must not take the
+ * whole list down.
+ */
+export function patternToUrl(pattern: string): string | null
 ```
 
 ### 5.4 Validation rules (`validateToolDefinition`)
@@ -464,23 +482,49 @@ interface RunOutcome {
   error?: RunError
 }
 
-// ── Health evaluation (packages/health) ─────────────────────────────────────────
+// ── Health evaluation (packages/health, stage 1-11) ─────────────────────────────
+//
+// Transcribed once in `packages/core/src/runtime.ts` (§5.5: core is the type SSOT);
+// the shapes below are the contract `packages/health` implements. `HealthInput` carries
+// no page content and no extracted values — that is what makes the evaluation pure and
+// the §10 state machine exhaustible by tests.
 
 interface HealthInput {
-  tool: ToolDefinition
-  record: ToolRecord
-  extract: ExtractResult | null
-  error?: ExtractError
+  previous: ToolHealth
+  extractError?: ExtractError | null
+  summary: RunSummary
+  fingerprint: StructureFingerprint | null
+  semantic?: SemanticCheck | null
+  semanticError?: boolean
+  now?: number
+  forceSemanticCheck?: boolean
 }
 
 interface HealthEvaluation {
   status: HealthStatus
-  /** Which layer fired — the check panel uses this to explain "why yellow / why red" (product baseline §9.3, the check capability) */
-  layer: 'execution' | 'result' | 'structure' | 'semantic'
+  changed: boolean
+  /** Why, in one sentence — shown in the panel, never carrying page content (§10). */
   reason: string
-  /** True only for the semantic layer — the only token-consuming layer, must stay transparent (product baseline §14 scope note) */
-  tokenUsed: boolean
+  /** The four per-layer verdicts — the check panel explains "why yellow / why red" with these. */
+  layers: {
+    execution: 'ok' | 'failed'
+    result: 'ok' | 'deviated' | 'no-baseline'
+    structure: 'ok' | 'drifted' | 'no-baseline'
+    semantic: 'not-run' | 'ok' | 'suspicious' | 'error'
+  }
+  fingerprint: StructureFingerprint | null
+  consecutiveCleanRuns: number
+  /** Whether a semantic check should run; the caller owns actually running it (§10). */
+  semanticCheckRequested: boolean
 }
+
+/**
+ * Stage 1-11 thresholds, constants in `packages/health/src/constants.ts` (retuned in
+ * 2-4 against a real corpus, without touching the judgement): 10-run window; 2 clean
+ * runs to recover; 6 h semantic throttle; 5-record semantic sample; result baseline
+ * needs ≥ 3 historical runs; structure drift = container count below 50 % of baseline
+ * or a field-presence share dropping ≥ 0.4. `tag_path` is stored but never judged (C4).
+ */
 
 // ── Repair session (packages/repair) ────────────────────────────────────────────
 
@@ -542,16 +586,21 @@ interface RenderResult {
   truncated: boolean
 }
 
-// ── export output ────────────────────────────────────────────────────────────
+// ── export output (packages/capabilities/export, stage 1-15) ─────────────────
 
+/**
+ * The `export` capability's result (typed in `packages/core` `capability.ts`).
+ *
+ * `bytes` is a measure for the UI ("what did this export cost"), not a promise of exact
+ * on-disk size: for csv / json it is the serialized string length, for copy the number of
+ * characters placed on the clipboard. The exported content itself never travels back (it
+ * is banned from logs and messages alike).
+ */
 interface ExportResult {
-  ok: boolean
   format: 'copy' | 'csv' | 'json'
-  /** Number of exported records. **The exported content itself never travels back** (banned from logs and messages alike) */
+  /** Number of exported records. */
   itemCount: number
-  /** Filename for csv / json downloads; undefined for copy */
-  filename?: string
-  error?: string
+  bytes?: number
 }
 
 // ── Browser Adapter (packages/browser — the only package that wraps chrome.* capabilities, see §6.4) ──
@@ -582,8 +631,18 @@ interface BrowserAdapter {
 interface LlmEndpoint {
   baseUrl: string   // any OpenAI-compatible endpoint; empty → https://api.openai.com/v1
   apiKey: string    // read only here (§12.2): never logged, never sent back over messaging
-  model: string
+  model: string     // resolved: `Settings.model`, or DEFAULT_MODEL ('gpt-4o-mini') when unset
 }
+
+/**
+ * Assembly rule (§12.2: `packages/llm` is the only reader of the credential fields).
+ *
+ * An endpoint is "configured" when a **key** exists — a blank model is not a missing
+ * configuration, it is a missing preference, and `modelOrDefault()` fills it. Requiring
+ * both turned a saved key into a silent dead end: the form said "Saved." and every later
+ * call answered `NOT_CONFIGURED` with nothing on screen naming the model as the cause.
+ */
+declare const DEFAULT_MODEL: string
 
 /**
  * Content may be text or parts. Parts exist for the A3 visual fallback (§9.1 level ②):
@@ -828,9 +887,10 @@ class CapabilityRegistry {
 Registering the same type twice throws: two implementations of one step type would make
 the meaning of that step depend on registration order.
 
-V1 registers four capabilities — `extract`, `transform`, `llm` and `render`. `export`
-(§6.3's `clipboard.write` / `downloads` consumer) joins at the same call in stage 1-15;
-the engine needs no change when it does, which is the point of having a registry.
+V1 registers five capabilities — `extract`, `transform`, `llm`, `render` and `export`. The
+fifth, `export` (§6.3's `clipboard.write` / `downloads` consumer, delivering copy / csv /
+json), joined through the same registration call in stage 1-15; the engine needed no change
+when it did, which is the point of having a registry.
 
 ### 6.3 Permission list
 
@@ -847,8 +907,8 @@ type CapabilityPermission =
 
 - `packages/browser` is the **only package that wraps `chrome.*` capability**: chrome API semantics, error handling, and mock stand-ins are defined here; no other location may reach them directly or re-wrap them.
 - Capability, Runtime, UI, storage, and llm all depend on the `BrowserAdapter` interface; tests use the mock implementation (the operational form of the EC §5 prohibitions).
-- `apps/playground` provides a chrome-free Adapter stand-in backing the Web Corpus benchmarks.
-- The sole exception is the entrypoint assembly layer defined in §6.4.1.
+- `apps/playground` is a **development carrier that never ships** (§4), and it is the second sanctioned location: the lifecycle harness reads what the UI wrote by evaluating **inside the extension's own service worker**, because the alternative — asking the surface under test to report on itself — is not evidence. `chrome.storage.*` is therefore permitted there, and **nothing else**: the guardrail allows the `storage` namespace, not the directory. (Stage 1-14; it supersedes the earlier "chrome-free Adapter stand-in" description, which no longer matched what the harness does.)
+- The two exceptions above are the only ones: the entrypoint assembly layer (§6.4.1) and the playground's `storage.*`.
 
 **Confirmed minimal set** (interface in §5.5, port shapes in §6.1):
 
@@ -873,7 +933,7 @@ Therefore `apps/extension/entrypoints/*` is an **enumerable, assertable assembly
 
 | Location | Permitted `chrome.*` | Notes |
 |---|---|---|
-| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency); the two `tabs.*` calls exist **only** to relay a received shortcut to the active tab's content script (stage 1-8) — no `tabs` permission is requested, and no tab metadata is read |
+| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` / `tabs.create` / `tabs.update` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency). `tabs.query` / `tabs.sendMessage` exist **only** to relay a received shortcut to the active tab's content script (stage 1-8); `tabs.create` / `tabs.update` exist **only** to focus an already-open tab or open one from the toolbar overview (stage 1-13). No `tabs` permission is requested in either case — URL visibility comes from the existing `<all_urls>` host permission, and no tab metadata beyond the URL is read |
 | `entrypoints/content.ts` | **none** | the content script belongs to the UI-side host; all messaging and data reads/writes go through `BrowserAdapter` |
 | `entrypoints/popup/**` · `entrypoints/options/**` | **none** | extension pages are also UI-side |
 
@@ -886,8 +946,8 @@ so switching to `chrome.*` or adding multi-browser targets later cannot bypass t
 
 The exception is enforced by two guardrails (not by convention):
 
-- ESLint `no-restricted-globals` (`chrome`) is lifted only for `packages/browser/**` and `apps/extension/entrypoints/background.ts`;
-- `tests/unit/architecture/chrome-boundary.test.ts` asserts that **every** chrome API appearing in entrypoints is on the list in the table above (a file + API double allowlist; guardrail strength no lower than the previous directory allowlist).
+- ESLint `no-restricted-globals` (`chrome`) is lifted only for `packages/browser/**`, `apps/extension/entrypoints/background.ts`, and `apps/playground/**` (stage 1-14: the harness evaluates inside the extension's own service worker; the directory ships with nothing);
+- `tests/unit/architecture/chrome-boundary.test.ts` asserts that **every** chrome API appearing in entrypoints is on the list in the table above (a file + API double allowlist; guardrail strength no lower than the previous directory allowlist), and that anything in `apps/playground/**` stays inside the `storage` namespace.
 
 > Expanding this list requires going back through the EC document change protocol; **never** move a call into the assembly layer just because it is "convenient".
 
@@ -899,10 +959,18 @@ The exception is enforced by two guardrails (not by convention):
 
 | Component | Location | Responsibilities |
 |---|---|---|
-| Content Script | per tab, document_idle | floating ball host, chat / run panels (Shadow DOM isolation), highlight layer, page analysis, extract / transform / render / copy execution |
-| Background SW | persistent | message routing, llm step execution (BYOK key never enters the page context), storage gateway, CSV download |
-| Popup | extension icon | tool overview entry (tools matching the current page + a link to the management page) |
-| Options | extension page | BYOK settings (key / endpoint / model), floating ball toggle |
+| Content Script | per tab, document_idle | floating ball host, chat / run panels (Shadow DOM isolation), highlight layer, page analysis, extract / transform / render / copy execution (downloads relay to background), export usage record |
+| Background SW | persistent | message routing, llm step execution (BYOK key never enters the page context), storage gateway, CSV / JSON download |
+| Popup | extension icon | tool overview entry (tools matching the current page + a link to the management page). Stage 1-13: search, recent-use ordering, click → focus or open the tab, the proactive help link at the bottom; **no delete / edit** (those belong to the management page) |
+| Options | extension page | BYOK settings (key / endpoint / model), floating ball toggle. Stage 1-13: masked key with replace / remove, the free-tier pointer, the one-click connectivity check, and the three honest local numbers (`UI_SPEC` §7.2 / §7.4) |
+
+> **Panel mount containers belong to the content script.** `mountRunPanel()` returns a handle whose
+> `destroy()` removes the container it was handed (it cannot know who owns the parent), so the host
+> must give **each mount its own container** — reusing one means the second mount renders into a
+> detached node, i.e. the panel never appears. The run panel is mounted twice in a page session by
+> design (a save remounts it so the freshly created tool is in the list), so this is the ordinary
+> path, not an edge case. Settled in stage 1-14 by the lifecycle script, which was the first thing
+> to save a tool and expect its panel without reloading.
 
 ### 7.2 Message protocol (defined in `packages/core`; all via `chrome.runtime.sendMessage`)
 
@@ -927,13 +995,36 @@ type ExtensionMessage =
       /** Success only, like `LlmResponse.usage` (§5.5): a failed call must not read as free. */
       ; usage?: TokenUsage
       ; error?: string }
-  | { kind: 'build:save_tool'; tool: ToolDefinition }
+  | { kind: 'build:save_tool'; tool: ToolDefinition
+      /**
+       * Stage 1-12: present ⇒ the write is **a new version of an existing tool** (§9.3),
+       * not a first save. The background then writes `version + 1`, keeps every old version
+       * and marks the replaced one `ever_broken` when the trigger was a breakage.
+       *
+       * Explicit rather than inferred from "a record already exists": tool ids come out of a
+       * model, and a collision would otherwise turn a new tool into a version of another
+       * tool's history.
+       */
+      ; repair?: RepairSaveRequest }
+  /**
+   * `{ toolId, trigger: 'broken' | 'user', note }` — §9.3. `trigger` alone decides whether
+   * the replaced version is marked `ever_broken`: a breakage is evidence, an edit is not.
+   * `note` is the reason shown beside the version in the rollback list; it is copy, so it
+   * is composed by the caller from `packages/ui/src/copy` and never invented on this side.
+   */
   // Storage is the last gate before an invalid definition is written (§5.4), so the write
   // answers. A silent failure here is the worst outcome available: the user would walk
   // away believing they own a tool they do not have (§8.1).
   | { kind: 'build:save_tool_result'; ok: boolean
-      /** Stable code: a `ValidationError.code` for a rejected draft, or `SAVE_FAILED`. */
-      ; error?: string }
+      /**
+       * Stable code: a `ValidationError.code` for a rejected draft, `SAVE_FAILED`, or —
+       * stage 1-12 — `TOOL_NOT_FOUND` when `repair` named a tool that is no longer stored.
+       * A repair whose tool was deleted mid-flow has nothing to repair; writing a fresh
+       * record instead would resurrect it.
+       */
+      ; error?: string
+      /** Stage 1-12: the version now in effect, so a repair can report "v2 is live". */
+      ; version?: number }
   // run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
@@ -951,21 +1042,135 @@ type ExtensionMessage =
   // tool (panel → background; first written by the run panel's "Don't keep", reused by 1-13)
   | { kind: 'tool:delete'; toolId: string }
   | { kind: 'tool:delete_result'; ok: boolean; toolId: string; error?: string }
+  /**
+   * Stage 1-12: rollback — make an older version the effective one again (§9.3 / C3).
+   *
+   * It is **not** a save: no definition is produced, none is validated, and no `tool`
+   * payload travels. The version was validated when it was written; sending a definition
+   * here would let one call roll back *and* silently rewrite history at the same time.
+   *
+   * The entry point is a plain list in the settings panel (wired in 1-16); `versions[]`,
+   * including the entry currently in effect, is left untouched, so a rollback is itself
+   * undone by rolling back again.
+   */
+  | { kind: 'tool:rollback'; toolId: string; version: number }
+  /** `error` is `TOOL_NOT_FOUND`, `VERSION_NOT_FOUND` or `SAVE_FAILED`. */
+  | { kind: 'tool:rollback_result'; ok: boolean; version?: number; error?: string }
   // onboarding (panel → background; the run panel needs first_tool_built for the promise line, 1-13 reuses it)
   | { kind: 'onboarding:get' }
   | { kind: 'onboarding:get_result'; flags: OnboardingFlags | null }
+  /**
+   * Stage 1-13: set one or more of the four milestones. They are **independent one-shot
+   * flags, not a progress bar** — any node may fire first, so a caller sets only its own
+   * bit and leaves the rest alone.
+   *
+   * Merge-only by construction: a flag that is already `true` stays `true`. "Was the
+   * user ever shown this" is a fact about the past; nothing may rewind it, and a second
+   * build does not get to re-play the first-build notice.
+   *
+   * The reply echoes the merged flags so the caller can render from the same source it
+   * will read next time instead of guessing at its own patch.
+   */
+  | { kind: 'onboarding:set'; patch: Partial<OnboardingFlags> }
+  | { kind: 'onboarding:set_result'; flags: OnboardingFlags }
+  /**
+   * Stage 1-13: the toolbar overview's list. The popup cannot read storage (§7.1), and
+   * `run:query_tools` answers definitions only — the overview also needs usage and health,
+   * which live on the record, not on the definition.
+   *
+   * `domain` is a host, never a URL (`UI_SPEC` §7.2): the overview identifies a site, and
+   * a full URL would be both noise and a leak of browsing detail into a screenshot.
+   * `lastUsedAt` is the **more recent** of `last_run_at` and `last_export_at` (§8.1 —
+   * exporting without running is just as real a use).
+   */
+  | { kind: 'tool:list' }
+  | { kind: 'tool:list_result'; tools: ToolOverviewItem[] }
+  /**
+   * Stage 1-13: the overview's click — focus the tab already showing this tool's page,
+   * or open one when there is none (`UI_SPEC` §7.2).
+   *
+   * The popup sends a URL and nothing else: picking a tab is a platform action and the
+   * assembly layer is the only place allowed to make it (§6.4.1). `ok: false` means no
+   * tab was opened — the panel then says so instead of pretending the click landed.
+   */
+  | { kind: 'tab:open'; url: string }
+  | { kind: 'tab:open_result'; ok: boolean; error?: string }
   // health (content script → background; semantic-layer checks call the model, whose key lives only in background)
+  // The message channel is the MANUAL "check once" path — the user's action, their tokens, the
+  // throttle deliberately bypassed. The AUTOMATIC path never crosses messaging: the run:report
+  // handler evaluates health and opens the gate only for a result/structure deviation plus the
+  // six-hour throttle (§10). The sample is page data: wrapped as a data section by the prompt
+  // builder, capped by `capSample` (SEMANTIC_SAMPLE_SIZE, 5) before it is sent, never
+  // stored, never logged.
   | { kind: 'health:semantic_check'; requestId: string; fields: string[]; sample: unknown[] }
   | { kind: 'health:semantic_check_result'; requestId: string; ok: boolean
-      ; verdict?: 'ok' | 'suspicious'; reason?: string; usage?: TokenUsage }
+      ; verdict?: 'ok' | 'suspicious'; reason?: string; usage?: TokenUsage
+      /** Failure carries the §5.5 llm error category, never a fabricated verdict: a failed
+       *  check must read as "no answer" and changes no status (§10). */
+      ; error?: string }
   // export (content script → background)
   | { kind: 'export:download_csv'; filename: string; csv: string }
   | { kind: 'export:download_json'; filename: string; json: string }
+  // The reply to a download request (stage 1-15). A refused download — permission gap,
+  // quota, an intercepting browser — is reported so the panel surfaces it and offers a
+  // retry instead of silently losing the result.
+  | { kind: 'export:download_result'; ok: boolean; error?: string }
+  // A successful export (copy, csv or json) records usage; storage is the background's to
+  // write (§7.1). The two download messages above carry no tool id, so the three formats
+  // share this one bookkeeping hop after they deliver (stage 1-15).
+  | { kind: 'export:record_usage'; toolId: string }
   // settings (popup / options ↔ background)
   | { kind: 'settings:get' }
-  // Reply carries the public subset only — `api_key` never crosses back (§12). (Stage 1-8)
-  | { kind: 'settings:get_result'; floating_ball_enabled: boolean }
+  /**
+   * Reply carries the public subset only — the key itself never crosses back (§12).
+   * `key_set` is a boolean about the key, not the key: the build panel needs it to know
+   * whether onboarding node ③ has to ask before the first model call (stage 1-13), and
+   * "is one configured" is not a secret. (Stage 1-8; `key_set` added in 1-13.)
+   */
+  | { kind: 'settings:get_result'; floating_ball_enabled: boolean; key_set: boolean }
   | { kind: 'settings:set'; patch: Partial<Settings> }
+  /**
+   * Storage is the last gate before a half-written configuration is kept (same reason
+   * `build:save_tool` answers, §9.1): a silent failure here leaves the user believing
+   * their key was saved while the next model call reports "not configured".
+   */
+  | { kind: 'settings:set_result'; ok: boolean; error?: string }
+  /**
+   * The options page's own read (stage 1-13). Separate from `settings:get` on purpose:
+   * that one is answered to content scripts, and every field added to it would be a
+   * field readable from the page context. This one is answered to the extension's own
+   * options page and carries the endpoint and model back — plus `key_hint`, a masked
+   * tail (`…1234`) computed inside `packages/llm`, the only reader of the key (§12.2).
+   * The key's value never appears in a message, in either direction.
+   */
+  | { kind: 'settings:manage' }
+  | { kind: 'settings:manage_result'; key_set: boolean; key_hint: string | null
+      ; api_base_url: string | null; model: string | null; floating_ball_enabled: boolean }
+  /**
+   * Stage 1-13: one minimal call against a **candidate** configuration, before it is
+   * saved (the options page's "test connection").
+   *
+   * The candidate travels as a `Partial<Settings>` so the key crosses under the same
+   * declared type as `settings:set` — one shape, one path, no second spelling of the
+   * credential field anywhere in the tree (§12.2). It is answered only to the extension's
+   * own options page, and it **saves nothing**: the test answers "will this work", while
+   * whether it is kept is the user's decision — an offline user still has to be able to
+   * finish configuring (`UI_SPEC` §7.2, stage 1-13 edge cases).
+   *
+   * The reply carries no key: `ok`, and on failure an `LlmErrorCode` as `error`, which the
+   * panel files into one of three categories (key / network / endpoint) because "the test
+   * failed" is not a next step.
+   */
+  | { kind: 'llm:connectivity'; settings: Partial<Settings> }
+  | { kind: 'llm:connectivity_result'; ok: boolean; error?: string }
+  /**
+   * Stage 1-13: the management page's three numbers (`UI_SPEC` §7.2 / §7.4).
+   *
+   * Computed in the background from the same records the overview reads, so the sum and
+   * the list can never come from two different snapshots of one storage.
+   */
+  | { kind: 'stats:get' }
+  | { kind: 'stats:get_result'; stats: UsageStats }
   // internal: channel availability check, **not business protocol**.
   // The `internal:` prefix is namespaced away from `build:*` / `run:*` / `health:*` / `export:*` / `settings:*`,
   // so verification messages cannot be misread as business semantics in later stages.
@@ -975,6 +1180,40 @@ type ExtensionMessage =
   | { kind: 'internal:command'; command: string }
 
 interface TokenUsage { prompt_tokens: number; completion_tokens: number }  // shown transparently in the panel
+
+/**
+ * One row of the toolbar overview (stage 1-13, `UI_SPEC` §7.2).
+ *
+ * It is deliberately **not** a `ToolRecord`: the popup needs five display facts, and
+ * handing it a record would put the whole definition, the run state and every version
+ * into a surface whose job is "find the tool again".
+ */
+interface ToolOverviewItem {
+  toolId: string
+  name: string
+  category: ToolCategory
+  /** Host only — never a full URL (§7.2). */
+  domain: string
+  /** The more recent of `last_run_at` / `last_export_at`; null means never used (§8.1). */
+  lastUsedAt: string | null
+  status: HealthStatus
+  /** What the click opens: derived from `url_pattern`, the site root the tool runs on. */
+  url: string
+}
+
+/**
+ * The management page's three numbers (stage 1-13, `UI_SPEC` §7.2 / §7.4).
+ *
+ * `totalRuns` is the sum of `ToolUsage.run_count` and nothing else — the result area
+ * counts the same runs, and a second counter would eventually disagree with it. There is
+ * deliberately no "time saved": counting runs is countable, estimating saved time needs
+ * invented assumptions, which §9 forbids.
+ */
+interface UsageStats {
+  totalTools: number
+  addedThisWeek: number
+  totalRuns: number
+}
 ```
 
 Adding message types is allowed; changing the semantics of existing fields must go through the EC document change protocol.
@@ -1133,7 +1372,7 @@ interface ToolUsage {
 interface Settings {
   api_key: string | null        // BYOK; read only by background, stored encrypted
   api_base_url: string | null   // any OpenAI-compatible endpoint (OpenAI / OpenRouter / local gateway); defaults to https://api.openai.com/v1
-  model: string | null
+  model: string | null          // null falls back to DEFAULT_MODEL ('gpt-4o-mini'); only api_key gates "configured"
   floating_ball_enabled: boolean
 }
 
@@ -1243,9 +1482,14 @@ After a run, evaluateHealth (four layers, see §10):
   result pattern deviates from baseline (drops to 0 / odd field shapes) → degraded → subtle badge hint, no interruption
   structure fingerprint drift (container count / tag path / field presence) → degraded (can escalate to broken when it and the result layer are both off)
   semantic layer judges "the grabbed content is not the wanted content" → the escalation basis for degraded (triggered calls, throttled)
-CTA → enter build mode (preset context message: "This tool has recently returned empty results…")
+CTA → enter build mode (preset context message: what was observed + the likely cause + a next step)
 → reuse the full §9.1 flow → new version (version+1; the old version is kept and marked ever_broken)
-Two failures → stop: concrete advice, no infinite retries.
+Two failures → stop: concrete advice, no infinite retries. A cancellation is not a failure
+(the user closing the panel must not consume the second attempt).
+A user-initiated "rework" takes the identical path with **no** preset context: the tool may
+be working fine, and claiming a breakage without evidence is not something the product does.
+Rollback (C3: no switcher UI) is a plain list in the settings panel: it changes which
+definition is in effect and leaves `versions[]` — including the current entry — untouched.
 V1 has no silent auto-repair; a repair always produces a new version, and rollback is possible.
 ```
 
@@ -1262,10 +1506,15 @@ V1 scope of the four-layer checks: **execution, result, structure-fingerprint, a
 | Structure fingerprint | drift from the `structure_fingerprint` baseline — **V1 uses only the container count and field presence signals**; `tag_path` is recorded but does not participate in judgement (§8.1) | → `degraded` (can escalate to `broken` when the drift is pronounced and the result layer is off at the same time) | no |
 | Semantic | the model judges whether "elements were hit" equals "the right content was obtained" | serves as the **escalation basis** for `degraded` → `broken`; produces no state on its own | **yes** (via background; must be shown transparently) |
 
-> The semantic layer is the only one of the four that calls the model, so it **does not run on every execution**. Trigger principle (a constraint at this document's level):
-> the semantic check fires only when execution- and result-layer signals are normal but the structure-fingerprint layer has judged `degraded`, or when the result layer deviates repeatedly with no explanation in `run_state` changes;
-> triggering is throttled per tool (the minimum interval is defined by an implementation constant, no per-site configuration).
-> Implementation details land with the corresponding stage, but **the judgement signals and state mapping follow this section**.
+> The semantic layer is the only one of the four that calls the model, so it **does not run on every execution**. Trigger principle, as landed in stage 1-11:
+> the check fires only when the execution layer is ok **and** the result layer or the structure-fingerprint layer judged a deviation this run;
+> it is throttled per tool — at most once per `SEMANTIC_CHECK_MIN_INTERVAL_MS` (6 h; an implementation constant in `packages/health/src/constants.ts`, retuned in 2-4 without touching the judgement);
+> the user's manual "check once" bypasses the throttle (their action, their tokens).
+> A failed or timed-out check records `layers.semantic = 'error'` and changes **no** status: no network is not a broken tool.
+> The evaluation itself is a pure function (`evaluateHealth`, `packages/health`) that the background's `run:report` handler feeds on every run;
+> the sample sent to the model is capped at `SEMANTIC_SAMPLE_SIZE` (5) records and wrapped as a data section like any other llm call (§12.3).
+> The cap is a privacy bound, so it has **exactly one enforcer**: `capSample` (`packages/health/src/sample.ts`), which every caller — the content script's `healthInputs` and both background paths — goes through. It is idempotent, so capping twice is harmless; re-implementing `slice(0, N)` at a call site is not.
+> `broken` never heals itself — only a repaired version confirmed in 1-12 resets the state — and a degraded tool recovers after **two consecutive clean runs**.
 
 ```text
                       extract throws ───────────────┐
@@ -1323,6 +1572,7 @@ Repair success: the new version starts from healthy; old versions keep versions[
 | Unit | DSL validation rules, url_pattern matching, the four transform ops, the llm cache decision (hash comparison), health state machine transitions, **structure fingerprint comparison**, **semantic layer judgement (mock semantic port)** | `tests/unit/` |
 | Integration | ToolRuntime end-to-end (fixture HTML + mock BrowserAdapter + mock LlmPort) | `tests/integration/` |
 | Benchmark | Web Corpus real-site snapshots + Task Corpus + Ground Truth (established in Phase 2; the runner runs in apps/playground) | `tests/benchmark/` |
+| End-to-end | One tool through the whole lifecycle — discover → build (clarify + highlight) → save → run → health → repair → rollback — against an **unpacked extension in a real browser**, driven only through the UI. The model is a recording served on loopback and the page is served by the playground, so the run is repeatable and free; the four invariants asserted here (llm cache, view switching does not re-run, repair creates a version, highlight confirmation on both build and repair) are properties of the product as a whole, not of any one module | `apps/playground/e2e/`, run by `pnpm test:e2e` |
 | Regression | trigger: any change to `packages/dsl`, `packages/runtime`, `packages/capabilities`, or `packages/health` (EC §16) | CI |
 
 ---

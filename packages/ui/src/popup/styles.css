@@ -1,0 +1,143 @@
+/**
+ * Popup styles — transcribed against the prototype's Overview screen.
+ *
+ * Everything goes through `--jx-*` tokens (UI_SPEC §11.4): a colour literal here is a
+ * recolor that has to be hunted down later. The popup lives in its own extension page,
+ * but the token file is loaded beside it, so the same variables resolve as inside the
+ * content script's shadow root.
+ */
+
+.jx-popup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jx-space-group);
+  padding: var(--jx-space-panel);
+  min-width: 320px;
+  max-width: 360px;
+  background: var(--jx-surface-base-1);
+  color: var(--jx-text-primary);
+  font: 500 13px/1.45 system-ui, sans-serif;
+}
+
+.jx-popup-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.jx-popup-search {
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+  color: var(--jx-text-primary);
+  padding: 6px 9px;
+}
+
+.jx-popup-search:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 1px;
+}
+
+.jx-popup-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jx-popup-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 0;
+  border-radius: var(--jx-radius-element);
+  background: transparent;
+  color: inherit;
+  padding: 6px 7px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.jx-popup-row:hover,
+.jx-popup-row:focus-visible {
+  background: var(--jx-accent-dim);
+  outline: 2px solid var(--jx-accent);
+  outline-offset: -2px;
+}
+
+.jx-popup-row-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.jx-popup-row-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.jx-popup-row-meta,
+.jx-popup-status {
+  color: var(--jx-text-muted);
+  font-size: 11px;
+}
+
+.jx-popup-row-state {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.jx-popup-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--jx-radius-pill);
+}
+
+.jx-popup-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--jx-radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--jx-on-accent);
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.jx-popup-sep {
+  margin: 0 4px;
+  color: var(--jx-text-muted);
+}
+
+.jx-popup-empty {
+  margin: 0;
+  color: var(--jx-text-secondary);
+  font-size: 12px;
+}
+
+/* The footer row: help and settings sit together at the bottom edge (§7.2 — the
+   proactive entries are present for whoever looks, never pushed). */
+.jx-popup-foot {
+  margin-top: auto;
+  display: flex;
+  gap: var(--jx-space-group, 10px);
+}
+
+.jx-popup-help {
+  color: var(--jx-text-secondary);
+  font-size: 12px;
+}
+
+.jx-popup-help:hover,
+.jx-popup-help:focus-visible {
+  color: var(--jx-accent);
+}

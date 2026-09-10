@@ -41,6 +41,21 @@ export interface ToolVersion {
   created_at: string
 }
 
+/**
+ * What a *list* of versions is allowed to carry across a context boundary (stage 1-16).
+ *
+ * A rollback is `tool:rollback {toolId, version}` — the definition is chosen in the
+ * background, by number, so a panel never needs an old definition. `ToolVersion` is
+ * assignable to this, which is why the rollback list can take the narrower type without
+ * a cast at any call site.
+ */
+export interface ToolVersionSummary {
+  version: number
+  note: string
+  ever_broken: boolean
+  created_at: string
+}
+
 export type HealthStatus = 'healthy' | 'degraded' | 'broken'
 
 export interface ToolHealth {
@@ -51,6 +66,13 @@ export interface ToolHealth {
   structure_fingerprint: StructureFingerprint | null
   /** Latest semantic-layer check result, when one ran. */
   last_semantic_check: SemanticCheck | null
+  /**
+   * Clean runs since the last deviation — the counter behind "two in a row to recover"
+   * (§10). It has to be a number in storage and not a flag in memory: a run is a separate
+   * process from the one before it, and a boolean would only remember that *a* clean run
+   * happened, not how many in a row.
+   */
+  consecutive_clean_runs: number
 }
 
 /**

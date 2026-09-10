@@ -11,12 +11,19 @@
  * and an unexpected reply is a failure, never a cast.
  */
 import type { BrowserAdapter } from '@juxbly/browser'
+import type { RepairSaveRequest } from '@juxbly/core'
 import type { ToolDefinition } from '@juxbly/dsl'
 import type { ProposeReply, ProposeRequest, SaveResult } from './build-session'
 
 export interface MessagingPorts {
   propose(request: ProposeRequest): Promise<ProposeReply>
   captureScreenshot(): Promise<string>
+  /**
+   * `repair` (stage 1-12) turns the write into **a new version of an existing tool**
+   * (§9.3) instead of a first save. It is bound once, when the panel is mounted for a
+   * repair, so no component — and no later call — can accidentally save a repair as a new
+   * tool or a new tool as a version.
+   */
   save(tool: ToolDefinition): Promise<SaveResult>
 }
 
@@ -24,7 +31,10 @@ export interface MessagingPorts {
 export const NO_REPLY = 'NO_REPLY'
 export const EMPTY_REPLY = 'EMPTY_REPLY'
 
-export function createMessagingPorts(adapter: BrowserAdapter): MessagingPorts {
+export function createMessagingPorts(
+  adapter: BrowserAdapter,
+  repair?: RepairSaveRequest,
+): MessagingPorts {
   return {
     async propose(request: ProposeRequest): Promise<ProposeReply> {
       const reply = await adapter.messaging.send({
@@ -76,7 +86,11 @@ export function createMessagingPorts(adapter: BrowserAdapter): MessagingPorts {
     },
 
     async save(tool: ToolDefinition): Promise<SaveResult> {
-      const reply = await adapter.messaging.send({ kind: 'build:save_tool', tool })
+      const reply = await adapter.messaging.send({
+        kind: 'build:save_tool',
+        tool,
+        ...(repair === undefined ? {} : { repair }),
+      })
 
       if (reply === null || reply.kind !== 'build:save_tool_result') {
         return { ok: false, error: NO_REPLY }

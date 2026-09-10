@@ -27,6 +27,7 @@ export { parseUrlPattern, UrlPatternError } from './url-pattern'
 export type { UrlPattern } from './url-pattern'
 
 export { matchUrl } from './match-url'
+export { patternToUrl } from './url-pattern'
 
 export { checkRegexSafety, isSafeRegex } from './safe-regex'
 export type { SafeRegexCheck } from './safe-regex'
