@@ -389,3 +389,4 @@ function finish(errors: ValidationError[], input: Record<string, unknown>): Vali
   if (errors.length === 0) return { ok: true, value: input as unknown as ToolDefinition }
   return { ok: false, errors }
 }
+// trigger check
