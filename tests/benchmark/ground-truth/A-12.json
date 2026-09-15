@@ -1,0 +1,30 @@
+{
+  "case_id": "A-12",
+  "bucket": "A",
+  "expected_fields": [
+    "name",
+    "description"
+  ],
+  "item_count_range": [
+    60,
+    75
+  ],
+  "sample": [
+    {
+      "name": "Auth-source",
+      "description": "Emacs library for storing and sharing secret data."
+    },
+    {
+      "name": "Autotype",
+      "description": "Features for frequently-entered text."
+    },
+    {
+      "name": "Calc",
+      "description": "Calc is an advanced calculator and mathematical tool."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

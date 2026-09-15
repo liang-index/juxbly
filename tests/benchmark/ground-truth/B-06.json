@@ -1,0 +1,29 @@
+{
+  "case_id": "B-06",
+  "bucket": "B",
+  "expected_fields": [
+    "name",
+    "description",
+    "url"
+  ],
+  "item_count_range": [
+    8,
+    12
+  ],
+  "sample": [
+    {
+      "name": "wikdict",
+      "description": "Rust library for downloading and querying WikDict SQLite dictionaries",
+      "url": "/crates/wikdict"
+    },
+    {
+      "name": "nash-nitpick",
+      "description": "Exhaustiveness and redundancy checking for Nash pattern matches",
+      "url": "/crates/nash-nitpick"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

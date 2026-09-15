@@ -1,0 +1,42 @@
+{
+  "id": "B-01",
+  "url": "https://svelte.dev/docs/kit/routing",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:07.919Z",
+  "sizeBytes": 327496,
+  "verifiedOn": "2026-09-10",
+  "title": "Routing \u2022 SvelteKit Docs",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://svelte.dev/"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 105343,
+    "assetCount": 10,
+    "nodeCount": 5975,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 74,
+    "hashedClassTokens": 1,
+    "maxRepeatingCount": 2050
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://svelte.dev/robots.txt"
+  },
+  "notes": "SvelteKit docs: client-side routing, and the page DOM is built after load.",
+  "personalDataHits": []
+}

@@ -86,12 +86,12 @@ The directory layout follows EC §7 — semantic boundaries: a stranger can infe
 
 | Module | Responsibility | Key exports | Depends on | Side effects / output |
 |---|---|---|---|---|
-| `packages/core` | Domain models and the cross-context message protocol | `ToolRecord`, `HealthStatus`, `ExtensionMessage` and other types | none | none (pure types) |
+| `packages/core` | Domain models, the cross-context message protocol, and the shared selector-anchor rule | `ToolRecord`, `HealthStatus`, `ExtensionMessage` and other types; `isHashedClassToken()`, `isFragileSelector()` | none | none (pure types and pure functions) |
 | `packages/dsl` | DSL type definitions, schema validation, URL matching | `validateToolDefinition()`, `matchUrl()`, `parseUrlPattern()` | core | none (pure functions) |
 | `packages/runtime` | Step orchestration, the variable bag, llm-cache decisions, capability registry | `ToolRuntime`, `CapabilityRegistry` | core, dsl | no direct side effects (through injected ports) |
 | `packages/capabilities` | The five capability executors (extract / transform / llm / render / export) | one `CapabilityDefinition` implementation each | core, dsl, browser (interface), ui (render views only) | DOM reads, clipboard writes |
 | `packages/browser` | Browser Adapter: chrome API abstraction + mock implementation | the `BrowserAdapter` interface | core | **the only package that wraps chrome.* capabilities** (assembly-layer exception in §6.4.1) |
-| `packages/analyzer` | Page analysis: visible-text simplification, structural features, dynamic custom-element scan, shadow expansion | `analyzePage()` | none | none (pure DOM reads) |
+| `packages/analyzer` | Page analysis: visible-text simplification, structural features, dynamic custom-element scan, shadow expansion | `analyzePage()` | core | none (pure DOM reads) |
 | `packages/health` | Breakage evaluation and the health state machine | `evaluateHealth()` | core, dsl | none (results are written through storage) |
 | `packages/repair` | Repair sessions, version creation and rollback | `commitRepair()`, `rollbackTo()`, `fromHealth()`, `fromUserEdit()`, `buildContextMessage()` | core, dsl | none — pure record transformations; the background writes (§7.1) |
 | `packages/ui` | Floating ball, chat panel, run panel, highlight layer, three views, onboarding nodes, popup, options | React components, `installGlow()`, `introLine()`, `shouldRequestKey()`, `overviewRows()` | core, dsl | DOM rendering (Shadow DOM isolation) |
@@ -275,6 +275,10 @@ Validated **twice** — before saving and before every run. Any failure rejects:
 6. A `regex`'s `pattern` must pass the safe-regex check (no catastrophic-backtracking constructs).
 7. `url_pattern` must be parseable by `parseUrlPattern`.
 8. A `type` outside §5.2 or an unknown field → reject. This is what stops the DSL from quietly growing (EC §20 agent prohibitions).
+9. No selector in an `extract` step — the container `selector` and every `fields` value, in both modes — may anchor on a
+   **hashed class** (build output like `css-1x2y3z`): it changes on the site's next deploy, so a definition that passes today is
+   guaranteed to break later. Rejected with `SELECTOR_FRAGILE`. The hashed-class rule itself lives in `@juxbly/core`
+   (`selector.ts`) and is shared with the analyzer's selector policy, so generation and validation cannot drift apart.
 
 ### 5.5 Runtime contracts
 
@@ -1574,6 +1578,80 @@ Repair success: the new version starts from healthy; old versions keep versions[
 | Benchmark | Web Corpus real-site snapshots + Task Corpus + Ground Truth (established in Phase 2; the runner runs in apps/playground) | `tests/benchmark/` |
 | End-to-end | One tool through the whole lifecycle — discover → build (clarify + highlight) → save → run → health → repair → rollback — against an **unpacked extension in a real browser**, driven only through the UI. The model is a recording served on loopback and the page is served by the playground, so the run is repeatable and free; the four invariants asserted here (llm cache, view switching does not re-run, repair creates a version, highlight confirmation on both build and repair) are properties of the product as a whole, not of any one module | `apps/playground/e2e/`, run by `pnpm test:e2e` |
 | Regression | trigger: any change to `packages/dsl`, `packages/runtime`, `packages/capabilities`, or `packages/health` (EC §16) | CI |
+
+### 13.1 Benchmark contracts (established in stage 2-2)
+
+The benchmark is three artefacts on disk, and stage 2-3's runner must read them as they stand:
+
+```text
+tests/benchmark/cases/<id>.json           the task, phrased as a user would type it
+tests/benchmark/ground-truth/<id>.json    what a correct answer looks like
+tests/benchmark/corpus/<id>/index.html    the page the task runs against
+tests/benchmark/results/<run-id>.json     one run, raw output, immutable once written (2-3)
+tests/benchmark/reports/<run-id>.md       the same run, aggregated and comparable (2-3)
+```
+
+One file per run rather than a directory per run: the run *is* the comparable unit, and
+a single document can be diffed, re-aggregated when a metric's definition changes, and
+refused on a second write (`flag: 'wx'`) — a number that can be rewritten is not a
+baseline. Judgements a person adds later live in `results/labels.json`, not in the run.
+
+The judgement a person attaches to a run is the only contract 2-3 produces and 2-4 consumes:
+
+```ts
+export interface LabeledResult {
+  caseId: string // <bucket>-<NN>, matches cases/ and ground-truth/
+  label: 'correct' | 'partial' | 'wrong'
+  notes: string // what decided the label
+  judgedAt: string // ISO date
+  judge: string
+}
+```
+
+Two properties are load-bearing and must survive into 2-3:
+
+- **The label is human.** There is no mechanical pass threshold; correctness cannot be decided by "did it return rows". The dominant M0 failure was selecting the right element and reading the wrong value out of it.
+- **Ground truth is append-only in spirit.** `item_count_range` is a range because pages change; a re-label is recorded in the ground truth's `amendments`, never applied to move a number.
+
+Cases and ground truth are separate files on purpose: a task is reworded when the wording turns out to be a hint, ground truth is re-labelled when the page changes. Split them and a re-label cannot silently rewrite the task that produced it. The full criteria are in `docs/benchmark/README.md`.
+
+### 13.2 Runner contracts (established in stage 2-3)
+
+The runner records what happened and never decides whether it was good — the label stays human, so the runner has no field that means "passed".
+
+```ts
+interface RunResult {
+  runId: string // <ISO stamp>-<model slug>; also the results/ and reports/ file name
+  startedAt: string
+  finishedAt: string
+  corpusRevision: string // corpus/index.json generatedAt — the denominator of every number
+  model: string
+  cases: CaseResult[]
+}
+
+interface CaseResult {
+  caseId: string
+  bucket: Bucket
+  generatedJson: unknown // the DSL as produced, before any tidying
+  generationSucceeded: boolean
+  generationError?: string // the build:propose error code, or the validation errors
+  neededClarification?: boolean // the model asked before it built — what correctionRate counts
+  executionError?: string
+  actualExtractionResult: unknown // the runtime's variable bag
+  itemCount?: number
+  latencyMs: number
+  tokenUsage?: TokenUsage // §7.2
+  healthStatus?: HealthStatus // §8.1
+  repairResult?: 'success' | 'failed' | 'not-attempted'
+}
+```
+
+Two rules the runner holds to, because both are easy to break by accident:
+
+- **An unjudged case is pending, never wrong.** `MetricsReport.labelCounts.pending` exists for this; `aggregate()` has no path from "nobody looked" to `wrong`.
+- **A rate with an empty denominator is `null`, not zero.** Zero is a measurement; `null` is an admission that nothing was measured.
+
+`apps/playground/src/bench/` holds the implementation (`pnpm test:bench`), loaded outside a browser through Vite's SSR pipeline so it imports `@juxbly/*` the way tests do.
 
 ---
 

@@ -1,0 +1,13 @@
+{
+  "id": "E-03",
+  "bucket": "E",
+  "url": "https://mui.com/material-ui/getting-started/",
+  "corpus": "corpus/E-03/index.html",
+  "task_description": "Collect each getting-started card on this page: its title and the sentence under it.",
+  "expected_fields": [
+    "title",
+    "description"
+  ],
+  "notes": "MUI emits emotion classes over a deep DOM. The visible Mui* class names are stable, but every spacing wrapper around them is generated.",
+  "verified_on": "2026-09-10"
+}

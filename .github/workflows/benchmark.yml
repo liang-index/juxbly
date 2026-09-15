@@ -1,0 +1,102 @@
+# Stage 2-3 — the benchmark, on the shared-core trigger (docs/testing/TESTING.md).
+#
+# Only a change to one of the six shared packages can move these numbers, so only a
+# change to one of them pays for a run. A benchmark on every pull request would be
+# noise anyway: it would train reviewers to ignore the one signal it exists to give.
+#
+# The six packages are the shared-core trigger as `docs/testing/TESTING.md` defines it.
+# `packages/llm` is deliberately absent — stage 2-4 changes prompts, and whether a prompt
+# change should buy a benchmark run is a Maintainer call, not something to smuggle in here.
+#
+# A pull request runs a **slice** (5 cases): enough to catch a runner that is broken,
+# not enough to spend real money on an unmerged branch. The full run that produces the
+# publishable baseline is `workflow_dispatch` — a deliberate human act, because that is
+# the number the project publishes.
+name: benchmark
+
+on:
+  pull_request:
+    paths:
+      - packages/dsl/**
+      - packages/runtime/**
+      - packages/capabilities/**
+      - packages/health/**
+      - packages/analyzer/**
+      - packages/repair/**
+      - apps/playground/src/**
+      - tests/benchmark/**
+      - .github/workflows/benchmark.yml
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: How many cases to run (empty = the whole corpus)
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmark-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Never echoed: the runner reads it from the environment and the report never
+  # contains it (docs/benchmark/README.md, "Honesty rules").
+  JUXBLY_LLM_API_KEY: ${{ secrets.JUXBLY_LLM_API_KEY }}
+  JUXBLY_LLM_BASE_URL: ${{ secrets.JUXBLY_LLM_BASE_URL }}
+  JUXBLY_LLM_MODEL: ${{ vars.JUXBLY_LLM_MODEL }}
+
+jobs:
+  benchmark:
+    name: Benchmark
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Report a skipped run
+        # A missing key is not a failure: the job says so out loud instead of going
+        # green for the wrong reason.
+        if: env.JUXBLY_LLM_API_KEY == ''
+        run: |
+          echo '### Benchmark skipped' >> "$GITHUB_STEP_SUMMARY"
+          echo 'No `JUXBLY_LLM_API_KEY` secret on this run — no model calls were made.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Run
+        if: env.JUXBLY_LLM_API_KEY != ''
+        run: |
+          limit="${{ github.event.inputs.limit }}"
+          if [ -z "$limit" ] && [ "${{ github.event_name }}" = "pull_request" ]; then
+            limit=5
+          fi
+          if [ -n "$limit" ]; then
+            pnpm test:bench --limit "$limit"
+          else
+            pnpm test:bench
+          fi
+
+      - name: Publish the report
+        if: env.JUXBLY_LLM_API_KEY != ''
+        run: |
+          report=$(ls -t tests/benchmark/reports/*.md | head -1)
+          cat "$report" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: env.JUXBLY_LLM_API_KEY != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-report
+          path: tests/benchmark/reports/*.md
+          if-no-files-found: warn

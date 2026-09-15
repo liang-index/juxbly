@@ -1,0 +1,13 @@
+{
+  "id": "B-05",
+  "bucket": "B",
+  "url": "https://styled-components.com/",
+  "corpus": "corpus/B-05/index.html",
+  "task_description": "Give me every section heading on this page and the anchor link for each.",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "notes": "A landing page with no record list at all - the only repeated structures are lines of code in the live editor. Deliberately kept: a corpus of only easy pages measures nothing.",
+  "verified_on": "2026-09-10"
+}

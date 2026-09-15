@@ -1,0 +1,29 @@
+{
+  "case_id": "E-10",
+  "bucket": "E",
+  "expected_fields": [
+    "name",
+    "default_value",
+    "description"
+  ],
+  "item_count_range": [
+    9,
+    14
+  ],
+  "sample": [
+    {
+      "name": "disabled",
+      "default_value": "GrayText",
+      "description": "Color for disabled elements"
+    },
+    {
+      "name": "error",
+      "default_value": "ActiveText",
+      "description": "Color for error states"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -1,0 +1,42 @@
+{
+  "id": "A-05",
+  "url": "https://docs.python.org/3/library/functions.html",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:00.811Z",
+  "sizeBytes": 322157,
+  "verifiedOn": "2026-09-10",
+  "title": "Built-in Functions \u2014 Python 3.14.7 documentation",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 891,
+    "repeatingSelector": "span.pre"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 35904,
+    "assetCount": 5,
+    "nodeCount": 6999,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 149,
+    "hashedClassTokens": 3,
+    "maxRepeatingCount": 891
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "PSF-2.0 (documentation)",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://docs.python.org/robots.txt"
+  },
+  "notes": "Definition-list reference. The fields are not in a table, so column inference has nothing to lean on.",
+  "personalDataHits": []
+}

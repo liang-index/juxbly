@@ -1,0 +1,30 @@
+{
+  "case_id": "B-01",
+  "bucket": "B",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    65,
+    80
+  ],
+  "sample": [
+    {
+      "title": "Introduction",
+      "url": "/docs/kit/introduction"
+    },
+    {
+      "title": "Creating a project",
+      "url": "/docs/kit/creating-a-project"
+    },
+    {
+      "title": "Project types",
+      "url": "/docs/kit/project-types"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -1,0 +1,13 @@
+{
+  "id": "B-07",
+  "bucket": "B",
+  "url": "https://yarnpkg.com/",
+  "corpus": "corpus/B-07/index.html",
+  "task_description": "Collect each feature Yarn advertises on its home page, with its name and the sentence explaining it.",
+  "expected_fields": [
+    "title",
+    "description"
+  ],
+  "notes": "Gatsby-built: hydration plus client-side route transitions. The heading and the explanation are siblings inside a card, not parent and child.",
+  "verified_on": "2026-09-10"
+}

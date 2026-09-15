@@ -10,6 +10,10 @@
 
 .jx-panel {
   position: fixed;
+  /* Ladder: 700 — top of the three. Without a value here the panel sits below the
+     highlight layer (500), and a box that covers the viewport blocks its buttons. See
+     `highlight/styles.css`. `.jx-run-panel` reuses this class, so it is covered too. */
+  z-index: 700;
   right: 12px;
   bottom: 12px;
   width: 340px;

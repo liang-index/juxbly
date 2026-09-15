@@ -1,0 +1,30 @@
+{
+  "case_id": "E-03",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "description"
+  ],
+  "item_count_range": [
+    5,
+    8
+  ],
+  "sample": [
+    {
+      "title": "Installation",
+      "description": "Add Material UI to your project with a few commands."
+    },
+    {
+      "title": "Usage",
+      "description": "Learn the basics about Material UI components."
+    },
+    {
+      "title": "Example projects",
+      "description": "A collection of boilerplates to jumpstart your next project."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

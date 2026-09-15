@@ -1,0 +1,64 @@
+{
+  "id": "D-08",
+  "url": "https://www.scrapethissite.com/pages/ajax-javascript/",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:20:00.663Z",
+  "sizeBytes": 10179,
+  "verifiedOn": "2026-09-10",
+  "title": "Oscar Winning Films: AJAX and Javascript | Scrape This Site | A public sandbox for learning web scraping",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 5 repeated structure(s): tbody|tr.film 0->16; tr|td.film-title 0->16; tr|td.film-nominations 0->16; tr|td.film-awards 0->16; tr|td.film-best-picture 0->16",
+    "grownGroups": 5,
+    "grownSample": [
+      "tbody|tr.film 0->16",
+      "tr|td.film-title 0->16",
+      "tr|td.film-nominations 0->16",
+      "tr|td.film-awards 0->16",
+      "tr|td.film-best-picture 0->16"
+    ],
+    "nodesBeforeScroll": 101,
+    "nodesAfterScroll": 182,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "click",
+      "selector": "a.year-link[id=\"2015\"]"
+    },
+    {
+      "type": "click",
+      "selector": "a.year-link[id=\"2014\"]"
+    },
+    {
+      "type": "scroll",
+      "times": 2
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 127829,
+    "assetCount": 5,
+    "nodeCount": 182,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 5,
+    "customElementCount": 0,
+    "classTokenCount": 28,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 16
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.scrapethissite.com/robots.txt"
+  },
+  "notes": "Lazy loading without a scrollbar: the table only exists after the year control is clicked. The corpus records the steps so the runner can reproduce them.",
+  "personalDataHits": []
+}

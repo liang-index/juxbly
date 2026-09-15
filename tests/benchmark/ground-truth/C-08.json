@@ -1,0 +1,26 @@
+{
+  "case_id": "C-08",
+  "bucket": "C",
+  "expected_fields": [
+    "title"
+  ],
+  "item_count_range": [
+    4,
+    8
+  ],
+  "sample": [
+    {
+      "title": "Contents"
+    },
+    {
+      "title": "Listening to events"
+    },
+    {
+      "title": "Dispatching events"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

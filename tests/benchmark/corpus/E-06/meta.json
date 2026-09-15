@@ -1,0 +1,49 @@
+{
+  "id": "E-06",
+  "url": "https://emotion.sh/docs/styled",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:21:27.621Z",
+  "sizeBytes": 103105,
+  "verifiedOn": "2026-09-10",
+  "title": "Emotion \u2013 Styled Components",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.47",
+    "hashedClassTokens": 42,
+    "hashedClassRatio": 0.472,
+    "classTokenCount": 89,
+    "hashedSample": [
+      "css-gb8pey",
+      "css-t13dtp",
+      "css-194wjke",
+      "css-fu5c8j",
+      "css-b247zp"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 20181,
+    "assetCount": 1,
+    "nodeCount": 1386,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 89,
+    "hashedClassTokens": 42,
+    "maxRepeatingCount": 255
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://emotion.sh/robots.txt"
+  },
+  "notes": "Same generator as E-01 on the API page: 42 of 89 tokens, so the ratio is a property of the site.",
+  "personalDataHits": []
+}

@@ -1,0 +1,14 @@
+{
+  "id": "A-07",
+  "bucket": "A",
+  "url": "https://www.postgresql.org/docs/current/functions-math.html",
+  "corpus": "corpus/A-07/index.html",
+  "task_description": "Extract every operator and function from the tables on this page: the signature, what it does, and the example.",
+  "expected_fields": [
+    "signature",
+    "description",
+    "example"
+  ],
+  "notes": "Each table row holds three stacked paragraphs in a single cell, and the page also has navigation tables that look like data tables but are not.",
+  "verified_on": "2026-09-10"
+}

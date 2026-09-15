@@ -11,10 +11,12 @@
  * Selector policy: **structure and stable attributes only.** A hashed class (CSS-in-JS
  * output) changes on the next deploy, so a selector built from one is guaranteed to
  * break. That is a known hard problem, not something to paper over by emitting one
- * anyway.
+ * anyway. The hashed-class rule itself lives in `@juxbly/core` (`selector.ts`), shared
+ * with the DSL validator so the two cannot drift apart.
  */
-import type { ContainerCandidate, FieldHint, PageAnalysis } from '@juxbly/core'
-import { collapseText, parentElementOf, tagOf, truncateText } from './dom'
+import { isHashedClassToken, type ContainerCandidate, type FieldHint, type PageAnalysis } from '@juxbly/core'
+import { collapseText, isElementNode, parentElementOf, tagOf, truncateText } from './dom'
+import { collectNodes } from './shadow'
 
 /** Below three hits a group is not a repeating unit, it is a coincidence. */
 export const MIN_REPEAT = 3
@@ -24,6 +26,12 @@ export const MAX_FIELD_HINTS = 8
 const PATH_DEPTH = 3
 const SELECTOR_DEPTH = 3
 const FIELD_SCAN_LIMIT = 40
+/**
+ * Walk budget for one container's field scan. Bounds the traversal itself (the element
+ * cap below bounds the candidates); sized so a text-dense container still reaches the
+ * full element cap before the budget bites.
+ */
+const FIELD_SCAN_NODE_BUDGET = 400
 const SAMPLE_TEXT_LENGTH = 40
 
 const LOAD_MORE_PATTERN = /load\s+more|show\s+more|see\s+more|more\s+results/i
@@ -31,14 +39,6 @@ const INFINITE_PATTERN = /infinite|sentinel|end-?of-?(?:list|page|results)|lazy-
 
 /** A class name worth building a selector on: short, alphanumeric, no build hash. */
 const STABLE_CLASS = /^[A-Za-z][A-Za-z0-9_-]{1,20}$/
-
-/**
- * A build hash: a run of six or more alphanumerics containing a digit (`css-1x2y3z4`,
- * `jss123`). Conservative on purpose — mistaking a stable class for a hash costs a
- * slightly vaguer selector, while mistaking a hash for a stable class costs a selector
- * that breaks on the site's next deploy.
- */
-const HASHED_CLASS = /(?=[0-9a-z]*[0-9])[0-9a-z]{6,}/i
 
 interface SiblingGroup {
   tag: string
@@ -147,18 +147,32 @@ function groupSiblings(elements: readonly Element[]): SiblingGroup[] {
  * container, empty fields, 4 of 10 sites. Offering the model per-field candidates lifted
  * L0 correctness from 20% to 30% (`docs/benchmark/a4-escalation-spike-2026-09-04.md`),
  * which is the single largest measured improvement in the whole build flow.
+ *
+ * The scan pierces open shadow roots — the same policy as the census walk and the extract
+ * capability's `queryAll` (§6.1): a custom-element container (chromestatus, Reddit's
+ * `shreddit-*`) keeps its content in its shadow interior, so a light-DOM scan would offer
+ * the model a container whose fields can never be filled in. The generated relative
+ * selectors are usable because `queryAll` searches the scope's own shadow root too.
+ * Closed roots stay skipped (`shadowRoot` is `null` by platform design); the shared node
+ * budget and depth cap keep the scan bounded on hostile pages.
+ *
+ * Leaves only: an element with children holds other fields' text as well, which would
+ * put the same value under several selectors.
  */
 function collectFields(container: Element): FieldDescriptor[] {
   const fields: FieldDescriptor[] = []
   const seen = new Set<string>()
 
-  // Leaves only: an element with children holds other fields' text as well, which would
-  // put the same value under several selectors.
-  // `querySelectorAll` does not pierce shadow roots. That is accepted: a selector that
-  // crosses a shadow boundary cannot be used by the extract capability anyway (§6.1
-  // `DomPort.query` works within the document and open roots), and the shadow interior is
-  // already reported through `shadowHosts`.
-  const candidates = Array.from(container.querySelectorAll('*')).slice(0, FIELD_SCAN_LIMIT)
+  // Light DOM first, then the container's own shadow root — the same order the extract
+  // capability's `queryAll` answers (§6.1, the chromestatus shape). `collectNodes` only
+  // descends into the shadow roots of *descendants*; a container that is itself a host
+  // keeps its content in its own root, so that root is walked explicitly.
+  const candidates = [
+    ...collectNodes(container, { maxNodes: FIELD_SCAN_NODE_BUDGET }).nodes.filter(isElementNode),
+    ...(container.shadowRoot !== null
+      ? collectNodes(container.shadowRoot, { maxNodes: FIELD_SCAN_NODE_BUDGET }).nodes.filter(isElementNode)
+      : []),
+  ].slice(0, FIELD_SCAN_LIMIT)
 
   for (const element of candidates) {
     if (element.children.length > 0) continue
@@ -226,7 +240,7 @@ function decorate(element: Element): string {
 
 function stableClass(element: Element): string | null {
   for (const token of element.classList) {
-    if (HASHED_CLASS.test(token)) continue
+    if (isHashedClassToken(token)) continue
     if (STABLE_CLASS.test(token)) return token
   }
   return null

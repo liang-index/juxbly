@@ -1,0 +1,26 @@
+{
+  "case_id": "E-05",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    16,
+    22
+  ],
+  "sample": [
+    {
+      "title": "Sizes",
+      "url": "#sizes"
+    },
+    {
+      "title": "Variants",
+      "url": "#variants"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

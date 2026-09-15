@@ -1,0 +1,34 @@
+{
+  "case_id": "A-04",
+  "bucket": "A",
+  "expected_fields": [
+    "name",
+    "price",
+    "url"
+  ],
+  "item_count_range": [
+    16,
+    16
+  ],
+  "sample": [
+    {
+      "name": "Bulbasaur",
+      "price": "£63.00",
+      "url": "https://scrapeme.live/shop/Bulbasaur/"
+    },
+    {
+      "name": "Ivysaur",
+      "price": "£87.00",
+      "url": "https://scrapeme.live/shop/Ivysaur/"
+    },
+    {
+      "name": "Venusaur",
+      "price": "£105.00",
+      "url": "https://scrapeme.live/shop/Venusaur/"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

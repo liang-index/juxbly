@@ -89,6 +89,48 @@ describe('detectContainers', () => {
     expect(sample.length).toBeLessThan(60)
     expect(sample.endsWith('...')).toBe(true)
   })
+
+  it('offers field hints from inside the container\'s own shadow root', () => {
+    // The chromestatus / Reddit shape: the repeating unit is a custom element whose
+    // content lives in its shadow interior. A light-DOM scan offers the container but no
+    // fields — a tool the model could never fill in.
+    document.body.innerHTML = ''
+    const list = document.createElement('ul')
+    for (const text of ['one', 'two', 'three']) {
+      const card = document.createElement('x-card')
+      const shadow = card.attachShadow({ mode: 'open' })
+      shadow.innerHTML = `<span class="title">${text}</span><span class="meta">${text}-meta</span>`
+      list.appendChild(card)
+    }
+    document.body.appendChild(list)
+
+    const walk = collectNodes(document.body, { skip: isInvisible })
+    const containers = detectContainers(walk.nodes.filter((node): node is Element => node.nodeType === 1))
+
+    expect(containers).toHaveLength(1)
+    const selectors = containers[0]?.fieldHints.map((hint) => hint.selector) ?? []
+    expect(selectors).toContain('span.title')
+    expect(selectors).toContain('span.meta')
+  })
+
+  it('does not enter a closed shadow root', () => {
+    document.body.innerHTML = ''
+    const list = document.createElement('ul')
+    for (const text of ['one', 'two', 'three']) {
+      const card = document.createElement('x-card')
+      card.attachShadow({ mode: 'closed' }).innerHTML = `<span class="title">${text}</span>`
+      list.appendChild(card)
+    }
+    document.body.appendChild(list)
+
+    const walk = collectNodes(document.body, { skip: isInvisible })
+    const containers = detectContainers(walk.nodes.filter((node): node is Element => node.nodeType === 1))
+
+    // The container is still offered (the census sees the host), but nothing inside a
+    // closed root can be queried — offering hints there would be a promise we cannot keep.
+    expect(containers).toHaveLength(1)
+    expect(containers[0]?.fieldHints).toEqual([])
+  })
 })
 
 describe('detectScrollHint', () => {

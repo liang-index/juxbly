@@ -1,0 +1,14 @@
+{
+  "id": "D-01",
+  "bucket": "D",
+  "url": "https://quotes.toscrape.com/scroll",
+  "corpus": "corpus/D-01/index.html",
+  "task_description": "Collect every quote on this page with its author and tags.",
+  "expected_fields": [
+    "text",
+    "author",
+    "tags"
+  ],
+  "notes": "Infinite scroll by design: the snapshot holds 70 quotes, but the server only sends ten before any scrolling happens.",
+  "verified_on": "2026-09-10"
+}

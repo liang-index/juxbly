@@ -1,0 +1,26 @@
+{
+  "case_id": "B-03",
+  "bucket": "B",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    25,
+    32
+  ],
+  "sample": [
+    {
+      "title": ".nuxt",
+      "url": "/docs/4.x/directory-structure/nuxt"
+    },
+    {
+      "title": ".output",
+      "url": "/docs/4.x/directory-structure/output"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

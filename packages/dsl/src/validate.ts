@@ -1,5 +1,5 @@
 /**
- * `validateToolDefinition` — `docs/ARCHITECTURE.md` §5.4, all eight rules.
+ * `validateToolDefinition` — `docs/ARCHITECTURE.md` §5.4, all nine rules.
  *
  * This function is the only gate between LLM output (or user edits) and execution: it
  * runs both before saving and before every run. It is a pure function — no side
@@ -13,6 +13,7 @@
  * (E3) — the single authoritative definition, not redeclared here.
  */
 import type { ValidationError, ValidationResult } from '@juxbly/core'
+import { isFragileSelector } from '@juxbly/core'
 import type { ToolDefinition } from './types'
 import { checkRegexSafety } from './safe-regex'
 import { parseUrlPattern } from './url-pattern'
@@ -219,6 +220,34 @@ function validateExtract(step: Record<string, unknown>, path: string, errors: Va
     const selector = step['selector']
     if (typeof selector !== 'string' || selector.trim() === '') {
       errors.push(err(`${path}.selector`, 'EXTRACT_SELECTOR_REQUIRED', 'list mode requires a container selector'))
+    }
+  }
+
+  // Rule 9: no selector may anchor on a hashed class. A build hash (CSS-in-JS output)
+  // changes on the site's next deploy, so a definition that passes today is guaranteed
+  // to break later — rejected here rather than saved to fail on the page. Applies to the
+  // container selector and to every field selector, in both modes.
+  const selector = step['selector']
+  if (typeof selector === 'string' && isFragileSelector(selector)) {
+    errors.push(
+      err(
+        `${path}.selector`,
+        'SELECTOR_FRAGILE',
+        'the selector uses a hashed class name (build output like css-1x2y3z) that changes on the site\'s next deploy — build it from stable anchors (semantic tags, aria-*/data-* attributes, stable classes, :nth-of-type) instead',
+      ),
+    )
+  }
+  if (isRecord(fields)) {
+    for (const [name, value] of Object.entries(fields)) {
+      if (typeof value === 'string' && isFragileSelector(value)) {
+        errors.push(
+          err(
+            `${path}.fields.${name}`,
+            'SELECTOR_FRAGILE',
+            `the selector for field "${name}" uses a hashed class name (build output like css-1x2y3z) that changes on the site's next deploy — build it from stable anchors instead`,
+          ),
+        )
+      }
     }
   }
 

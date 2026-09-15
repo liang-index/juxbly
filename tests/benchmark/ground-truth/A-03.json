@@ -1,0 +1,38 @@
+{
+  "case_id": "A-03",
+  "bucket": "A",
+  "expected_fields": [
+    "number",
+    "first_name",
+    "last_name",
+    "username"
+  ],
+  "item_count_range": [
+    3,
+    3
+  ],
+  "sample": [
+    {
+      "number": "1",
+      "first_name": "Mark",
+      "last_name": "Otto",
+      "username": "@mdo"
+    },
+    {
+      "number": "2",
+      "first_name": "Jacob",
+      "last_name": "Thornton",
+      "username": "@fat"
+    },
+    {
+      "number": "3",
+      "first_name": "Larry",
+      "last_name": "the Bird",
+      "username": "@twitter"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

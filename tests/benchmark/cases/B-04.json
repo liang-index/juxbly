@@ -1,0 +1,13 @@
+{
+  "id": "B-04",
+  "bucket": "B",
+  "url": "https://webpack.js.org/concepts/",
+  "corpus": "corpus/B-04/index.html",
+  "task_description": "List every page in the webpack documentation sidebar with its title and the link it points to.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Docusaurus over a docs tree. The sidebar is rendered twice (desktop and mobile), so a tool can easily return twice as many rows as there are pages.",
+  "verified_on": "2026-09-10"
+}

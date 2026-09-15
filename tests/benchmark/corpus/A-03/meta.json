@@ -1,0 +1,45 @@
+{
+  "id": "A-03",
+  "url": "https://webscraper.io/test-sites/tables",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:14.066Z",
+  "sizeBytes": 51853,
+  "verifiedOn": "2026-09-10",
+  "title": "Table Playground | Web Scraper Test Sites",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 50,
+    "repeatingSelector": "path."
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 232376,
+    "assetCount": 3,
+    "nodeCount": 347,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 105,
+    "hashedClassTokens": 14,
+    "maxRepeatingCount": 50
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://webscraper.io/robots.txt"
+  },
+  "notes": "Real HTML tables, one of them with no header row \u2014 the trap that makes column naming hard.",
+  "personalDataHits": [
+    "email",
+    "email"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "C-04",
+  "bucket": "C",
+  "url": "https://shoelace.style/components/input",
+  "corpus": "corpus/C-04/index.html",
+  "task_description": "Extract every row from the input component API tables: the name and what it means.",
+  "expected_fields": [
+    "name",
+    "description"
+  ],
+  "notes": "Fields sit one shadow root deeper than the container; the page also carries a properties table and an events table with the same row shape.",
+  "verified_on": "2026-09-10"
+}

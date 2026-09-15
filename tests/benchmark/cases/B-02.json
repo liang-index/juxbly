@@ -1,0 +1,13 @@
+{
+  "id": "B-02",
+  "bucket": "B",
+  "url": "https://vuejs.org/guide/essentials/template-syntax.html",
+  "corpus": "corpus/B-02/index.html",
+  "task_description": "Collect every page listed in the Vue documentation sidebar, with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "VitePress: a static shell hydrated into a client-routed app. The sidebar is rebuilt after load, and the same page also ships a top-bar menu with similar-looking links.",
+  "verified_on": "2026-09-10"
+}

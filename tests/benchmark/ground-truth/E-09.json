@@ -1,0 +1,26 @@
+{
+  "case_id": "E-09",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    12,
+    16
+  ],
+  "sample": [
+    {
+      "title": "Quick start",
+      "url": "/get-started#Quickstart"
+    },
+    {
+      "title": "React Web Video Tutorial",
+      "url": "/get-started#ReactWebVideoTutorial"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

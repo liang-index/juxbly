@@ -1,0 +1,15 @@
+{
+  "id": "A-01",
+  "bucket": "A",
+  "url": "https://books.toscrape.com/",
+  "corpus": "corpus/A-01/index.html",
+  "task_description": "Collect every book listed on this page: the title, the price, whether it is in stock, and its star rating.",
+  "expected_fields": [
+    "title",
+    "price",
+    "availability",
+    "rating"
+  ],
+  "notes": "Baseline shape: 20 product cards in a plain grid. Rating is only exposed through a class name (star-rating Three), so it has to be read as a word, not as a number.",
+  "verified_on": "2026-09-10"
+}

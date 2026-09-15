@@ -1,0 +1,13 @@
+{
+  "id": "E-02",
+  "bucket": "E",
+  "url": "https://infinite-scroll.com/",
+  "corpus": "corpus/E-02/index.html",
+  "task_description": "Collect every site in the showcase at the bottom of this page, with its name and address.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Hashed classes on a small page: the E property without the size of a component library. The showcase is in the footer, which is easy to miss when picking a container.",
+  "verified_on": "2026-09-10"
+}

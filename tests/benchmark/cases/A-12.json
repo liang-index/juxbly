@@ -1,0 +1,13 @@
+{
+  "id": "A-12",
+  "bucket": "A",
+  "url": "https://www.gnu.org/software/emacs/manual/",
+  "corpus": "corpus/A-12/index.html",
+  "task_description": "List every Emacs manual listed here together with the one-line description of what it covers.",
+  "expected_fields": [
+    "name",
+    "description"
+  ],
+  "notes": "Hand-written 1990s HTML: the list is a layout table with no semantic container, and the first few rows span both columns and carry no description.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,29 @@
+{
+  "case_id": "C-02",
+  "bucket": "C",
+  "expected_fields": [
+    "channel",
+    "version",
+    "info"
+  ],
+  "item_count_range": [
+    6,
+    9
+  ],
+  "sample": [
+    {
+      "channel": "Released",
+      "version": "Chrome 153",
+      "info": "Beta was Aug 19 - Sep 10"
+    },
+    {
+      "channel": "Stable",
+      "version": "Chrome 154",
+      "info": "Beta was Sep 2 - Sep 24"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

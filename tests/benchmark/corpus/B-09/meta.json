@@ -1,0 +1,42 @@
+{
+  "id": "B-09",
+  "url": "https://docs.github.com/en",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:26.835Z",
+  "sizeBytes": 38496,
+  "verifiedOn": "2026-09-10",
+  "title": "GitHub Docs",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://docs.github.com/en/get-started"
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 154083,
+    "assetCount": 5,
+    "nodeCount": 372,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 143,
+    "hashedClassTokens": 17,
+    "maxRepeatingCount": 52
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "CC-BY-4.0",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://docs.github.com/robots.txt"
+  },
+  "notes": "Docs hub with client-side navigation and 143 class tokens.",
+  "personalDataHits": []
+}

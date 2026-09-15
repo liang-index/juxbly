@@ -1,0 +1,12 @@
+{
+  "id": "C-05",
+  "bucket": "C",
+  "url": "https://material-web.dev/",
+  "corpus": "corpus/C-05/index.html",
+  "task_description": "List every entry in this site’s navigation.",
+  "expected_fields": [
+    "title"
+  ],
+  "notes": "Navigation items are custom elements whose visible text lives in the shadow root; the light DOM of each item holds only a style block.",
+  "verified_on": "2026-09-10"
+}

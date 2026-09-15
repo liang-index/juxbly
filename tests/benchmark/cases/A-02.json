@@ -1,0 +1,14 @@
+{
+  "id": "A-02",
+  "bucket": "A",
+  "url": "https://quotes.toscrape.com/",
+  "corpus": "corpus/A-02/index.html",
+  "task_description": "Collect every quote on this page with the person who said it and its tags.",
+  "expected_fields": [
+    "text",
+    "author",
+    "tags"
+  ],
+  "notes": "Semantic markup, no framework. Tags are multi-valued per item - a tool that only keeps the first tag loses data.",
+  "verified_on": "2026-09-10"
+}

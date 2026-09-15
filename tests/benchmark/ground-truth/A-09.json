@@ -1,0 +1,30 @@
+{
+  "case_id": "A-09",
+  "bucket": "A",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    120,
+    145
+  ],
+  "sample": [
+    {
+      "title": "Installing nginx",
+      "url": "install.html"
+    },
+    {
+      "title": "Building nginx from Sources",
+      "url": "configure.html"
+    },
+    {
+      "title": "Beginner’s Guide",
+      "url": "beginners_guide.html"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

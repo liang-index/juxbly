@@ -1,0 +1,12 @@
+{
+  "id": "B-10",
+  "bucket": "B",
+  "url": "https://prettier.io/docs/en/index.html",
+  "corpus": "corpus/B-10/index.html",
+  "task_description": "List every format Prettier says it supports on this page.",
+  "expected_fields": [
+    "title"
+  ],
+  "notes": "Docusaurus with a second lazy-growth trap: content is mounted after load, so the list is absent from the served HTML.",
+  "verified_on": "2026-09-10"
+}

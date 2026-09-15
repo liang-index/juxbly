@@ -1,0 +1,12 @@
+{
+  "id": "C-08",
+  "bucket": "C",
+  "url": "https://lit.dev/docs/components/events/",
+  "corpus": "corpus/C-08/index.html",
+  "task_description": "List the section headings of this article.",
+  "expected_fields": [
+    "title"
+  ],
+  "notes": "Prose lives inside shadow roots, so the analyzer sees an almost empty light DOM. Note the first heading is the table-of-contents label itself.",
+  "verified_on": "2026-09-10"
+}

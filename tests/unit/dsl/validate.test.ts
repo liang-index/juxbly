@@ -375,6 +375,57 @@ describe('rule 8 — unknown types and unknown fields are rejected', () => {
   })
 })
 
+describe('rule 9 — selectors must not anchor on a hashed class', () => {
+  it('rejects a container selector built on a hashed class', () => {
+    const input = validDefinition()
+    input['steps'] = [
+      { type: 'extract', mode: 'list', selector: 'li.css-1x2y3z', fields: { title: 'h2' }, output_to: 'items' },
+      { type: 'render', view: 'table', input_from: 'items' },
+    ]
+    const errors = errorsOf(input)
+    expect(errors.map((error) => error.code)).toContain('SELECTOR_FRAGILE')
+    expect(errors.find((error) => error.code === 'SELECTOR_FRAGILE')?.path).toBe('steps[0].selector')
+  })
+
+  it('rejects a field selector built on a hashed class, naming the field', () => {
+    const input = validDefinition()
+    input['steps'] = [
+      { type: 'extract', mode: 'single', fields: { title: 'span.jss123456' }, output_to: 'items' },
+      { type: 'render', view: 'table', input_from: 'items' },
+    ]
+    const errors = errorsOf(input)
+    expect(errors.map((error) => error.code)).toContain('SELECTOR_FRAGILE')
+    expect(errors.find((error) => error.code === 'SELECTOR_FRAGILE')?.path).toBe('steps[0].fields.title')
+  })
+
+  it('rejects a hashed class even in single mode, where no container selector exists', () => {
+    const input = validDefinition()
+    input['steps'] = [
+      { type: 'extract', mode: 'single', fields: { price: '.price1x2y3z' }, output_to: 'items' },
+      { type: 'render', view: 'text', input_from: 'items' },
+    ]
+    expect(codesOf(input)).toContain('SELECTOR_FRAGILE')
+  })
+
+  it('accepts semantic tags, attribute anchors, stable classes and structural position', () => {
+    // The Reddit shape the rule pushes the model towards: shreddit-* custom element
+    // tags, slot/aria-style attributes, short stable classes, nth-of-type.
+    const input = validDefinition()
+    input['steps'] = [
+      {
+        type: 'extract',
+        mode: 'list',
+        selector: 'shreddit-post',
+        fields: { title: 'h2 > [slot="title"]', score: 'span.score', rank: 'span:nth-of-type(2)' },
+        output_to: 'items',
+      },
+      { type: 'render', view: 'table', input_from: 'items' },
+    ]
+    const result = validateToolDefinition(input)
+    if (!result.ok) throw new Error(`unexpected errors: ${JSON.stringify(result.errors)}`)
+  })
+})
+
 describe('shape — before the rules can run', () => {
   it('rejects non-object input', () => {
     for (const input of [null, 'tool', 42, [validDefinition()]]) {

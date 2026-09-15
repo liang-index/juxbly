@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <title>Chrome Platform Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+
+  <meta name="theme-color" content="#366597">
+
+  <link rel="stylesheet" href="assets/style-1.css">
+
+  <link rel="icon" href="/static/img/crstatus_192.png">
+
+  <!-- iOS: run in full-screen mode and display upper status bar as translucent -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <link rel="apple-touch-icon" href="/static/img/crstatus_128.png">
+  <link rel="apple-touch-icon-precomposed" href="/static/img/crstatus_128.png">
+  <link rel="shortcut icon" href="/static/img/crstatus_128.png">
+
+  
+
+  
+  
+
+  <link rel="stylesheet" href="assets/style-2.css">
+
+  
+  <style id="googleidentityservice_button_styles" nonce="">.qJTHM{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;color:#202124;direction:ltr;-webkit-touch-callout:none;font-family:Roboto-Regular,arial,sans-serif;-webkit-font-smoothing:antialiased;font-weight:400;margin:0;overflow:hidden;-webkit-text-size-adjust:100%}.ynRLnc{left:-9999px;position:absolute;top:-9999px}.L6cTce{display:none}.bltWBb{overflow-wrap:break-word;word-break:break-word}.hSRGPd{color:#1a73e8;cursor:pointer;font-weight:500;text-decoration:none}.Bz112c-W3lGp{height:16px;width:16px}.Bz112c-E3DyYd{height:20px;width:20px}.Bz112c-r9oPif{height:24px;width:24px}.Bz112c-u2z5K{height:36px;width:36px}.Bz112c-uaxL4e{border-radius:10px}.LgbsSe-Bz112c{display:block}.S9gUrf-YoZ4jf{border:none;margin:0;padding:0}.S9gUrf-YoZ4jf *{border:none;margin:0;padding:0}.fFW7wc-ibnC6b>.aZ2wEe>div{border-color:#4285f4}.P1ekSe-ZMv3u{-webkit-transition:height .2s linear;transition:height .2s linear}.P1ekSe-ZMv3u>div:first-child{background-color:#1a73e8!important;-webkit-transition:width .3s linear;transition:width .3s linear}.P1ekSe-ZMv3u>div:nth-child(2){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.P1ekSe-ZMv3u>div:nth-child(3){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.haAclf{display:inline-block}.nsm7Bb-HzV7m-LgbsSe{border-radius:4px;box-sizing:border-box;-webkit-transition:background-color .218s,border-color .218s;transition:background-color .218s,border-color .218s;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-webkit-appearance:none;background-color:#fff;background-image:none;border:1px solid #dadce0;color:#3c4043;cursor:pointer;font-family:Google Sans,arial,sans-serif;font-size:.875rem;height:40px;letter-spacing:.25px;outline:none;overflow:hidden;padding:0 12px;position:relative;text-align:center;vertical-align:middle;white-space:nowrap;width:auto}.nsm7Bb-HzV7m-LgbsSe.TzA9Ye-LgbsSe{font-size:14px}@media screen and (-ms-high-contrast:active){.nsm7Bb-HzV7m-LgbsSe{border:2px solid windowText;color:windowText}}@media screen and (preferes-contrast:more){.nsm7Bb-HzV7m-LgbsSe{color:#000}}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe{font-size:.875rem;height:32px;letter-spacing:.25px;padding:0 10px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.TzA9Ye-LgbsSe{font-size:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe{font-size:.6875rem;height:20px;letter-spacing:.3px;padding:0 8px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.TzA9Ye-LgbsSe{font-size:11px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe{padding:0;width:40px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe{width:32px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe{width:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK{border-radius:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.pSzOP-SxQuSe{border-radius:16px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.purZT-SxQuSe{border-radius:10px}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc{border:1px solid #8e918f;background-color:#131314;color:#e3e3e3}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc{border:none;color:#fff}.nsm7Bb-HzV7m-LgbsSe.MFS4be-v3pZbf-Ia7Qfc{background-color:#1a73e8}.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{background-color:#202124;color:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{color:#fff}}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:18px;margin-right:8px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:14px;min-width:14px;width:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:10px;min-width:10px;width:10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin-left:8px;margin-right:-4px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:10px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:8px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:4px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:3px;border-bottom-left-radius:3px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;align-items:center;background-color:#fff;height:36px;margin-left:-10px;margin-right:12px;min-width:36px;width:36px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c,.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:28px;margin-left:-8px;margin-right:10px;min-width:28px;width:28px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:16px;margin-left:-6px;margin-right:8px;min-width:16px;width:16px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:3px;margin-left:2px;margin-right:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:8px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;-webkit-flex-direction:row;-webkit-box-orient:horizontal;-webkit-box-direction:normal;flex-direction:row;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:nowrap;flex-wrap:nowrap;height:100%;position:relative;width:100%}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX{-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:1;-webkit-box-flex:1;flex-grow:1;font-family:Google Sans,arial,sans-serif;font-weight:500;overflow:hidden;text-overflow:ellipsis;vertical-align:top}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-weight:300}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:0;-webkit-box-flex:0;flex-grow:0}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-MJoBVe{-webkit-transition:background-color .218s;transition:background-color .218s;bottom:0;left:0;position:absolute;right:0;top:0}.nsm7Bb-HzV7m-LgbsSe:focus,.nsm7Bb-HzV7m-LgbsSe:hover{box-shadow:none;border-color:rgb(210,227,252);outline:none}.nsm7Bb-HzV7m-LgbsSe:focus-within{outline:2px solid #00639b;border-color:transparent}.nsm7Bb-HzV7m-LgbsSe:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.08)}.nsm7Bb-HzV7m-LgbsSe:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.1)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.08)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.12)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.24)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.32)}.nsm7Bb-HzV7m-LgbsSe .n1UuX-DkfjY{border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;height:20px;margin-left:-4px;margin-right:8px;min-width:20px;width:20px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-family:Roboto;font-size:12px;text-align:left}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .fmcmS,.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .ssJRIf{overflow:hidden;text-overflow:ellipsis}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;color:#5f6368;fill:#5f6368;font-size:11px;font-weight:400}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.i5vt6e-to915-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#c4c7c5;fill:#c4c7c5}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#e8eaed;fill:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff,.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#000;fill:#000}}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .Bz112c{height:18px;margin:-3px -3px -3px 2px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:0;border-bottom-left-radius:0;border-top-right-radius:3px;border-bottom-right-radius:3px;margin-left:12px;margin-right:-10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.L5Fo6c-sM5MNb{border:0;display:block;left:0;position:relative;top:0}.L5Fo6c-bF1uUb{border-radius:4px;bottom:0;cursor:pointer;left:0;position:absolute;right:0;top:0}.L5Fo6c-bF1uUb:focus{border:none;outline:none}sentinel{}</style>
+
+  
+  
+
+  
+  
+
+  
+<link id="googleidentityservice" type="text/css" media="all" href="about:blank" rel="stylesheet"></head>
+
+<body class="">
+  <chromedash-app apptitle="Chrome Platform Status" googlesigninclientid="999517574127-7ueh2a17bv1ave9thlgtap19pt5qjp4g.apps.googleusercontent.com" devmode="False" bannermessage="" bannertime="None"><template shadowrootmode="open"><!---->
+          <div id="app-content-container">
+            <div class="main-toolbar">
+              <div class="toolbar-content">
+                <chromedash-header><template shadowrootmode="open"><!---->
+      <header data-testid="header">
+        <sl-icon-button data-testid="menu" variant="text" library="material" class="menu" style="font-size: 2.4rem;" name="menu_20px"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="menu_20px" library="material"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="20" viewbox="0 -960 960 960" width="20" part="svg" fill="currentColor"><path d="M144-264v-72h672v72H144Zm0-180v-72h672v72H144Zm0-180v-72h672v72H144Z"></path></svg></template></sl-icon>
+      </button>
+    </template>
+        </sl-icon-button>
+        <aside>
+          <a href="/roadmap" target="_top">
+            <h1>
+              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="" role="presentation">
+              <!--?lit$233084217$-->Chrome Platform Status
+            </h1>
+          </a>
+        </aside>
+        <nav><!--?lit$233084217$--> <div class="flex-container">
+        <!--?lit$233084217$-->
+      <!--?lit$233084217$--> <slot></slot> 
+    
+      </div></nav>
+      </header>
+    </template>
+                  <slot></slot>
+                </chromedash-header>
+              </div>
+            </div>
+
+            <div id="content">
+              <div>
+                <chromedash-drawer defaultopen=""><template shadowrootmode="open"><!----> <nav><!--?lit$233084217$-->
+      <sl-drawer label="Menu" placement="start" class="drawer-placement-start" contained="" noheader="" style="--size: 200px;" open=""><template shadowrootmode="open"><!---->
+      <div part="base" class=" drawer drawer--open drawer--start drawer--contained ">
+        <div part="overlay" class="drawer__overlay" tabindex="-1"></div>
+
+        <div part="panel" class="drawer__panel" role="dialog" aria-modal="true" tabindex="0" aria-hidden="false" aria-labelledby="title">
+          <!--?lit$233084217$-->
+                <header part="header" class="drawer__header">
+                  <h2 part="title" class="drawer__title" id="title">
+                    <!-- If there's no label, use an invisible character to prevent the header from collapsing -->
+                    <slot name="label"> <!--?lit$233084217$-->Menu </slot>
+                  </h2>
+                  <div part="header-actions" class="drawer__header-actions">
+                    <slot name="header-actions"></slot>
+                    <sl-icon-button part="close-button" exportparts="base:close-button__base" class="drawer__close" name="x-lg" library="system" label="Close"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="Close" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="x-lg" library="system"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-lg" viewbox="0 0 16 16" part="svg">
+      <path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z"></path>
+    </svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+                  </div>
+                </header>
+              
+
+          <slot part="body" class="drawer__body"></slot>
+
+          <footer part="footer" class="drawer__footer">
+            <slot name="footer"></slot>
+          </footer>
+        </div>
+      </div>
+    </template>
+        <!--?lit$233084217$--> <!--?lit$233084217$--><a href="/roadmap">
+      <span><!--?lit$233084217$-->Roadmap</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$--><a href="/release-notes">
+      <span><!--?lit$233084217$-->Release notes</span>
+      <!--?lit$233084217$-->
+            <sl-tooltip content="Preview" distance="8"><template shadowrootmode="open"><!---->
+      <sl-popup part="base" exportparts="
+          popup:base__popup,
+          arrow:base__arrow
+        " flip="" shift="" arrow="" hover-bridge="" class=" tooltip " placement="top" distance="8" skidding="0" strategy="absolute"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup popup--has-arrow ">
+        <slot></slot>
+        <!--?lit$233084217$--><div part="arrow" class="popup__arrow" role="presentation"></div>
+      </div>
+    </template>
+        <!--?lit$233084217$-->
+        <slot slot="anchor" aria-describedby="tooltip"></slot>
+
+        <!--?lit$233084217$-->
+        <div part="body" id="tooltip" class="tooltip__body" role="tooltip" aria-live="off" hidden="">
+          <slot name="content"><!--?lit$233084217$-->Preview</slot>
+        </div>
+      </sl-popup>
+    </template>
+              <sl-icon name="info-circle" aria-hidden="true" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewbox="0 0 16 16" part="svg">
+  <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+  <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"></path>
+</svg></template></sl-icon>
+            </sl-tooltip>
+          
+    </a>
+        <!--?lit$233084217$--><a href="/features" active="">
+      <span><!--?lit$233084217$-->All features</span>
+      <!--?lit$233084217$-->
+    </a> <!--?lit$233084217$--><a href="/features?q=shipping_year:2026">
+      <span><!--?lit$233084217$-->Shipping 2026</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$--><a href="/features?q=shipping_year:2027">
+      <span><!--?lit$233084217$-->Shipping 2027</span>
+      <!--?lit$233084217$-->
+    </a> <!--?lit$233084217$-->
+        <hr>
+        <div class="section-header">Stats</div>
+        <!--?lit$233084217$--><a href="/metrics/css/popularity">
+      <span><!--?lit$233084217$-->CSS</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$--><a href="/metrics/css/animated">
+      <span><!--?lit$233084217$-->CSS Animation</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$--><a href="/metrics/feature/popularity">
+      <span><!--?lit$233084217$-->JS/HTML</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$--><a href="/metrics/webfeature/popularity">
+      <span><!--?lit$233084217$-->Web Features</span>
+      <!--?lit$233084217$-->
+    </a>
+        <hr>
+        <div class="section-header">Reports</div>
+        <!--?lit$233084217$--><a href="/reports/spec_mentors">
+      <span><!--?lit$233084217$-->Spec Mentors</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$--><a href="/reports/external_reviews">
+      <span><!--?lit$233084217$-->External Reviews</span>
+      <!--?lit$233084217$-->
+    </a>
+        <!--?lit$233084217$-->
+      </sl-drawer>
+    </nav> </template>
+                </chromedash-drawer>
+              </div>
+              <div style="margin-left:210px;">
+                <chromedash-banner><template shadowrootmode="open"><!----></template>
+                </chromedash-banner>
+                <div id="content-flex-wrapper">
+                  <!--?lit$233084217$-->
+        <div id="content-component-wrapper">
+          <!--?lit$233084217$--><chromedash-all-features-page><template shadowrootmode="open"><!---->
+      <div id="content-title">
+        <h2><!--?lit$233084217$-->Features</h2>
+      </div>
+      <!--?lit$233084217$--> <!--?lit$233084217$-->
+      <chromedash-feature-table alwaysofferpagination="" showquery="" selectedgateid="0" columns="normal"><template shadowrootmode="open"><!---->
+      <!--?lit$233084217$-->
+        <chromedash-feature-filter><template shadowrootmode="open"><!---->
+      <chromedash-typeahead placeholder="Search" value=""><template shadowrootmode="open"><!---->
+      <chromedash-typeahead-dropdown stay-open-on-select="" sync="width" placement="bottom-start"><template shadowrootmode="open"><!---->
+      <sl-popup part="base" exportparts="popup:base__popup" id="dropdown" flip="" shift="" auto-size="vertical" auto-size-padding="10" placement="bottom-start" distance="0" skidding="0" strategy="absolute" sync="width" class=" dropdown "><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup ">
+        <slot></slot>
+        <!--?lit$233084217$-->
+      </div>
+    </template>
+        <slot name="trigger" slot="anchor" part="trigger" class="dropdown__trigger"></slot>
+
+        <div aria-labelledby="dropdown" aria-hidden="true">
+          <slot part="panel" class="dropdown__panel" hidden=""></slot>
+        </div>
+      </sl-popup>
+    </template>
+        <!--?lit$233084217$-->
+      <sl-input id="inputfield" slot="trigger" autocomplete="off" spellcheck="false" placeholder="Search" value="" type="text" size="medium" form="" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <div part="form-control" class=" form-control form-control--medium ">
+        <label part="form-control-label" class="form-control__label" for="input" aria-hidden="true">
+          <slot name="label"><!--?lit$233084217$--></slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div part="base" class=" input input--medium input--standard input--empty ">
+            <span part="prefix" class="input__prefix">
+              <slot name="prefix"></slot>
+            </span>
+
+            <input part="input" id="input" class="input__control" aria-describedby="help-text" type="text" title="" name="" placeholder="Search" autocomplete="off" spellcheck="false">
+
+            <!--?lit$233084217$-->
+            <!--?lit$233084217$-->
+
+            <span part="suffix" class="input__suffix">
+              <slot name="suffix"></slot>
+            </span>
+          </div>
+        </div>
+
+        <div part="form-control-help-text" id="help-text" class="form-control__help-text" aria-hidden="true">
+          <slot name="help-text"><!--?lit$233084217$--></slot>
+        </div>
+      </div>
+    </template>
+        <slot name="prefix" slot="prefix"></slot>
+        <slot name="suffix" slot="suffix"></slot>
+      </sl-input>
+     <!--?lit$233084217$-->
+      <sl-menu role="menu"><template shadowrootmode="open"><!---->
+      <slot></slot>
+    </template>
+        <!--?lit$233084217$-->
+      <chromedash-typeahead-invisible-item role="menuitem" tabindex="0"><template shadowrootmode="open"><!----><!--?lit$233084217$--><!--?--></template></chromedash-typeahead-invisible-item>
+    
+        <!--?lit$233084217$-->
+      </sl-menu>
+    
+      </chromedash-typeahead-dropdown>
+    </template>
+        <sl-icon-button library="material" name="search" slot="prefix"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="search" library="material"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px" fill="currentColor" part="svg"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg></template></sl-icon>
+      </button>
+    </template>
+        </sl-icon-button>
+        <sl-icon-button library="material" name="help_20px" slot="suffix"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="help_20px" library="material"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="24" viewbox="0 -960 960 960" width="24" part="svg" fill="currentColor"><path d="M478-240q21 0 35.5-14.5T528-290q0-21-14.5-35.5T478-340q-21 0-35.5 14.5T428-290q0 21 14.5 35.5T478-240Zm-36-154h74q0-33 7.5-52t42.5-52q26-26 41-49.5t15-56.5q0-56-41-86t-97-30q-57 0-92.5 30T342-618l66 26q5-18 22.5-39t53.5-21q32 0 48 17.5t16 38.5q0 20-12 37.5T506-526q-44 39-54 59t-10 73Zm38 314q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"></path></svg></template></sl-icon>
+      </button>
+    </template>
+        </sl-icon-button>
+      </chromedash-typeahead>
+    </template></chromedash-feature-filter>
+       <!--?lit$233084217$-->
+      <div class="status-and-count hbox">
+        <span><!--?lit$233084217$--></span>
+        <div class="spacer"></div>
+        <span><!--?lit$233084217$-->1 - <!--?lit$233084217$-->100 of <!--?lit$233084217$-->3541</span>
+        <sl-icon-button library="material" name="navigate_before" title="Previous page" disabled=""><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button icon-button--disabled " disabled="" type="button" role="button" aria-disabled="true" aria-label="" tabindex="-1">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="navigate_before" library="material"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px" fill="currentColor" part="svg"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M15.61 7.41L14.2 6l-6 6 6 6 1.41-1.41L11.03 12l4.58-4.59z"></path></svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+        <sl-icon-button library="material" name="navigate_next" title="Next page" href="https://chromestatus.com/features?start=100"><template shadowrootmode="open"><!---->
+      <a part="base" class=" icon-button " href="https://chromestatus.com/features?start=100" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="navigate_next" library="material"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" height="24px" viewbox="0 0 24 24" width="24px" fill="currentColor" part="svg"><path d="M0 0h24v24H0V0z" fill="none"></path><path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z"></path></svg></template></sl-icon>
+      </a>
+    </template></sl-icon-button>
+      </div>
+    
+      <table>
+        <!--?lit$233084217$--><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5143933628841984"><!--?lit$233084217$-->Ask before http on by default</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5214647044145152"><!--?lit$233084217$-->Avoid caching module failures</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5138797158334464"><!--?lit$233084217$-->Web Bluetooth: Make BluetoothRemoteGATTServer an EventTarget</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5147993689948160"><!--?lit$233084217$-->WebGPU HDR texture import</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5177374353260544"><!--?lit$233084217$-->WebRTC Encoded Source</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5133912740331520"><!--?lit$233084217$-->scroll-snap-stop: before</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5144333908049920"><!--?lit$233084217$-->Background layer count independence </a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4860330806214656"><!--?lit$233084217$-->WebTransport keying material export</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5424242161221632"><!--?lit$233084217$-->WebGL drawingBufferToneMapping</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6253669501763584"><!--?lit$233084217$-->Enforce cloud storage</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5094058497277952"><!--?lit$233084217$-->WebTransport reliability attributes</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5199775795380224"><!--?lit$233084217$-->Trusted Types support in CSP Embedded Enforcement</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5160724576993280"><!--?lit$233084217$-->Deprecate and remove WebRTC peer connection method</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5092584283308032"><!--?lit$233084217$-->Spec-compliant XML MIME type detection</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5069051687731200"><!--?lit$233084217$-->CSS flow-start and flow-end alignment keywords</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4780977359552512"><!--?lit$233084217$-->CSS generic() function</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5155555348971520"><!--?lit$233084217$-->Persistent Widgets</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5754395122860032"><!--?lit$233084217$-->Deprecate and stop firing events during subframe removal</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4812694485073920"><!--?lit$233084217$-->MIDIOutput.clear()</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5383093186854912"><!--?lit$233084217$-->Make MIDIAccess transferable and exposed to workers</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6229154029764608"><!--?lit$233084217$-->WebGPU: WGSL Swizzle Assignment</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5663304168112128"><!--?lit$233084217$-->WebGPU: WGSL Fragment Depth</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5168674259468288"><!--?lit$233084217$-->Optional descriptors for registered custom properties</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5064991081365504"><!--?lit$233084217$-->Out-of-turn navigation safety checks in Gemini in Chrome</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5183354944225280"><!--?lit$233084217$-->WebTransport Datagram writable streams and prioritization</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5087964794322944"><!--?lit$233084217$-->Language Detector API on Android</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5159473248337920"><!--?lit$233084217$-->Moderation of unlinkable endorsements</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5149398731456512"><!--?lit$233084217$-->RTC EncodedFrame constructors</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5174660823121920"><!--?lit$233084217$-->NoSynchronousThrowForCrossOriginBlockedWorker</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6294595288825856"><!--?lit$233084217$-->CSS text-overflow: &lt;string&gt; value</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5422782593761280"><!--?lit$233084217$-->SVG textPath side attribute</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5194104408506368"><!--?lit$233084217$-->WebTransport headers and responseHeaders</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5110279095582720"><!--?lit$233084217$-->Support creating an Origin object from SVG A element</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5174965228929024"><!--?lit$233084217$-->CSS Custom Highlight Universal Selector ::highlight(*)</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5145402365050880"><!--?lit$233084217$-->FontFace width attribute and font-width descriptor</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5126146013396992"><!--?lit$233084217$-->Secure Payment Confirmation: Locale Validation</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6193413308416000"><!--?lit$233084217$-->Enhanced Range Input</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6209615938322432"><!--?lit$233084217$-->Light dismiss improvements for popovers and dialogs</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5187917373898752"><!--?lit$233084217$-->Regular Expression Buffer Boundaries</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5205192866922496"><!--?lit$233084217$-->Iterator Includes</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4810823735312384"><!--?lit$233084217$-->Iterator Chunking</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5177157071536128"><!--?lit$233084217$-->Import Bytes (Bytes Modules)</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5191512456560640"><!--?lit$233084217$-->Import Text (Text Modules)</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5184195986063360"><!--?lit$233084217$-->Web app manifest scope filtering</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4857112617418752"><!--?lit$233084217$-->Style Module Imports via Link Elements</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6210300985606144"><!--?lit$233084217$-->CORS enforcement for Background Fetch</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6225598451154944"><!--?lit$233084217$-->Local Network Access restrictions for Background Fetch</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5115054790934528"><!--?lit$233084217$-->RTCRtpReceiver Decoder State Changed and Error Events</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5158507786665984"><!--?lit$233084217$-->Fetch API: Forward reason from AbortController to fetch Response</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4779920606756864"><!--?lit$233084217$-->Support targetAddressSpace option for WebSockets</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5427561449521152"><!--?lit$233084217$-->Suspicious site warnings</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5080055102439424"><!--?lit$233084217$-->Add options bag to WebSocket constructor</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5072607092277248"><!--?lit$233084217$-->CSS kashida justification</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5124378896498688"><!--?lit$233084217$-->Use scroll-snap-type: pair to snap to a single element</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5091965583622144"><!--?lit$233084217$-->Popup Capability Delegation</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5196252624060416"><!--?lit$233084217$-->CSSPageDescriptor for @page at-rules </a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6207138742534144"><!--?lit$233084217$-->AccentColor &amp; AccentColorText follows accent-color value</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5086608215900160"><!--?lit$233084217$-->Scroll snap for single-axis scroll containers</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5888755098583040"><!--?lit$233084217$-->Prompt API on Android</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5165424388997120"><!--?lit$233084217$-->Summarizer API on Android</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5106126157905920"><!--?lit$233084217$-->Translator API on Android</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6312504658624512"><!--?lit$233084217$-->Interoperable dispatch timing for transitionrun and media query events</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5095183554314240"><!--?lit$233084217$-->Iterator Join</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5076374013476864"><!--?lit$233084217$-->User Agent Image Replacement API</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5168133036965888"><!--?lit$233084217$-->FocusgroupV2: grid and feed</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5111794608766976"><!--?lit$233084217$-->JavaScript call stacks in out-of-memory (OOM) crash reports</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5130535027474432"><!--?lit$233084217$-->Add "beginBatchEdit" and "endBatchEdit" for EditContext</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4644898109259776"><!--?lit$233084217$-->MediaCapabilities.decodingInfo.encryptionScheme</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6366274495053824"><!--?lit$233084217$-->Remove FencedFrame element and window.fence APIs</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5127427618635776"><!--?lit$233084217$-->Slotted Options for &lt;select&gt;</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5201297767792640"><!--?lit$233084217$-->JS Self-Profiling Markers</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/4812056424480768"><!--?lit$233084217$-->[webdriver] Better signature counter support for WebAuthn virtual authenticators</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5196081949442048"><!--?lit$233084217$-->CSS shrink-to-fit container</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5137485911949312"><!--?lit$233084217$-->Pervasive Compression Dictionaries</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5079000453087232"><!--?lit$233084217$-->BlobOpaqueOriginForInnerNonHttpNonFileScheme</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5908461532610560"><!--?lit$233084217$-->scroll-axis-lock</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5146996093616128"><!--?lit$233084217$-->CSS Symbols()</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5178587742339072"><!--?lit$233084217$-->&lt;input type="checkbox" switch&gt;</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5188900898340864"><!--?lit$233084217$-->Declarative fragments</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5200894124752896"><!--?lit$233084217$-->Element Scoped View Transitions: size containment for capture</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5085785343787008"><!--?lit$233084217$-->audioPreferred capture in getDisplayMedia API</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5387465121726464"><!--?lit$233084217$-->Support Long Animation Frames API in Web Workers</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5114591051907072"><!--?lit$233084217$-->Expose CSSStyleValue hierarchy to Worker contexts</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5113656292540416"><!--?lit$233084217$-->Immersive Audio Model and Formats (IAMF) decoding support</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5811907077472256"><!--?lit$233084217$-->SpeechRecognitionResult Timestamps (WebSpeech API)</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6327898878377984"><!--?lit$233084217$-->CSS pseudo-class for navigation source element</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6212149417476096"><!--?lit$233084217$-->Device Bound Session Credentials (DBSC) JavaScript API</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5113729407647744"><!--?lit$233084217$-->Deprecate and remove: initialPermissionStatus from Capability Element</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5108022310469632"><!--?lit$233084217$-->CSS mixins</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5200904761507840"><!--?lit$233084217$-->Creating always-on-top windows</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5167864517623808"><!--?lit$233084217$-->Web haptics</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5153829504024576"><!--?lit$233084217$-->Capability elements: &lt;camera&gt; and &lt;microphone&gt;</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5075144470036480"><!--?lit$233084217$-->Window Shape API</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5863296436666368"><!--?lit$233084217$-->Notification attribution for PWAs on macOS</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/6240467143491584"><!--?lit$233084217$-->Speculation Rules - moderate viewport heuristics controls</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5990570242736128"><!--?lit$233084217$-->Swap SVGAElement to the new HyperlinkElementUtils</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5075054393163776"><!--?lit$233084217$-->Gamepad button type attribute</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5109685301673984"><!--?lit$233084217$-->CSS scroll-marker-group modes</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5178682139344896"><!--?lit$233084217$-->Declarative shadow DOM: shadowrootslotassignment attribute</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!----><!---->
+      <chromedash-feature-row columns="normal" selectedgateid="0"><template shadowrootmode="open"><!---->
+      <td class="name_col">
+        <a href="/feature/5068149209825280"><!--?lit$233084217$-->Web Authentication Ambient UI</a>
+        <!--?lit$233084217$-->
+      </td>
+      <td class="icon_col"><!--?lit$233084217$--></td>
+    </template></chromedash-feature-row>
+    <!---->
+      </table>
+      <!--?lit$233084217$-->
+      <chromedash-feature-pagination pagesize="100" start="0" totalcount="3541"><template shadowrootmode="open"><!---->
+      <div id="main" class="pagination hbox halign-items-space-between">
+        <div class="spacer"></div>
+        <sl-button variant="text" id="previous" class="stepper" disabled="" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <button part="base" class=" button button--text button--medium button--disabled button--standard button--has-label " disabled="" type="button" title="" name="" value="" role="button" aria-disabled="true" tabindex="-1">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </button>
+    </template>Previous</sl-button>
+
+        <!--?lit$233084217$-->
+      <sl-button variant="text" id="jump_1" class="page-button active" href="https://chromestatus.com/features?start=0" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=0" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>
+        <!--?lit$233084217$-->1
+      </sl-button>
+      <!--?lit$233084217$-->
+      <!--?lit$233084217$--><!---->
+          <sl-button variant="text" id="jump_2" class="page-button " href="https://chromestatus.com/features?start=100" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=100" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>
+            <!--?lit$233084217$-->2
+          </sl-button>
+        <!----><!---->
+          <sl-button variant="text" id="jump_3" class="page-button " href="https://chromestatus.com/features?start=200" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=200" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>
+            <!--?lit$233084217$-->3
+          </sl-button>
+        <!----><!---->
+          <sl-button variant="text" id="jump_4" class="page-button " href="https://chromestatus.com/features?start=300" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=300" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>
+            <!--?lit$233084217$-->4
+          </sl-button>
+        <!----><!---->
+          <sl-button variant="text" id="jump_5" class="page-button " href="https://chromestatus.com/features?start=400" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=400" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>
+            <!--?lit$233084217$-->5
+          </sl-button>
+        <!---->
+      <!--?lit$233084217$--><div>...</div>
+      <!--?lit$233084217$--><sl-button variant="text" id="jump_36" class="page-button " href="https://chromestatus.com/features?start=3500" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=3500" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>
+              <!--?lit$233084217$-->36
+            </sl-button>
+    
+
+        <sl-button variant="text" id="next" class="stepper" href="https://chromestatus.com/features?start=100" size="medium" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <a part="base" class=" button button--text button--medium button--standard button--has-label " title="" href="https://chromestatus.com/features?start=100" rel="noreferrer noopener" aria-disabled="false" tabindex="0">
+        <slot name="prefix" part="prefix" class="button__prefix"></slot>
+        <slot part="label" class="button__label"></slot>
+        <slot name="suffix" part="suffix" class="button__suffix"></slot>
+        <!--?lit$233084217$-->
+        <!--?lit$233084217$-->
+      </a>
+    </template>Next</sl-button>
+
+        <!--?lit$233084217$-->
+      <sl-select size="small" value="100" placement="bottom" form="" data-optional="" data-valid=""><template shadowrootmode="open"><!---->
+      <div part="form-control" class=" form-control form-control--small ">
+        <label id="label" part="form-control-label" class="form-control__label" aria-hidden="true">
+          <slot name="label"><!--?lit$233084217$--></slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <sl-popup flip="" shift="" sync="width" auto-size="vertical" auto-size-padding="10" class=" select select--standard select--bottom select--small " placement="bottom" strategy="absolute"><template shadowrootmode="open"><!---->
+      <slot name="anchor"></slot>
+
+      <span part="hover-bridge" class=" popup-hover-bridge "></span>
+
+      <div part="popup" class=" popup ">
+        <slot></slot>
+        <!--?lit$233084217$-->
+      </div>
+    </template>
+            <div part="combobox" class="select__combobox" slot="anchor">
+              <slot part="prefix" name="prefix" class="select__prefix"></slot>
+
+              <input part="display-input" class="select__display-input" type="text" autocomplete="off" spellcheck="false" autocapitalize="off" readonly="" aria-controls="listbox" aria-haspopup="listbox" aria-labelledby="label" aria-describedby="help-text" role="combobox" tabindex="0" placeholder="" aria-expanded="false" aria-disabled="false">
+
+              <!--?lit$233084217$-->
+
+              <input class="select__value-input" type="text" tabindex="-1" aria-hidden="true">
+
+              <!--?lit$233084217$-->
+
+              <slot name="suffix" part="suffix" class="select__suffix"></slot>
+
+              <slot name="expand-icon" part="expand-icon" class="select__expand-icon">
+                <sl-icon library="system" name="chevron-down" aria-hidden="true"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-chevron-down" viewbox="0 0 16 16" part="svg">
+      <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"></path>
+    </svg></template></sl-icon>
+              </slot>
+            </div>
+
+            <div id="listbox" role="listbox" aria-labelledby="label" part="listbox" class="select__listbox" tabindex="-1" aria-expanded="false" aria-multiselectable="false">
+              <slot></slot>
+            </div>
+          </sl-popup>
+        </div>
+
+        <div part="form-control-help-text" id="help-text" class="form-control__help-text" aria-hidden="true">
+          <slot name="help-text"><!--?lit$233084217$--></slot>
+        </div>
+      </div>
+    </template>
+        <!--?lit$233084217$--><!---->
+            <sl-option id="opt_25" value="25" role="option" aria-selected="false" aria-disabled="false"><template shadowrootmode="open"><!---->
+      <div part="base" class=" option ">
+        <sl-icon part="checked-icon" class="option__check" name="check" library="system" aria-hidden="true"><template shadowrootmode="open"><!----><svg part="checked-icon svg" class="checkbox__icon" viewbox="0 0 16 16">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g stroke="currentColor">
+          <g transform="translate(3.428571, 3.428571)">
+            <path d="M0,5.71428571 L3.42857143,9.14285714"></path>
+            <path d="M9.14285714,0 L3.42857143,9.14285714"></path>
+          </g>
+        </g>
+      </g>
+    </svg></template></sl-icon>
+        <slot part="prefix" name="prefix" class="option__prefix"></slot>
+        <slot part="label" class="option__label"></slot>
+        <slot part="suffix" name="suffix" class="option__suffix"></slot>
+      </div>
+    </template><!--?lit$233084217$-->25</sl-option>
+          <!----><!---->
+            <sl-option id="opt_50" value="50" role="option" aria-selected="false" aria-disabled="false"><template shadowrootmode="open"><!---->
+      <div part="base" class=" option ">
+        <sl-icon part="checked-icon" class="option__check" name="check" library="system" aria-hidden="true"><template shadowrootmode="open"><!----><svg part="checked-icon svg" class="checkbox__icon" viewbox="0 0 16 16">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g stroke="currentColor">
+          <g transform="translate(3.428571, 3.428571)">
+            <path d="M0,5.71428571 L3.42857143,9.14285714"></path>
+            <path d="M9.14285714,0 L3.42857143,9.14285714"></path>
+          </g>
+        </g>
+      </g>
+    </svg></template></sl-icon>
+        <slot part="prefix" name="prefix" class="option__prefix"></slot>
+        <slot part="label" class="option__label"></slot>
+        <slot part="suffix" name="suffix" class="option__suffix"></slot>
+      </div>
+    </template><!--?lit$233084217$-->50</sl-option>
+          <!----><!---->
+            <sl-option id="opt_100" value="100" role="option" aria-selected="true" aria-disabled="false"><template shadowrootmode="open"><!---->
+      <div part="base" class="option option--selected">
+        <sl-icon part="checked-icon" class="option__check" name="check" library="system" aria-hidden="true"><template shadowrootmode="open"><!----><svg part="checked-icon svg" class="checkbox__icon" viewbox="0 0 16 16">
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round">
+        <g stroke="currentColor">
+          <g transform="translate(3.428571, 3.428571)">
+            <path d="M0,5.71428571 L3.42857143,9.14285714"></path>
+            <path d="M9.14285714,0 L3.42857143,9.14285714"></path>
+          </g>
+        </g>
+      </g>
+    </svg></template></sl-icon>
+        <slot part="prefix" name="prefix" class="option__prefix"></slot>
+        <slot part="label" class="option__label"></slot>
+        <slot part="suffix" name="suffix" class="option__suffix"></slot>
+      </div>
+    </template><!--?lit$233084217$-->100</sl-option>
+          <!---->
+      </sl-select>
+      <span id="items-per-page"> items per page </span>
+    
+
+        <div class="spacer"></div>
+      </div>
+    </template>
+      </chromedash-feature-pagination>
+    
+    </template>
+      </chromedash-feature-table>
+    
+    </template></chromedash-all-features-page>
+        </div>
+        <div id="content-sidebar-space">
+          <div id="sidebar" hidden="">
+            <div id="sidebar-content">
+              <chromedash-gate-column><template shadowrootmode="open"><!---->
+      <sl-icon-button title="Close" name="x" id="close-button"><template shadowrootmode="open"><!---->
+      <button part="base" class=" icon-button " type="button" role="button" aria-disabled="false" aria-label="" tabindex="0">
+        <sl-icon class="icon-button__icon" aria-hidden="true" name="x" library="default"><template shadowrootmode="open"><!----><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewbox="0 0 16 16" part="svg">
+  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+</svg></template></sl-icon>
+      </button>
+    </template></sl-icon-button>
+
+      <!--?lit$233084217$-->
+      <h3 class="sl-skeleton-header-container" style="width: 60%">
+        <sl-skeleton effect="sheen"><template shadowrootmode="open"><!---->
+      <div part="base" class=" skeleton skeleton--sheen ">
+        <div part="indicator" class="skeleton__indicator"></div>
+      </div>
+    </template></sl-skeleton>
+      </h3>
+      <h2 class="sl-skeleton-header-container" style="margin-top: 4px; width: 75%">
+        <sl-skeleton effect="sheen"><template shadowrootmode="open"><!---->
+      <div part="base" class=" skeleton skeleton--sheen ">
+        <div part="indicator" class="skeleton__indicator"></div>
+      </div>
+    </template></sl-skeleton>
+      </h2>
+    
+
+      <div id="review-status-area">
+        <!--?lit$233084217$-->
+      <h3 class="sl-skeleton-header-container">
+        Status: <sl-skeleton effect="sheen"><template shadowrootmode="open"><!---->
+      <div part="base" class=" skeleton skeleton--sheen ">
+        <div part="indicator" class="skeleton__indicator"></div>
+      </div>
+    </template></sl-skeleton>
+      </h3>
+    
+        <!--?lit$233084217$-->
+      </div>
+      <div id="slo-area">
+        <!--?lit$233084217$-->
+      <details>
+        <summary>SLO initial response:</summary>
+        Loading...
+      </details>
+      <details>
+        <summary>SLO resolution:</summary>
+        Loading...
+      </details>
+    
+        <!--?lit$233084217$-->
+      </div>
+
+      <!--?lit$233084217$-->
+
+      <div id="votes-area">
+        <!--?lit$233084217$-->
+      <table>
+        <tbody><tr>
+          <th>Reviewer</th>
+          <th>Review status</th>
+        </tr>
+        <tr>
+          <td><sl-skeleton effect="sheen"><template shadowrootmode="open"><!---->
+      <div part="base" class=" skeleton skeleton--sheen ">
+        <div part="indicator" class="skeleton__indicator"></div>
+      </div>
+    </template></sl-skeleton></td>
+          <td><sl-skeleton effect="sheen"><template shadowrootmode="open"><!---->
+      <div part="base" class=" skeleton skeleton--sheen ">
+        <div part="indicator" class="skeleton__indicator"></div>
+      </div>
+    </template></sl-skeleton></td>
+        </tr>
+      </tbody></table>
+    
+      </div>
+
+      <chromedash-survey-questions><template shadowrootmode="open"><!---->
+      <h2>Survey questions</h2>
+      <!--?lit$233084217$-->
+      <div id="questionnaire">Loading...</div>
+      <p class="instructions">&nbsp;</p>
+    
+    </template></chromedash-survey-questions>
+      <!--?lit$233084217$-->
+      <h2>Comments</h2>
+      <sl-skeleton effect="sheen"><template shadowrootmode="open"><!---->
+      <div part="base" class=" skeleton skeleton--sheen ">
+        <div part="indicator" class="skeleton__indicator"></div>
+      </div>
+    </template></sl-skeleton>
+    
+    </template>
+              </chromedash-gate-column>
+            </div>
+          </div>
+        </div>
+      
+                </div>
+                <!--?lit$233084217$-->
+              </div>
+            </div>
+            <chromedash-footer><template shadowrootmode="open"><!---->
+      <div id="footer-spacer"></div>
+      <footer>
+        <div>
+          <a href="https://github.com/GoogleChrome/chromium-dashboard/wiki/" target="_blank" rel="noopener">Help</a>
+          <a href="https://groups.google.com/a/chromium.org/forum/#!newtopic/blink-dev" target="_blank" rel="noopener">Discuss</a>
+          <a href="https://github.com/GoogleChrome/chromium-dashboard/issues" target="_blank" rel="noopener">File an issue</a>
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy</a>
+        </div>
+      </footer>
+    </template></chromedash-footer>
+          </div>
+        </template><div><div class="S9gUrf-YoZ4jf" style="position: relative;"><div></div></div></div>
+  </chromedash-app>
+
+  
+
+  
+  
+
+
+<chromedash-toast><template shadowrootmode="open"><!---->
+      <span id="msg"><!--?lit$233084217$--></span>
+      <a href="#" id="action"><!--?lit$233084217$--></a>
+    </template></chromedash-toast></body></html>

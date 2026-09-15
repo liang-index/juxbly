@@ -1,0 +1,12 @@
+{
+  "id": "D-04",
+  "bucket": "D",
+  "url": "https://mastodon.online/explore",
+  "corpus": "corpus/D-04/index.html",
+  "task_description": "List the author of every post in this trending feed.",
+  "expected_fields": [
+    "author"
+  ],
+  "notes": "Same software as D-03 with different content. The same virtual-list placeholder caveat applies to the post bodies.",
+  "verified_on": "2026-09-10"
+}

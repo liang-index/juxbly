@@ -1,0 +1,13 @@
+{
+  "id": "C-06",
+  "bucket": "C",
+  "url": "https://material-web.dev/components/button/",
+  "corpus": "corpus/C-06/index.html",
+  "task_description": "Collect every section heading on this page with its anchor.",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "notes": "Headings live next to (not inside) their anchor link, and the page wraps every heading in a custom element with its own shadow content.",
+  "verified_on": "2026-09-10"
+}

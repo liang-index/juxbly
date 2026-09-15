@@ -1,0 +1,34 @@
+{
+  "case_id": "C-09",
+  "bucket": "C",
+  "expected_fields": [
+    "title",
+    "description"
+  ],
+  "item_count_range": [
+    4,
+    4
+  ],
+  "sample": [
+    {
+      "title": "Simple",
+      "description": "Includes utilities to simplify common use cases like store setup, creating reducers, immutable update logic, and more."
+    },
+    {
+      "title": "Opinionated",
+      "description": "Provides good defaults for store setup out of the box, and includes the most commonly used Redux addons built-in."
+    },
+    {
+      "title": "Powerful",
+      "description": "Takes inspiration from libraries like Immer and Autodux to let you write \"mutative\" immutable update logic, and even create entire \"slices\" of state automatically."
+    },
+    {
+      "title": "Effective",
+      "description": "Lets you focus on the core logic your app needs, so you can do more work with less code."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

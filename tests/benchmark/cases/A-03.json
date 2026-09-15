@@ -1,0 +1,15 @@
+{
+  "id": "A-03",
+  "bucket": "A",
+  "url": "https://webscraper.io/test-sites/tables",
+  "corpus": "corpus/A-03/index.html",
+  "task_description": "Pull the rows out of the first table on this page: the row number, first name, last name and username.",
+  "expected_fields": [
+    "number",
+    "first_name",
+    "last_name",
+    "username"
+  ],
+  "notes": "The page offers three tables; the first is the one with a proper header row. Picking the wrong table, or flattening all three into one list, is the expected failure.",
+  "verified_on": "2026-09-10"
+}

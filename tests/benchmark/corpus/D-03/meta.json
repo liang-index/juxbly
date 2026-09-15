@@ -1,0 +1,56 @@
+{
+  "id": "D-03",
+  "url": "https://mastodon.social/explore",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:21:17.194Z",
+  "sizeBytes": 111589,
+  "verifiedOn": "2026-09-10",
+  "title": "Trending - Mastodon",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 5 repeated structure(s): div|article. 20->79; article|div. 20->79; div|div.focusable.status__wrapper 18->77; div|span. 36->154; a|span.invisible 0->4",
+    "grownGroups": 5,
+    "grownSample": [
+      "div|article. 20->79",
+      "article|div. 20->79",
+      "div|div.focusable.status__wrapper 18->77",
+      "div|span. 36->154",
+      "a|span.invisible 0->4"
+    ],
+    "nodesBeforeScroll": 602,
+    "nodesAfterScroll": 911,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 0,
+    "assetCount": 27,
+    "nodeCount": 836,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 5,
+    "customElementCount": 0,
+    "classTokenCount": 165,
+    "hashedClassTokens": 41,
+    "maxRepeatingCount": 114
+  },
+  "rights": {
+    "basis": "reviewed-tos",
+    "license": "AGPL-3.0 (Mastodon); public timeline",
+    "reviewedOn": "2026-09-10",
+    "reviewNote": "Public explore timeline, no login. robots.txt could not be retrieved from this network; capture re-checks."
+  },
+  "robots": {
+    "status": "unavailable",
+    "rule": null,
+    "url": "https://mastodon.social/robots.txt"
+  },
+  "notes": "Status cards append as the timeline is scrolled; also the widest-gap page in the corpus.",
+  "personalDataHits": []
+}

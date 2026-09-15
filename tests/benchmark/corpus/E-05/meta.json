@@ -1,0 +1,49 @@
+{
+  "id": "E-05",
+  "url": "https://chakra-ui.com/docs/components/button",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:21:13.204Z",
+  "sizeBytes": 479747,
+  "verifiedOn": "2026-09-10",
+  "title": "Button | Chakra UI",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.87",
+    "hashedClassTokens": 213,
+    "hashedClassRatio": 0.869,
+    "classTokenCount": 245,
+    "hashedSample": [
+      "css-1w34jeo",
+      "css-7kbzwh",
+      "css-q3f7mg",
+      "css-1al0h7p",
+      "css-1c2qtkg"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 36272,
+    "assetCount": 1,
+    "nodeCount": 1794,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 245,
+    "hashedClassTokens": 213,
+    "maxRepeatingCount": 262
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://chakra-ui.com/robots.txt"
+  },
+  "notes": "213 of 245 tokens are generated \u2014 the highest ratio in the corpus. No semantic anchor survives.",
+  "personalDataHits": []
+}

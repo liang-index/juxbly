@@ -1,0 +1,41 @@
+{
+  "id": "A-02",
+  "url": "https://quotes.toscrape.com/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:07.402Z",
+  "sizeBytes": 11009,
+  "verifiedOn": "2026-09-10",
+  "title": "Quotes to Scrape",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 30,
+    "repeatingSelector": "a.tag"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 127302,
+    "assetCount": 2,
+    "nodeCount": 151,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 19,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 30
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://quotes.toscrape.com/robots.txt"
+  },
+  "notes": "Quote / author / tag list. Semantic markup, no framework.",
+  "personalDataHits": []
+}

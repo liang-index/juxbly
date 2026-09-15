@@ -1,0 +1,13 @@
+{
+  "id": "E-08",
+  "bucket": "E",
+  "url": "https://www.gatsbyjs.com/",
+  "corpus": "corpus/E-08/index.html",
+  "task_description": "List every entry in this site’s main navigation with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "A marketing shell on the same generator as E-07, 125 of 136 tokens generated. Almost no content to anchor on beyond link text.",
+  "verified_on": "2026-09-10"
+}

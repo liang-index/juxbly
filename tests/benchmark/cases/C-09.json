@@ -1,0 +1,13 @@
+{
+  "id": "C-09",
+  "bucket": "C",
+  "url": "https://redux-toolkit.js.org/",
+  "corpus": "corpus/C-09/index.html",
+  "task_description": "Collect the feature highlights at the top of this page, with the explanation under each.",
+  "expected_fields": [
+    "title",
+    "description"
+  ],
+  "notes": "A thin C page - only a handful of content-bearing shadow roots. The same grid also holds a separate \"other libraries\" list that is not part of the answer.",
+  "verified_on": "2026-09-10"
+}

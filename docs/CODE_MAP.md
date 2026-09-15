@@ -20,7 +20,7 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 
 | Package | Owns | Key exports | Must not |
 |---|---|---|---|
-| `packages/core` | domain models, cross-context message protocol, message-boundary guards and patch shapers (`messages.ts`, `settings.ts` — code every bundle needs, the content script's included) | `ToolRecord`, `HealthStatus`, `ExtensionMessage`, `sanitizeSettingsPatch`, `buildSettingsPatch` | hold business logic; touch the platform or storage |
+| `packages/core` | domain models, cross-context message protocol, message-boundary guards and patch shapers (`messages.ts`, `settings.ts` — code every bundle needs, the content script's included), and the shared selector-anchor rule (`selector.ts`) | `ToolRecord`, `HealthStatus`, `ExtensionMessage`, `sanitizeSettingsPatch`, `buildSettingsPatch`, `isHashedClassToken`, `isFragileSelector` | hold business logic; touch the platform or storage |
 | `packages/dsl` | DSL types, schema validation, URL matching | `validateToolDefinition`, `matchUrl`, `parseUrlPattern` | import `chrome.*`, touch the DOM |
 | `packages/runtime` | step orchestration, variable bag, llm cache decision, capability registry | `ToolRuntime`, `CapabilityRegistry`, `createRuntimePorts`, `stableHash`, `VariableBag` | call platform APIs directly; produce side effects except through injected ports |
 | `packages/capabilities` | the five executors | `CapabilityDefinition` implementations | bypass the registry, silently swallow failures |
@@ -35,8 +35,12 @@ A dependency that jumps a layer upward, or sideways into another package's inter
 | `apps/playground` | fixture-page server + recorded model + harness API + the end-to-end lifecycle script (stage 1-14) | `startPlaygroundServer` | ship with the extension; reach into the extension (no storage writes mid-flow, no internal messages — a step that did not go through the UI is a step not proven) |
 
 **State:** every directory above exists and carries code except `tests/benchmark`, which is the
-Phase 2 corpus (`docs/benchmark/README.md` explains what it will hold). `apps/playground` was the
-last placeholder to be filled: since stage 1-14 it serves the fixture pages and a recorded model,
+Phase 2 benchmark — since stage 2-2 it holds the snapshots (`corpus/`), the tasks (`cases/`), the
+expected answers (`ground-truth/`) and the judgement records (`reports/`); only `results/` is still
+empty, and that is stage 2-3's job. `docs/benchmark/README.md` explains the set and the labelling
+criteria.
+
+`apps/playground` was the last placeholder to be filled: since stage 1-14 it serves the fixture pages and a recorded model,
 and runs the end-to-end lifecycle script. The *Owns* column is a contract, not a snapshot of the
 files — check [`ARCHITECTURE.md` §4](ARCHITECTURE.md) before putting anything new in a package.
 
@@ -59,7 +63,7 @@ files — check [`ARCHITECTURE.md` §4](ARCHITECTURE.md) before putting anything
 | change user-facing copy | `packages/ui/src/copy/` (language rules: [`UI_SPEC.md` §9.5](UI_SPEC.md)) |
 | add a run-panel command | `packages/ui/src/commands/` + [`UI_SPEC.md` §10.4](UI_SPEC.md) — a command must name a clickable equivalent (`via`) |
 | change the config / inspect tabs | `packages/ui/src/run/{config-tab,inspect-tab}.tsx` + [`UI_SPEC.md` §10.2–§10.3](UI_SPEC.md) |
-| add a benchmark case | `tests/benchmark` (from stage 2-1) + [`contributing/BENCHMARK_GUIDE.md`](contributing/BENCHMARK_GUIDE.md) |
+| add a benchmark case | `tests/benchmark/cases/` + `tests/benchmark/ground-truth/` (two files, from stage 2-2), then `node scripts/check-cases.mjs` + [`contributing/BENCHMARK_GUIDE.md`](contributing/BENCHMARK_GUIDE.md) |
 | run the whole lifecycle locally, or serve a fixture page | `apps/playground` — `pnpm test:e2e` for the script, `pnpm --filter @juxbly/playground serve` for the pages (`apps/playground/index.html` lists them) |
 | find out why a lifecycle ring fails | `apps/playground/e2e/` — one file per group of rings; `diagnostics.mjs` is what the harness prints on failure (recorded-model state, surface text, page errors) |
 | change what the extension is allowed to do | `apps/extension/manifest.ts` + [`ARCHITECTURE.md` §7.3](ARCHITECTURE.md) — the permission snapshot test fails on any change |

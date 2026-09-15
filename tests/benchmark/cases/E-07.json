@@ -1,0 +1,13 @@
+{
+  "id": "E-07",
+  "bucket": "E",
+  "url": "https://www.gatsbyjs.com/docs/quick-start/",
+  "corpus": "corpus/E-07/index.html",
+  "task_description": "List every page in the Gatsby documentation navigation with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Build-time generated utility names, 126 of 155 tokens. The navigation is rendered more than once with slightly different hrefs.",
+  "verified_on": "2026-09-10"
+}

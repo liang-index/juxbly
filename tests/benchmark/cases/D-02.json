@@ -1,0 +1,14 @@
+{
+  "id": "D-02",
+  "bucket": "D",
+  "url": "https://dev.to/",
+  "corpus": "corpus/D-02/index.html",
+  "task_description": "Collect every article in this feed: the headline, the link, and its tags.",
+  "expected_fields": [
+    "title",
+    "url",
+    "tags"
+  ],
+  "notes": "The home feed appends cards as you scroll; the snapshot holds 57. Cards are nested several levels deep and the tag list sits outside the headline element.",
+  "verified_on": "2026-09-10"
+}

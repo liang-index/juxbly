@@ -1,0 +1,39 @@
+{
+  "case_id": "A-10",
+  "bucket": "A",
+  "expected_fields": [
+    "channel",
+    "version",
+    "date"
+  ],
+  "item_count_range": [
+    8,
+    14
+  ],
+  "sample": [
+    {
+      "channel": "mainline",
+      "version": "7.3-rc2",
+      "date": "2026-09-06"
+    },
+    {
+      "channel": "stable",
+      "version": "7.2.4",
+      "date": "2026-09-07"
+    },
+    {
+      "channel": "stable",
+      "version": "7.1.13",
+      "date": "2026-09-02"
+    },
+    {
+      "channel": "longterm",
+      "version": "6.18.50",
+      "date": "2026-09-07"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

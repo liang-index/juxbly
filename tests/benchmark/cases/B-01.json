@@ -1,0 +1,13 @@
+{
+  "id": "B-01",
+  "bucket": "B",
+  "url": "https://svelte.dev/docs/kit/routing",
+  "corpus": "corpus/B-01/index.html",
+  "task_description": "List every page in the SvelteKit documentation sidebar with its title and the link it goes to.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Client-side routed docs: the sidebar exists only after hydration, so a tool that reads the served HTML sees nothing. Nested groups mean a naive selector returns parents and children mixed.",
+  "verified_on": "2026-09-10"
+}

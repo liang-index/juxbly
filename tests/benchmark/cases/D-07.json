@@ -1,0 +1,13 @@
+{
+  "id": "D-07",
+  "bucket": "D",
+  "url": "https://ant.design/docs/react/introduce",
+  "corpus": "corpus/D-07/index.html",
+  "task_description": "Collect every entry in the on-this-page outline, with its title and anchor.",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "notes": "Sidebar and article body both lazy-mount, so two containers move at once. The rendered page also carries Emotion-style generated class names alongside the hashed ant.design ones.",
+  "verified_on": "2026-09-10"
+}

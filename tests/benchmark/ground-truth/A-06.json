@@ -1,0 +1,30 @@
+{
+  "case_id": "A-06",
+  "bucket": "A",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "item_count_range": [
+    45,
+    60
+  ],
+  "sample": [
+    {
+      "title": "Getting help",
+      "anchor": "#getting-help"
+    },
+    {
+      "title": "Installing a parser",
+      "anchor": "#installing-a-parser"
+    },
+    {
+      "title": "Multi-valued attributes",
+      "anchor": "#multi-valued-attributes"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

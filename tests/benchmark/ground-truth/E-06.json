@@ -1,0 +1,30 @@
+{
+  "case_id": "E-06",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    35,
+    45
+  ],
+  "sample": [
+    {
+      "title": "Nested Selectors",
+      "url": "/docs/nested"
+    },
+    {
+      "title": "Media Queries",
+      "url": "/docs/media-queries"
+    },
+    {
+      "title": "Global Styles",
+      "url": "/docs/globals"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

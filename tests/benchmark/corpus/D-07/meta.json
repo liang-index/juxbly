@@ -1,0 +1,55 @@
+{
+  "id": "D-07",
+  "url": "https://ant.design/docs/react/introduce",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:19:32.587Z",
+  "sizeBytes": 372634,
+  "verifiedOn": "2026-09-10",
+  "title": "Ant Design of React - Ant Design",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 4 repeated structure(s): ul|li. 35->70; li|a. 26->61; a|span.ant-avatar.ant-avatar-circle.ant-avatar-css-var.ant-avatar-image.ant-avatar-sm.css-u6izyw.css-var-_R_afsua_ 0->35; span|img. 10->45",
+    "grownGroups": 4,
+    "grownSample": [
+      "ul|li. 35->70",
+      "li|a. 26->61",
+      "a|span.ant-avatar.ant-avatar-circle.ant-avatar-css-var.ant-avatar-image.ant-avatar-sm.css-u6izyw.css-var-_R_afsua_ 0->35",
+      "span|img. 10->45"
+    ],
+    "nodesBeforeScroll": 1077,
+    "nodesAfterScroll": 1386,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 66643,
+    "assetCount": 8,
+    "nodeCount": 1242,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 4,
+    "customElementCount": 0,
+    "classTokenCount": 225,
+    "hashedClassTokens": 7,
+    "maxRepeatingCount": 39
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://ant.design/robots.txt"
+  },
+  "notes": "The sidebar and the article body both lazy-mount, so two containers move at once and the growth is +5 groups.",
+  "personalDataHits": []
+}

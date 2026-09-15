@@ -1,0 +1,13 @@
+{
+  "id": "E-09",
+  "bucket": "E",
+  "url": "https://react-hook-form.com/get-started",
+  "corpus": "corpus/E-09/index.html",
+  "task_description": "List every page in the sidebar with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "A lower generated-class ratio (35 of 124), kept so the bucket does not collapse into \"ratio > 0.8\". The sidebar mixes page links with in-page anchors.",
+  "verified_on": "2026-09-10"
+}

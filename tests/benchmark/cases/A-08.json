@@ -1,0 +1,13 @@
+{
+  "id": "A-08",
+  "bucket": "A",
+  "url": "https://www.sqlite.org/lang.html",
+  "corpus": "corpus/A-08/index.html",
+  "task_description": "List every SQL syntax topic this page links to, with the name shown and the page it points at.",
+  "expected_fields": [
+    "name",
+    "url"
+  ],
+  "notes": "A long index that looks tabular but is a nested list; the site chrome contains several other lists that are not the answer.",
+  "verified_on": "2026-09-10"
+}

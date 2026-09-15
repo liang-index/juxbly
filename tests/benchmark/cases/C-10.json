@@ -1,0 +1,13 @@
+{
+  "id": "C-10",
+  "bucket": "C",
+  "url": "https://open-wc.org/guides/",
+  "corpus": "corpus/C-10/index.html",
+  "task_description": "List every page in this site’s navigation with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "The bucket floor for C: only two content-bearing shadow roots, both in the navigation drawer.",
+  "verified_on": "2026-09-10"
+}

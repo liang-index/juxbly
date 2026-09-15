@@ -1,0 +1,26 @@
+{
+  "case_id": "B-02",
+  "bucket": "B",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    45,
+    60
+  ],
+  "sample": [
+    {
+      "title": "Introduction",
+      "url": "/guide/introduction.html"
+    },
+    {
+      "title": "Quick Start",
+      "url": "/guide/quick-start.html"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

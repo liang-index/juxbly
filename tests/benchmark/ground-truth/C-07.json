@@ -1,0 +1,30 @@
+{
+  "case_id": "C-07",
+  "bucket": "C",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    10,
+    16
+  ],
+  "sample": [
+    {
+      "title": "What is Lit?",
+      "url": "/docs/"
+    },
+    {
+      "title": "Overview",
+      "url": "/docs/components/overview/"
+    },
+    {
+      "title": "Overview",
+      "url": "/docs/templates/overview/"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

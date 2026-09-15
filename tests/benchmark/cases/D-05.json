@@ -1,0 +1,12 @@
+{
+  "id": "D-05",
+  "bucket": "D",
+  "url": "https://hachyderm.io/explore",
+  "corpus": "corpus/D-05/index.html",
+  "task_description": "List the author of every post in this trending feed.",
+  "expected_fields": [
+    "author"
+  ],
+  "notes": "Smallest growth delta of the three Mastodon instances. Same virtual-list placeholder caveat on the post bodies.",
+  "verified_on": "2026-09-10"
+}

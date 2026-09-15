@@ -1,0 +1,40 @@
+{
+  "case_id": "B-09",
+  "bucket": "B",
+  "expected_fields": [
+    "category",
+    "links"
+  ],
+  "item_count_range": [
+    10,
+    12
+  ],
+  "sample": [
+    {
+      "category": "Get started",
+      "links": [
+        "Get started",
+        "Migrations",
+        "Account and profile",
+        "Subscriptions & notifications",
+        "Authentication",
+        "Billing and payments",
+        "Site policy"
+      ]
+    },
+    {
+      "category": "Collaborative coding",
+      "links": [
+        "Codespaces",
+        "Repositories",
+        "Pull requests",
+        "GitHub Discussions",
+        "Integrations"
+      ]
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

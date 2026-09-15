@@ -1,0 +1,41 @@
+{
+  "id": "B-10",
+  "url": "https://prettier.io/docs/en/index.html",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:53.484Z",
+  "sizeBytes": 32308,
+  "verifiedOn": "2026-09-10",
+  "title": "What is Prettier? \u00b7 Prettier",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://prettier.io/"
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 135168,
+    "assetCount": 2,
+    "nodeCount": 822,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 1,
+    "customElementCount": 0,
+    "classTokenCount": 140,
+    "hashedClassTokens": 11,
+    "maxRepeatingCount": 398
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://prettier.io/robots.txt"
+  },
+  "notes": "Docusaurus: client-side navigation over a docs tree, with a second lazy-growth trap.",
+  "personalDataHits": []
+}

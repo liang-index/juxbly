@@ -1,0 +1,30 @@
+{
+  "case_id": "C-03",
+  "bucket": "C",
+  "expected_fields": [
+    "name",
+    "description"
+  ],
+  "item_count_range": [
+    40,
+    46
+  ],
+  "sample": [
+    {
+      "name": "(default)",
+      "description": "The button’s label."
+    },
+    {
+      "name": "prefix",
+      "description": "A presentational prefix icon or similar element."
+    },
+    {
+      "name": "suffix",
+      "description": "A presentational suffix icon or similar element."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -30,31 +30,53 @@ Before submitting a `B` or `C` case, verify the page still actually has the prop
 
 ## Case format
 
-Cases live in `tests/benchmark/cases/` as JSON:
+A case is **two files**, not one. The task lives in `tests/benchmark/cases/<id>.json` and the ground truth in `tests/benchmark/ground-truth/<id>.json`. They are split because they change for different reasons: a task is reworded when the wording turns out to be a hint, while ground truth is re-labelled when the page changes. Keeping them apart means a re-label cannot silently rewrite the task that produced it.
+
+`cases/A-03.json`:
 
 ```json
 {
-  "id": "C-03",
-  "bucket": "C",
-  "url": "https://www.reddit.com/r/webdev/",
-  "task_description": "Collect the title, subreddit, and score of each post in the feed.",
-  "expected_fields": ["title", "subreddit", "score"],
-  "ground_truth": {
-    "item_count_range": [10, 30],
-    "sample": [{ "title": "...", "subreddit": "r/webdev", "score": "142" }]
-  },
-  "notes": "Feed is rendered inside shreddit-* custom elements with open shadow roots.",
-  "verified_on": "2026-01-01"
+  "id": "A-03",
+  "bucket": "A",
+  "url": "https://example.com/table",
+  "corpus": "corpus/A-03/index.html",
+  "task_description": "Collect each country in the table with its population and area.",
+  "expected_fields": ["country", "population", "area"],
+  "notes": "The header row is a second `<tr>` inside `<thead>`; a naive `tbody tr` read is correct here, but a `table tr` read is off by two.",
+  "verified_on": "2026-09-10"
+}
+```
+
+`ground-truth/A-03.json`:
+
+```json
+{
+  "case_id": "A-03",
+  "bucket": "A",
+  "expected_fields": ["country", "population", "area"],
+  "item_count_range": [24, 28],
+  "sample": [
+    { "country": "China", "population": "1,411,000,000", "area": "9,596,961" }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
 }
 ```
 
 Rules:
 
 - `id` is `<bucket>-<NN>`, stable forever. Never reuse an id.
-- `task_description` is written the way a user would actually type it. Do not phrase it as a selector hint — that would test your prompt engineering instead of Juxbly.
-- `expected_fields` are the field names a good tool should produce.
-- `ground_truth.sample` holds **a few representative items**, not the whole page. Enough to judge correctness, small enough to review.
-- `notes` capture the failure mode you expect: bucket-specific traps, why the site was chosen, anything fragile.
+- `task_description` is written the way a user would actually type it. Do not phrase it as a selector hint — that would test your prompt engineering instead of Juxbly. No `.class`, no `#id`, no `querySelector`.
+- `expected_fields` are the field names a good tool should produce. The ground truth repeats them: the two must agree.
+- `item_count_range` is a **range, never a fixed count**. Pages change; a fixed count manufactures false `wrong` labels.
+- `ground_truth.sample` holds **a few representative items**, not the whole page. Enough to judge correctness, small enough to review. Every declared field must carry a non-empty value in every sample item.
+- `notes` capture the failure mode you expect: bucket-specific traps, why the site was chosen, anything fragile. If a field cannot be produced as a value on this page (an icon-only column, for example), say so here — otherwise a tool that correctly skips it looks wrong.
+- `labelled_by` and `source` record who read the values and from where (`snapshot` or `live`).
+- `amendments` is the change log. Ground truth is the baseline every later regression compares against, so every edit is recorded — never made to move a number.
+
+Run `node scripts/check-cases.mjs` before opening a pull request. It enforces all of the above and is wired into `pnpm test`.
 
 ## Judgement
 
@@ -67,6 +89,8 @@ Each run is labelled by a human:
 | `wrong` | not usable: empty, structurally wrong, or semantically wrong |
 
 Labelling is deliberately human. There is no mechanical pass threshold, and correctness cannot be decided by "did it return rows".
+
+The full criteria — including how to treat a value that is right in shape but wrong in content, and why ties go to `partial` — are in [`docs/benchmark/README.md`](../benchmark/README.md). Record every judgement with `tests/benchmark/reports/judgement-template.md`.
 
 Beyond the label, a case records: latency, token cost where an `llm` step ran, the health result, and — when applicable — the repair result.
 
