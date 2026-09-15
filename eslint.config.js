@@ -55,8 +55,30 @@ export default tseslint.config(
     },
   },
   {
-    // The single sanctioned exception: packages/browser is the chrome.* boundary.
+    /**
+     * The single sanctioned exception: packages/browser is the chrome.* boundary.
+     */
     files: ['packages/browser/**'],
+    rules: {
+      'no-restricted-globals': 'off',
+      'no-restricted-imports': 'off',
+    },
+  },
+  {
+    /**
+     * The lifecycle harness (stage 1-14) reads what the UI wrote by evaluating inside the
+     * extension's *own* service worker, so `chrome.storage.local` is unavoidable there —
+     * and it is the honest place to read it from: the alternative is asserting against the
+     * very surface under test. `apps/playground` is a development carrier that never ships
+     * (`ARCHITECTURE.md` §4), and it belongs to no package, so the boundary rule that keeps
+     * product code away from chrome.* has nothing to protect here.
+     */
+    files: ['apps/playground/**'],
+    languageOptions: {
+      // `chrome` is a real global here: the harness evaluates inside the extension's own
+      // service worker (see above), which is a WebExtension context, not a web page.
+      globals: { ...globals.browser, ...globals.node, ...globals.webextensions },
+    },
     rules: {
       'no-restricted-globals': 'off',
       'no-restricted-imports': 'off',

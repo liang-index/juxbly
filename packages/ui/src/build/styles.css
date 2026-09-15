@@ -93,6 +93,10 @@
   flex-direction: column;
   gap: 10px;
   min-height: 0;
+  /* Takes the panel's spare height so the stream scrolls and the key ask (a sibling,
+     not a replacement) still has room below it without pushing the panel over its
+     max-height. */
+  flex: 1 1 auto;
 }
 
 .jx-stream {
@@ -303,4 +307,109 @@
   .jx-panel {
     animation: none;
   }
+}
+
+/* The stop-loss line (stage 1-12, §9.3): a repair that failed twice says what the user
+   can do instead. Secondary text, not error red — nothing is broken that was not already
+   broken, and shouting would compete with the advice list below it. */
+.jx-repair-stopped {
+  margin: 0;
+  padding: 0 var(--jx-space-panel);
+  font-size: 11px;
+  color: var(--jx-text-secondary);
+}
+
+/* ── Key request (stage 1-13 node ③) ─────────────────────────────────────────
+   The ask is part of the conversation, styled quieter than it: no overlay, no
+   modal, one section with the numbers and the way out. It is a sibling of the
+   stream, never a replacement for it — a repair's preset context message has to
+   stay readable while the ask is on screen (1-12 acceptance, defect B-1). */
+.jx-key {
+  display: flex;
+  flex-direction: column;
+  gap: var(--jx-space-group);
+  padding: var(--jx-space-group);
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  flex: 0 0 auto;
+}
+
+.jx-key-heading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.jx-key-note {
+  margin: 0;
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+}
+
+.jx-key-error {
+  margin: 0;
+  color: var(--jx-error);
+  font-size: 11px;
+}
+
+.jx-key-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jx-key-label {
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+}
+
+.jx-key-input {
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+  color: var(--jx-text-primary);
+  padding: 6px 9px;
+  font: inherit;
+}
+
+.jx-key-input:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 1px;
+}
+
+.jx-key-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jx-key-continue {
+  border: 0;
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-accent);
+  color: var(--jx-on-accent);
+  padding: 6px 12px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.jx-key-continue:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.jx-key-continue:focus-visible,
+.jx-key-dismiss:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 2px;
+}
+
+.jx-key-dismiss {
+  border: 0;
+  background: transparent;
+  color: var(--jx-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  padding: 6px 4px;
 }

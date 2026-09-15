@@ -1,0 +1,106 @@
+<!doctype html>
+<!--
+  The playground's landing page (stage 1-14).
+
+  Two things are served from here, and only two:
+    /pages/<file>      the fixture pages from tests/fixtures/pages — the seed of the
+                       Phase 2 Web Corpus (docs/contributing/BENCHMARK_GUIDE.md)
+    /lifecycle.html    the page the end-to-end lifecycle script builds a tool on, and
+                       then breaks by serving a redesigned version of it
+
+  The model the extension talks to is a recording (/_ does not exist — see "Model" below):
+  set `api_base_url` to this origin's `/v1` and the BYOK client talks to it unmodified.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Juxbly playground</title>
+    <style>
+      body {
+        margin: 0 auto;
+        max-width: 46rem;
+        padding: 2rem 1.5rem 4rem;
+        font: 15px/1.6 ui-sans-serif, system-ui, -apple-system, sans-serif;
+        color: #1d2027;
+        background: #fbfbfa;
+      }
+      h1 {
+        font-size: 1.4rem;
+        margin-bottom: 0.2rem;
+      }
+      p.sub {
+        color: #61636b;
+        margin-top: 0;
+      }
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+      }
+      pre {
+        background: #f1f1ef;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      li {
+        margin: 0.25rem 0;
+      }
+      h2 {
+        font-size: 1rem;
+        margin-top: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Juxbly playground</h1>
+    <p class="sub">A local server for exercising the whole tool lifecycle on pages you control.</p>
+
+    <h2>Run</h2>
+    <pre>pnpm test:e2e</pre>
+    <p>
+      That builds the extension into <code>.output/chrome-mv3</code>, starts this server, loads
+      the unpacked extension into Chromium, and walks one tool through the entire lifecycle.
+      Every model call is answered by a local recording, so a run costs nothing and a red run
+      means the product changed — not that the model was in a mood.
+    </p>
+    <p>
+      The browser driver is Playwright. It is deliberately not a dependency of this repository
+      yet — every <code>pnpm install</code> would otherwise fetch a browser for people who only
+      run the unit suite — so install it once per machine:
+    </p>
+    <pre>pnpm add -D -w playwright &amp;&amp; pnpm exec playwright install chromium</pre>
+    <p>
+      If it already lives somewhere else on your machine, point the harness at it instead:
+      <code>JUXBLY_PLAYWRIGHT_HOME=/path/to/a/directory/with/node_modules pnpm test:e2e</code>.
+    </p>
+
+    <h2>Fixture pages</h2>
+    <ul>
+      <li><a href="/lifecycle.html">/lifecycle.html</a> — the lifecycle page (has two markup variants)</li>
+      <li><a href="/pages/list-page.html">/pages/list-page.html</a> — regular list, bucket A</li>
+      <li><a href="/pages/table-page.html">/pages/table-page.html</a> — table layout, bucket A</li>
+      <li><a href="/pages/shadow-list.html">/pages/shadow-list.html</a> — shadow roots, bucket C</li>
+      <li><a href="/pages/shadow-custom-elements.html">/pages/shadow-custom-elements.html</a> — custom elements, bucket C</li>
+      <li><a href="/pages/lazy-list.html">/pages/lazy-list.html</a> — lazy loading, bucket D</li>
+      <li><a href="/pages/infinite-scroll.html">/pages/infinite-scroll.html</a> — infinite scroll, bucket D</li>
+      <li><a href="/pages/hashed-class.html">/pages/hashed-class.html</a> — hashed classes, bucket E</li>
+      <li><a href="/pages/mixed-fields.html">/pages/mixed-fields.html</a> — missing fields</li>
+      <li><a href="/pages/single-record.html">/pages/single-record.html</a> — single-record page</li>
+    </ul>
+
+    <h2>Model</h2>
+    <p>
+      Requests to <code>/v1/chat/completions</code> are answered from a recorded set, keyed by
+      which part of the product asked (<code>apps/playground/lib/model-mock.mjs</code>). The
+      harness switches what it answers from:
+    </p>
+    <pre>GET  /__harness/state
+POST /__harness/reset
+POST /__harness/page       { "variant": "shop" | "changed" }
+POST /__harness/scenario   { "proposeMode": "direct" | "clarify-first",
+                             "semanticVerdict": "ok" | "suspicious" }</pre>
+    <p>Call counts are read server side — that is the only authoritative place to count them.</p>
+  </body>
+</html>

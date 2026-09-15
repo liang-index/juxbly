@@ -11,6 +11,7 @@
  * `packages/runtime` (module map §4), and `register` is all this needs from it.
  */
 import type { CapabilityDefinition } from '@juxbly/core'
+import { exportCapability } from './export'
 import { extractCapability } from './extract'
 import { llmCapability } from './llm'
 import { renderCapability } from './render'
@@ -26,4 +27,5 @@ export function registerBuiltInCapabilities(registry: CapabilitySink): void {
   registry.register(transformCapability)
   registry.register(renderCapability)
   registry.register(llmCapability)
+  registry.register(exportCapability)
 }

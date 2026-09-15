@@ -23,6 +23,18 @@ export const JUXBLY_PERMISSIONS: NonNullable<UserManifest['permissions']> = [
   'downloads',
 ]
 
+/**
+ * The one place the build number is written (stage 1-16).
+ *
+ * The settings page shows it so a bug report can name a build, which only works if the
+ * badge and the manifest cannot disagree. Reading it back from the platform at runtime
+ * would put a platform call in the UI layer; declaring it here and letting both the
+ * manifest and the page read the same constant keeps the boundary intact (§6.4).
+ *
+ * Bump it when a version ships — it is the user-visible version, not a package number.
+ */
+export const JUXBLY_VERSION = '0.1.0'
+
 /** Covers content script injection on any page and the BYOK endpoint fetch. */
 export const JUXBLY_HOST_PERMISSIONS: NonNullable<UserManifest['host_permissions']> = ['<all_urls>']
 
@@ -58,6 +70,7 @@ export const JUXBLY_MANIFEST: UserManifest = {
   // called "@juxbly/extension".
   name: copy.extension.name,
   description: copy.extension.description,
+  version: JUXBLY_VERSION,
   permissions: JUXBLY_PERMISSIONS,
   host_permissions: JUXBLY_HOST_PERMISSIONS,
   commands: JUXBLY_COMMANDS,

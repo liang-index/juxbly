@@ -1,6 +1,6 @@
 import { createMockAdapter } from '@juxbly/browser'
 import type { Settings } from '@juxbly/core'
-import { createMockLlmPort, handleRunLlm } from '@juxbly/llm'
+import { createMockLlmPort, DEFAULT_MODEL, handleRunLlm } from '@juxbly/llm'
 import type { LlmFetch } from '@juxbly/llm'
 import { createLlmError } from '@juxbly/llm'
 import { describe, expect, it } from 'vitest'
@@ -73,6 +73,66 @@ describe('handleRunLlm', () => {
 
     expect(noSettings).toMatchObject({ ok: false, error: 'NOT_CONFIGURED' })
     expect(noKey).toMatchObject({ ok: false, error: 'NOT_CONFIGURED' })
+  })
+
+  /**
+   * A saved key with no model is "configured", not broken.
+   *
+   * Before this, a blank model read as `NOT_CONFIGURED`: the user saved a key, saw
+   * "Saved.", and then met a wall of failures with nothing on screen naming the model as
+   * the cause — the one configuration mistake the product cannot expect a first-time user
+   * to guess (friction ceiling, PRODUCT §10.4).
+   */
+  it('sends the documented default model when the user saved a key but no model', async () => {
+    const bodies: string[] = []
+    const capture: LlmFetch = async (_url, init) => {
+      bodies.push(String(init?.body ?? ''))
+      return {
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            choices: [{ message: { content: 'ok' } }],
+            usage: { prompt_tokens: 1, completion_tokens: 1 },
+          }),
+      }
+    }
+
+    const result = await handleRunLlm(
+      { kind: 'run:llm', requestId: 'req-2b', step: STEP, input: 'x' },
+      createMockAdapter({
+        storage: { 'juxbly:settings': { ...SETTINGS, model: null } },
+      }),
+      { fetchImpl: capture },
+    )
+
+    expect(result).toMatchObject({ ok: true })
+    expect(bodies.length).toBe(1)
+    expect(JSON.parse(bodies[0] ?? '{}').model).toBe(DEFAULT_MODEL)
+
+    // Whatever the user typed still wins — the default is a fallback, not a preference.
+    const named: string[] = []
+    await handleRunLlm(
+      { kind: 'run:llm', requestId: 'req-2c', step: STEP, input: 'x' },
+      createMockAdapter({
+        storage: { 'juxbly:settings': { ...SETTINGS, model: 'my-own-model' } },
+      }),
+      {
+        fetchImpl: async (_url, init) => {
+          named.push(String(init?.body ?? ''))
+          return {
+            ok: true,
+            status: 200,
+            text: async () =>
+              JSON.stringify({
+                choices: [{ message: { content: 'ok' } }],
+                usage: { prompt_tokens: 1, completion_tokens: 1 },
+              }),
+          }
+        },
+      },
+    )
+    expect(JSON.parse(named[0] ?? '{}').model).toBe('my-own-model')
   })
 
   it('passes the failure category through as `error`', async () => {

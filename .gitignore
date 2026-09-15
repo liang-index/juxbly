@@ -32,3 +32,6 @@ tsxCache/
 
 # Local scratch
 *.local
+
+# Agent working notes (internal; never part of the public tree)
+.workbuddy/

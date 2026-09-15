@@ -5,8 +5,11 @@ import type { ToolDefinition } from '@juxbly/dsl'
 import {
   DEFAULT_TOOL_USAGE,
   deleteTool,
+  listToolOverviews,
   loadTool,
   loadTools,
+  mostRecentUse,
+  recordExportResult,
   recordRunResult,
   saveTool,
   TOOLS_KEY,
@@ -41,6 +44,7 @@ function record(overrides: Partial<ToolRecord> = {}): ToolRecord {
       recent_runs: [],
       structure_fingerprint: null,
       last_semantic_check: null,
+      consecutive_clean_runs: 0,
     },
     run_state: { last_extract_hash: null, last_llm_outputs: {} },
     usage: { ...DEFAULT_TOOL_USAGE },
@@ -180,9 +184,58 @@ describe('recordRunResult (stage 1-10, §8.1)', () => {
   })
 })
 
-describe('deleteTool (C1: removal is the only exit, no archive tier)', () => {
-  it('removes the whole record', async () => {
+describe('recordExportResult (stage 1-15, §8.1)', () => {
+  it('counts the export and moves last_export_at — and nothing else', async () => {
+    const adapter = createMockAdapter({
+      storage: {
+        [TOOLS_KEY]: {
+          tool_1: record({
+            usage: { ...DEFAULT_TOOL_USAGE, run_count: 3, last_run_at: '2026-09-06T10:00:00.000Z' },
+          }),
+        },
+      },
+    })
+
+    await recordExportResult(adapter, 'tool_1', '2026-09-07T12:00:00.000Z')
+
+    const stored = await loadTool(adapter, 'tool_1')
+    expect(stored?.usage.export_count).toBe(1)
+    expect(stored?.usage.last_export_at).toBe('2026-09-07T12:00:00.000Z')
+    // An export is not a run: run fields stay where the run writer left them (§8.1).
+    expect(stored?.usage.run_count).toBe(3)
+    expect(stored?.usage.last_run_at).toBe('2026-09-06T10:00:00.000Z')
+  })
+
+  it('keeps counting across exports', async () => {
     const adapter = createMockAdapter({ storage: { [TOOLS_KEY]: { tool_1: record() } } })
+
+    await recordExportResult(adapter, 'tool_1', '2026-09-07T12:00:00.000Z')
+    await recordExportResult(adapter, 'tool_1', '2026-09-07T13:00:00.000Z')
+
+    const stored = await loadTool(adapter, 'tool_1')
+    expect(stored?.usage.export_count).toBe(2)
+    expect(stored?.usage.last_export_at).toBe('2026-09-07T13:00:00.000Z')
+  })
+
+  it('writes nothing when the tool is gone (a refused export must not count)', async () => {
+    const adapter = createMockAdapter()
+
+    await expect(recordExportResult(adapter, 'tool_404', '2026-09-07T12:00:00.000Z')).resolves.toBe(false)
+    expect(adapter.calls.filter((call) => call.method === 'storage.set')).toHaveLength(0)
+  })
+})
+
+describe('deleteTool (C1: removal is the only exit, no archive tier)', () => {
+  it('removes the whole record — versions included, because nothing is archived', async () => {
+    const adapter = createMockAdapter({
+      storage: {
+        [TOOLS_KEY]: {
+          tool_1: record({
+            versions: [{ version: 1, definition: DEFINITION, note: 'first', ever_broken: true, created_at: '2026-09-06T00:00:00.000Z' }],
+          }),
+        },
+      },
+    })
 
     await expect(deleteTool(adapter, 'tool_1')).resolves.toBe(true)
     await expect(loadTools(adapter)).resolves.toEqual({})
@@ -192,5 +245,99 @@ describe('deleteTool (C1: removal is the only exit, no archive tier)', () => {
     const adapter = createMockAdapter()
 
     await expect(deleteTool(adapter, 'tool_404')).resolves.toBe(false)
+  })
+})
+
+/**
+ * C1 landed for good in 1-13: `ToolUsage` carries no tier state at all. The four fields
+ * are the whole contract (§8.1), and an `archived` flag would be a second, hidden exit
+ * from the list — the thing the decision removed.
+ */
+/**
+ * The overview's rows (stage 1-13, `UI_SPEC` §7.2 / §8.1).
+ *
+ * Two things here are decisions rather than plumbing: the row identifies a **host** and
+ * never a URL, and "used" means run *or* export, whichever happened later. The second one
+ * is the reason this file exists — a tool the user only ever exports would otherwise sink
+ * below tools they care about less, because a run is not the only way to use a tool.
+ */
+describe('listToolOverviews (stage 1-13, §7.2)', () => {
+  it('identifies the site by host, never by URL', async () => {
+    const adapter = createMockAdapter({
+      storage: {
+        [TOOLS_KEY]: {
+          tool_1: record({
+            definition: { ...DEFINITION, url_pattern: 'https://shop.example.com/search?q=*' },
+          }),
+        },
+      },
+    })
+
+    const rows = await listToolOverviews(adapter)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]?.domain).toBe('shop.example.com')
+    // Parsed and compared by host, not `startsWith`: a prefix check would also accept
+    // `https://shop.example.com.evil.test`, which is the substring-sanitisation mistake
+    // CodeQL's `js/incomplete-url-substring-sanitization` names.
+    expect(new URL(rows[0]?.url ?? '').hostname).toBe('shop.example.com')
+  })
+
+  it('counts an export as use — the more recent of the two wins, either way round', () => {
+    // Only ever exported: still a used tool, and not one to be demoted.
+    expect(
+      mostRecentUse({ last_run_at: null, last_export_at: '2026-09-08T10:00:00.000Z', run_count: 0, export_count: 3 }),
+    ).toBe('2026-09-08T10:00:00.000Z')
+
+    // Exported after a run.
+    expect(
+      mostRecentUse({
+        last_run_at: '2026-09-07T10:00:00.000Z',
+        last_export_at: '2026-09-09T10:00:00.000Z',
+        run_count: 1,
+        export_count: 1,
+      }),
+    ).toBe('2026-09-09T10:00:00.000Z')
+
+    // Run after an export: the same rule, the other direction.
+    expect(
+      mostRecentUse({
+        last_run_at: '2026-09-09T10:00:00.000Z',
+        last_export_at: '2026-09-07T10:00:00.000Z',
+        run_count: 1,
+        export_count: 1,
+      }),
+    ).toBe('2026-09-09T10:00:00.000Z')
+
+    // Never used is not a timestamp.
+    expect(mostRecentUse({ ...DEFAULT_TOOL_USAGE })).toBeNull()
+  })
+
+  it('drops a row it cannot open, rather than offering an action that fails', async () => {
+    const adapter = createMockAdapter({
+      storage: {
+        [TOOLS_KEY]: {
+          tool_1: record({ definition: { ...DEFINITION, url_pattern: 'https://shop.example.com/*' } }),
+          tool_2: record({
+            tool_id: 'tool_2',
+            definition: { ...DEFINITION, tool_id: 'tool_2', url_pattern: 'not a pattern at all' },
+          }),
+        },
+      },
+    })
+
+    const rows = await listToolOverviews(adapter)
+    expect(rows.map((row) => row.toolId)).toEqual(['tool_1'])
+  })
+})
+
+describe('ToolUsage has no tier fields (C1, AC 10)', () => {
+  it('is exactly four scalars, and none of them is a state', () => {
+    expect(Object.keys(DEFAULT_TOOL_USAGE).sort()).toEqual([
+      'export_count',
+      'last_export_at',
+      'last_run_at',
+      'run_count',
+    ])
+    expect(Object.keys(DEFAULT_TOOL_USAGE)).not.toContain('archived')
   })
 })

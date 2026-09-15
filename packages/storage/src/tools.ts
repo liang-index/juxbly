@@ -10,7 +10,16 @@
  * before every run (§5.4).
  */
 import type { BrowserAdapter } from '@juxbly/browser'
-import type { RunState, ToolHealth, ToolRecord, ToolUsage, ToolVersion } from '@juxbly/core'
+import type {
+  RunState,
+  ToolHealth,
+  ToolOverviewItem,
+  ToolRecord,
+  ToolUsage,
+  ToolVersion,
+  UsageStats,
+} from '@juxbly/core'
+import { patternToUrl } from '@juxbly/dsl'
 import { TOOLS_KEY } from './keys'
 
 /**
@@ -38,6 +47,7 @@ export function emptyHealth(): ToolHealth {
     recent_runs: [],
     structure_fingerprint: null,
     last_semantic_check: null,
+    consecutive_clean_runs: 0,
   }
 }
 
@@ -125,6 +135,52 @@ export async function recordRunResult(
   return true
 }
 
+/** Returns false when there is no record for this tool — an export of a deleted tool is not a write. */
+export async function recordExportResult(
+  adapter: BrowserAdapter,
+  toolId: string,
+  at: string,
+): Promise<boolean> {
+  const tools = await loadTools(adapter)
+  const record = tools[toolId]
+  if (record === undefined) return false
+
+  // Only the export fields move; `run_count` / `last_run_at` are 1-10's to write and a
+  // *run* must not be conflated with an *export* (§8.1).
+  const usage: ToolUsage = {
+    ...DEFAULT_TOOL_USAGE,
+    ...record.usage,
+    export_count: record.usage.export_count + 1,
+    last_export_at: at,
+  }
+
+  tools[toolId] = { ...record, usage, updated_at: at }
+  await adapter.storage.set(TOOLS_KEY, tools)
+  return true
+}
+
+/**
+ * Stores what a run's health evaluation produced (stage 1-11, §8.1): the new `ToolHealth`
+ * — status, the appended `recent_runs` window, the fingerprint baseline, the semantic
+ * check when one ran, the recovery counter — wholesale. The *judgement* belongs to
+ * `evaluateHealth` (pure, in `@juxbly/health`); this function is deliberately dumb, so
+ * a bug here can corrupt one record but never invent a verdict.
+ */
+export async function recordHealthResult(
+  adapter: BrowserAdapter,
+  toolId: string,
+  health: ToolHealth,
+  at: string,
+): Promise<boolean> {
+  const tools = await loadTools(adapter)
+  const record = tools[toolId]
+  if (record === undefined) return false
+
+  tools[toolId] = { ...record, health, updated_at: at }
+  await adapter.storage.set(TOOLS_KEY, tools)
+  return true
+}
+
 /**
  * Deleting a tool is a **complete removal** of the `ToolRecord` (C1: V1 has no archive
  * tier). First caller is the run panel's "Don't keep"; 1-13 reuses it from the
@@ -138,6 +194,97 @@ export async function deleteTool(adapter: BrowserAdapter, toolId: string): Promi
   delete remaining[toolId]
   await adapter.storage.set(TOOLS_KEY, remaining)
   return true
+}
+
+/**
+ * The toolbar overview's rows (stage 1-13, `UI_SPEC` §7.2).
+ *
+ * Every tool appears — V1 has no archive tier (C1), so there is no filter here to
+ * "hide" one, and ordering by recent use is the only thing that makes an unused tool
+ * sink. A tool whose pattern cannot be turned into a page is **dropped**: the overview's
+ * one action is opening the page, and a row that cannot do it is a broken promise.
+ *
+ * `lastUsedAt` takes the more recent of `last_run_at` / `last_export_at` (`ARCHITECTURE`
+ * §8.1): exporting without running is just as real a use, and reading only `last_run_at`
+ * would demote a tool the user uses every day.
+ */
+export async function listToolOverviews(adapter: BrowserAdapter): Promise<ToolOverviewItem[]> {
+  const records = await loadTools(adapter)
+  const items: ToolOverviewItem[] = []
+
+  for (const record of Object.values(records)) {
+    const url = patternToUrl(record.definition.url_pattern)
+    if (url === null) continue
+
+    items.push({
+      toolId: record.tool_id,
+      name: record.definition.name,
+      category: record.definition.category,
+      // Host only: the overview identifies a site, and a full URL would be noise (§7.2).
+      domain: new URL(url).hostname,
+      lastUsedAt: mostRecentUse(record.usage),
+      status: record.health.status,
+      url,
+    })
+  }
+
+  return items
+}
+
+/**
+ * The "when was this used" answer shared by the overview ordering and the stats panel.
+ * `null` means never — a tool can be saved and never run, and that is not a timestamp.
+ */
+export function mostRecentUse(usage: ToolUsage): string | null {
+  const { last_run_at: ranAt, last_export_at: exportedAt } = usage
+  if (ranAt === null || ranAt === undefined) return exportedAt ?? null
+  if (exportedAt === null || exportedAt === undefined) return ranAt
+  return exportedAt > ranAt ? exportedAt : ranAt
+}
+
+/**
+ * The three honest numbers of the management page (stage 1-13, `UI_SPEC` §7.2).
+ *
+ * `totalRuns` is the sum of `ToolUsage.run_count` and nothing else: the result area
+ * counts the same runs, and a second counter would eventually disagree with it. There is
+ * no "time saved" — that needs invented assumptions, which §9 forbids.
+ *
+ * The *shape* is declared in `@juxbly/core` next to the message that carries it; this is
+ * the only producer.
+ */
+export type { UsageStats } from '@juxbly/core'
+
+export function summarizeUsage(
+  records: Record<string, ToolRecord>,
+  now = new Date(),
+): UsageStats {
+  const weekAgo = now.getTime() - 7 * 24 * 60 * 60 * 1000
+
+  return {
+    totalTools: Object.keys(records).length,
+    addedThisWeek: Object.values(records).filter(
+      (record) => Date.parse(record.created_at) >= weekAgo,
+    ).length,
+    totalRuns: Object.values(records).reduce((sum, record) => sum + record.usage.run_count, 0),
+  }
+}
+
+/**
+ * Writes a record verbatim, `versions` included (stage 1-12).
+ *
+ * `saveTool` **merges** history — an entry already stored wins — which is what makes a
+ * version's definition immutable. Repair needs the one exception: the version it replaced
+ * has to be marked `ever_broken` (§8.1). Marking is a fact appended to an old entry, not a
+ * rewrite of its definition, and `commitRepair` (`packages/repair`) is the only producer —
+ * it can turn the flag on and never back off.
+ *
+ * The record is still run through `withDefaults`: a caller holding a partially built
+ * record must not be able to store one.
+ */
+export async function writeTool(adapter: BrowserAdapter, record: ToolRecord): Promise<void> {
+  const tools = await loadTools(adapter)
+  tools[record.tool_id] = withDefaults(record)
+  await adapter.storage.set(TOOLS_KEY, tools)
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { BrowserAdapter } from '@juxbly/browser'
 import type { RunOutcome } from '@juxbly/core'
 import type { ToolDefinition } from '@juxbly/dsl'
+import type { BuildRepair } from '../build/BuildPanel'
 import {
   useEffect,
   useMemo,
@@ -9,12 +10,21 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react'
+import { createRunCommands } from '../commands/slash-commands'
 import { t } from '../copy'
 import { mountView } from '../views'
+import { ConfigTab } from './config-tab'
 import { EmptyState } from './empty-state'
 import { ErrorState } from './error-state'
+import { ExportActions } from './export-actions'
+import { BrokenState } from './broken-state'
+import { HealthBadge } from './health-badge'
+import { InspectTab } from './inspect-tab'
+import { PanelTabs, type RunTab } from './panel-tabs'
 import { createRunPorts } from './ports'
 import { PromiseLine } from './promise-line'
+import { RecipeAction } from '../recipe/recipe-action'
+import { repairFromHealth, repairFromUser, RepairEntry } from './repair-entry'
 import { ResultHeader } from './result-header'
 import { RetentionLine } from './retention-line'
 import { createRunSession, type RunSessionState, type RunStepOptions } from './run-session'
@@ -53,6 +63,12 @@ export interface RunPanelProps {
   onTools?(tools: readonly ToolDefinition[]): void
   onClose?(): void
   onNewTool?(): void
+  /**
+   * Opens the build flow over an existing tool (stage 1-12). The panel builds the request —
+   * preset context message for a breakage, none for a rework — and the host decides how to
+   * mount it; the panel itself never mounts a second surface.
+   */
+  onRepair?(repair: BuildRepair): void
   onDiscarded?(): void
 }
 
@@ -64,23 +80,47 @@ export function RunPanel({
   onTools,
   onClose,
   onNewTool,
+  onRepair,
   onDiscarded,
 }: RunPanelProps): ReactNode {
+  const ports = useMemo(() => createRunPorts(adapter), [adapter])
   const session = useMemo(
     () =>
       createRunSession({
-        ...createRunPorts(adapter),
+        ...ports,
         run,
         now: () => new Date().toISOString(),
       }),
-    [adapter, run],
+    [ports, run],
   )
 
   const [state, setState] = useState<RunSessionState>(() => session.state())
   const [mountPoint, setMountPoint] = useState<HTMLElement | null>(null)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
+  /**
+   * Which of the three tabs is open, and whether the version list is expanded.
+   *
+   * Both live here, not in the tabs or the section, because a command has to be able to
+   * set them: a command that kept its own copy of "what is open" would be a second
+   * source of truth for the panel's state (edge case: command and panel disagreeing).
+   */
+  const [tab, setTab] = useState<RunTab>('result')
+  const [versionsOpen, setVersionsOpen] = useState(false)
   const drag = useRef<{ x: number; y: number; fromX: number; fromY: number } | null>(null)
   const mountTick = useRef(0)
+
+  const commands = useMemo(
+    () =>
+      createRunCommands({
+        openConfig: () => setTab('config'),
+        openInspect: () => setTab('inspect'),
+        showVersions: () => {
+          setTab('config')
+          setVersionsOpen(true)
+        },
+      }),
+    [],
+  )
 
   useEffect(() => session.subscribe(setState), [session])
   useEffect(() => {
@@ -128,6 +168,10 @@ export function RunPanel({
   }, [onClose])
 
   const tool = state.tools.find((candidate) => candidate.tool_id === state.activeToolId) ?? null
+  // Narrowed once: the broken state needs both the verdict and the tool it belongs to, and
+  // `repairFromHealth` must never be handed a `null` tool with a cast to make it compile.
+  const broken = state.health?.status === 'broken' ? state.health : null
+  const degraded = state.health?.status === 'degraded' ? state.health : null
   const hasData = (state.items?.length ?? 0) > 0
   // The previous result stays on screen while a refresh runs and when a run fails after
   // having succeeded once (§7): blanking the panel would look like data loss.
@@ -199,18 +243,87 @@ export function RunPanel({
         />
       )}
 
+      <PanelTabs tab={tab} onChange={setTab} />
+
+      {degraded !== null && tool !== null ? (
+        <HealthBadge
+          health={degraded}
+          check={state.check}
+          onCheck={() => void session.checkNow()}
+          {...(onRepair === undefined
+            ? {}
+            : { onRepair: () => onRepair(repairFromHealth(tool, degraded)) })}
+        />
+      ) : null}
+
+      {/*
+        The result pane is hidden, never unmounted: the render capability draws into an
+        element inside it, and unmounting it while a run is still going would take the
+        mount point away mid-run (§7.6).
+      */}
       <div className="jx-run-body">
-        {state.phase === 'loading' ? <p className="jx-run-loading">{t('run.loading')}</p> : null}
-        {state.phase === 'empty' ? <EmptyState /> : null}
-        {state.phase === 'error' ? (
-          <ErrorState error={state.error} onRefresh={() => void session.refresh()} />
+        <div className="jx-run-pane" hidden={tab !== 'result'}>
+          {broken !== null && tool !== null ? (
+            <BrokenState
+              health={broken}
+              onRepair={
+                onRepair === undefined ? undefined : () => onRepair(repairFromHealth(tool, broken))
+              }
+              onRefresh={() => void session.refresh()}
+            />
+          ) : null}
+          {state.phase === 'loading' ? <p className="jx-run-loading">{t('run.loading')}</p> : null}
+          {state.phase === 'empty' ? <EmptyState /> : null}
+          {state.phase === 'error' ? (
+            <ErrorState error={state.error} onRefresh={() => void session.refresh()} />
+          ) : null}
+          {state.stale ? <p className="jx-run-stale">{t('run.stale')}</p> : null}
+          <div className="jx-run-result" ref={setMountPoint} hidden={!showResult} />
+        </div>
+
+        {tab === 'config' && tool !== null ? (
+          <ConfigTab
+            tool={tool}
+            ports={ports}
+            commands={commands}
+            versionsOpen={versionsOpen}
+            onToggleVersions={() => setVersionsOpen(!versionsOpen)}
+            onSaved={(_version, definition) => {
+              setVersionsOpen(true)
+              void session.adoptVersion(tool.tool_id, definition)
+            }}
+            onRolledBack={() => void session.adoptVersion(tool.tool_id)}
+          />
         ) : null}
-        {state.stale ? <p className="jx-run-stale">{t('run.stale')}</p> : null}
-        <div className="jx-run-result" ref={setMountPoint} hidden={!showResult} />
+
+        {tab === 'inspect' && tool !== null ? (
+          <InspectTab tool={tool} trace={state.steps} outputs={state.outputs} />
+        ) : null}
       </div>
 
-      <div className="jx-run-actions">
+      <div className="jx-run-actions" hidden={tab !== 'result'}>
         <ViewSwitcher view={state.view} onChange={(view) => session.setView(view)} />
+        {tool !== null && hasData && state.phase !== 'loading' ? (
+          <ExportActions adapter={adapter} tool={tool} items={state.items ?? []} />
+        ) : null}
+        {/*
+          Recipe export (§10.9.6): shown before anything can leave the browser, because
+          desensitisation is pattern-based and the last check is a person reading it.
+        */}
+        {tool !== null ? (
+          <RecipeAction adapter={adapter} tool={tool} items={state.items ?? []} />
+        ) : null}
+        {/*
+          The rework entry (§9.3): the same build flow, opened on purpose, with no preset
+          context — the tool may be working fine, and nothing here claims otherwise.
+        */}
+        {tool !== null && onRepair !== undefined ? (
+          <RepairEntry
+            label={t('run.repair.rework')}
+            disabled={state.phase === 'loading'}
+            onStart={() => onRepair(repairFromUser(tool))}
+          />
+        ) : null}
         <button
           type="button"
           className="jx-chip"

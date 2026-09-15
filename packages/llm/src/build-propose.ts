@@ -23,7 +23,7 @@ import type {
 import type { ToolDefinition } from '@juxbly/dsl'
 import { loadSettings } from '@juxbly/storage'
 import { buildPrompt, buildVisionMessages, DEFAULT_SYSTEM_PROMPT, stringifyData } from './build-prompt'
-import { callLlm, DEFAULT_API_BASE_URL } from './client'
+import { callLlm, DEFAULT_API_BASE_URL, modelOrDefault } from './client'
 import type { LlmFetch } from './client'
 import { isLlmError } from './errors'
 
@@ -54,9 +54,9 @@ export async function handleBuildPropose(
   try {
     const settings = await loadSettings(adapter)
     const apiKey = settings?.api_key ?? ''
-    const model = settings?.model ?? ''
-
-    if (apiKey.trim() === '' || model.trim() === '') return fail('NOT_CONFIGURED')
+    // Only the key gates the flow: a blank model falls back to `DEFAULT_MODEL` at the
+    // request, so a saved key always has something to run against (see `client.ts`).
+    if (apiKey.trim() === '') return fail('NOT_CONFIGURED')
 
     const instruction = buildInstruction({
       conversation,
@@ -76,7 +76,11 @@ export async function handleBuildPropose(
 
     const response = await callLlm(
       {
-        endpoint: { baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL, apiKey, model },
+        endpoint: {
+          baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL,
+          apiKey,
+          model: modelOrDefault(settings?.model),
+        },
         messages,
         responseFormat: 'json',
         ...(deps.timeoutMs === undefined ? {} : { timeoutMs: deps.timeoutMs }),

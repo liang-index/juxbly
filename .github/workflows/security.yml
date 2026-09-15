@@ -1,6 +1,11 @@
 # Stage 0-1 placeholder: secret / credential scanning only.
 # The main CI pipeline (lint + typecheck + test) lands in stage 0-2.
 # Code scanning (CodeQL) is enabled in repository settings and is added here as a workflow in 0-2.
+#
+# Stage 1-14: gitleaks-action moved v2 -> v3. v2 runs on Node 20, which GitHub removes from
+# hosted runners on 2026-09-16 — after that date v2 stops working regardless of any opt-out.
+# v3 is the same action on Node 24 (no input or behaviour change). `actions/checkout`
+# follows to v6, its Node 24 release.
 name: security-scan
 
 on:
@@ -23,10 +28,16 @@ jobs:
     name: Secret scanning (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history so gitleaks can scan prior commits
       - name: gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Pinned rather than left to the action's default: `gitleaks.toml` is written
+          # against a known config syntax (`[[allowlists]]`, and `[extend] useDefault`),
+          # and a scanner that moves on its own would be running a config nobody
+          # re-measured. Bump this and re-run the four checks recorded in that file.
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_CONFIG: gitleaks.toml

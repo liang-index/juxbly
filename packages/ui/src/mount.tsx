@@ -9,9 +9,29 @@ import { createRoot } from 'react-dom/client'
  * and theme tokens later — has exactly one definition.
  */
 export function mountReactRoot(container: HTMLElement, app: ReactNode): void {
-  createRoot(container).render(
-    <StrictMode>
-      {app}
-    </StrictMode>,
-  )
+  createReactRoot(container).render(app)
+}
+
+/**
+ * The same root setup, with the render handle handed back. Needed by the surfaces that
+ * are *re-opened* with different props — a repair opens the build panel over an existing
+ * tool, and re-rendering is the only way to give a mounted panel that context.
+ */
+export function createReactRoot(container: HTMLElement): {
+  render(app: ReactNode): void
+  unmount(): void
+} {
+  const root = createRoot(container)
+  return {
+    render(app: ReactNode): void {
+      root.render(
+        <StrictMode>
+          {app}
+        </StrictMode>,
+      )
+    },
+    unmount(): void {
+      root.unmount()
+    },
+  }
 }

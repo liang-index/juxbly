@@ -57,7 +57,7 @@ Dependency chain (`→` means "only after", `;` marks branches that can run in p
 | 1-10 run panel | auto-appear on URL match, extract on every refresh, switching views does not re-run, manual refresh forces the full flow, token display, **the provenance block in the result area** (`UI_SPEC.md` §7.3), `ToolUsage` fields written (`ARCHITECTURE.md` §8.1), `first_tool_built` written on the first successful build | visual check plus integration tests; the result header shows tool name, category colour, run time, item count and tokens |
 | 1-11 health + failure presentation | `evaluateHealth` (four layers; the structural layer uses container count and field-presence ratio in V1), the broken state with its CTA, the degraded badge, `run:report` | unit tests cover every state transition branch in `ARCHITECTURE.md` §10 |
 | 1-12 repair + versioning | repair entry with prefilled context, reuses the build flow, version + 1, the old version stays available for rollback (**rollback lives in the config panel; there is no standalone version switcher UI**), **stop after two failures**, recipe export (redacted, with scenario metadata — `ARCHITECTURE.md` §5.5 `RecipeJson`) | end to end: change the page → broken → repair → new version → rollback works; the exported JSON contains no credentials or private data |
-| 1-13 onboarding + overview + settings | four-step first-run guide (glow / opening line / delayed key request / first-build notice), the popup tool overview, the options page | each of the four steps fires once and only once (asserted through `OnboardingFlags`) |
+| 1-13 onboarding + overview + settings | four-step first-run guide (glow / opening line / delayed key request / first-build notice), the popup tool overview, the options page; the key setup includes a free-tier path hint (provider-agnostic wording, no specific free-quota promises) and a one-click connectivity check over the existing background LLM channel; the whole flow is designed so a non-technical user can complete install → key → first build unaided | each of the four steps fires once and only once (asserted through `OnboardingFlags`); the connectivity check is user-initiated only, its failure does not block saving, and error categories map to distinct copy keys |
 | 1-15 export capability | three formats — `copy` (clipboard) / `csv` (download) / `json` (download) — with CSV injection protection; **registers the fifth capability at the registration point 1-7 leaves open**; writes `ToolUsage.export_count` / `last_export_at` (`ARCHITECTURE.md` §8.1) | CSV serialisation and injection unit tests, JSON serialisation unit tests; downloads go through the background (the content script only sends a message); `export_count` increments on success; all five capabilities present in the registry |
 | 1-16 open-source interaction layer + feedback | three run-panel tabs (result / config / inspect), the `/edit` `/inspect` `/versions` commands, version identity, the capability summary, two kinds of feedback entry point | editing and saving config produces a new version that can be rolled back; every command has an equivalent clickable control; feedback never attaches page content automatically |
 | 1-14 closed-loop acceptance | full-lifecycle run in `apps/playground` plus a manual dogfood smoke test on real pages | no blocker across the lifecycle; the delivery report lists known issues |
@@ -100,11 +100,17 @@ lives in the config panel).
 Entry condition: Build Success Rate reaches an honest publishable baseline. The threshold
 comes out of the Phase 2 data and is not set in advance.
 
-- 3-1 maintainer dogfooding, with real usage data feeding back
+- 3-1 maintainer dogfooding, with real usage data feeding back; the best tools built during
+  dogfooding become curated **preset seeds** (each runs, has a benchmark case, and passes
+  redaction) for the launch preset pack
 - 3-2 store build (the Policy Surface narrows permissions and capabilities from the same
   core; CWS review limits do not constrain the open-source core)
 - 3-3 CWS submission and release (store copy follows the copy discipline: no
-  "universal scraper" style promises)
+  "universal scraper" style promises). The release ships with a small curated **launch
+  preset pack** (~10 presets, quality gate over count), a launch-week push across free
+  channels (Show HN, Product Hunt, Reddit, GitHub), and post-release observation of the
+  onboarding funnel (install → key setup → first build) using store signals only — no
+  in-product telemetry
 
 ---
 
@@ -118,7 +124,7 @@ scenarios worth polishing.
 | 4-1 rank and validate golden scenarios | a candidate pool (dogfooding, issues, CWS reviews, benchmark) filtered by five criteria, then validated on a small sample | at least one scenario confirmed as "build it" and converted into three or more benchmark cases |
 | 4-2 preset library topic research | public demand signals (userscript install charts above all) → around 100 candidates → around 50 selected by four criteria | the shortlist is reviewable and exclusions state their reason; ToS and fragile-site handling reviewed case by case |
 | 4-3 preset construction and curation | around 50 presets built during dogfooding, with curation metadata and a health baseline, redacted into the library | every preset runs, matches, and has a benchmark case; redaction checks pass |
-| 4-4 recipe library, docs, and funnel work | scenario-based recipe library, an early-adopter guide, and work on time-to-first-tool and first-tool-to-second-tool | before/after comparison on real tasks; success rate does not regress |
+| 4-4 recipe library, docs, and funnel work | scenario-based recipe library, an early-adopter guide, and work on time-to-first-tool and first-tool-to-second-tool; the recipe library doubles as a compounding growth engine — every shared recipe is a content page and a new-user entry point | before/after comparison on real tasks; success rate does not regress |
 | 4-5 localisation and language switching | locale switching (follow system, plus manual), a second language pack, `Intl` formatting, and a native-level proofread of the English copy | the key sets of `en` and the new locale match; a missing key fails the test and falls back to `en` at runtime; the longest string does not break the layout |
 
 ---

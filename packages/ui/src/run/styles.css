@@ -108,7 +108,35 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--jx-space-group);
+  flex-wrap: wrap;
   /* Always visible, never collapsed into a menu (§7.3 ③). */
+}
+
+/* The three export actions live next to the view switcher, resident in ③ (§7.3). */
+.jx-run-export {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.jx-run-export-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.jx-run-export-feedback {
+  margin: 0;
+  font-size: 10.5px;
+  color: var(--jx-text-muted);
+}
+
+.jx-run-export-feedback[data-tone='ok'] {
+  color: var(--jx-text-secondary);
+}
+
+.jx-run-export-feedback[data-tone='error'] {
+  color: var(--jx-error);
 }
 
 .jx-run-views {
@@ -127,4 +155,468 @@
 
 .jx-run-line--promise {
   color: var(--jx-text-secondary);
+}
+
+/* ── Health presentation (stage 1-11, UI_SPEC §7) ──────────────────────────────
+   Degraded is a corner "?" that opens an inline note — never a dialog, never a
+   colour that competes with a real error (`warn` is reserved for suspected
+   breakage, §2). Broken takes the full error visual. */
+
+.jx-health {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 2px;
+}
+
+.jx-health-q {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--jx-radius-pill);
+  border: 1px solid var(--jx-warn);
+  background: transparent;
+  color: var(--jx-warn);
+  font-size: 10.5px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Non-colour affordance too: "reduce motion" must not be the only way to notice. */
+.jx-health-q:hover,
+.jx-health-q[aria-expanded='true'] {
+  background: var(--jx-warn);
+  color: var(--jx-surface-base-2);
+}
+
+.jx-health-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-accent-dim);
+}
+
+.jx-health-line {
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+  margin: 0;
+}
+
+.jx-health-label {
+  color: var(--jx-text-muted);
+  margin-right: 4px;
+}
+
+.jx-run-state--broken {
+  border: 1px solid var(--jx-error);
+  border-radius: var(--jx-radius-element);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.jx-run-state--broken .jx-run-state-line {
+  color: var(--jx-error);
+}
+
+/* ── Recipe export (stage 1-12, PRODUCT §10.9.6) ──────────────────────────────
+   The preview is the security boundary made visible: the JSON is shown in full before
+   anything is copied or downloaded, so "what you see is what gets sent" is literally
+   true rather than promised. Monospaced and scrollable — a recipe is read, not skimmed. */
+.jx-recipe {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.jx-recipe-note {
+  margin: 0;
+  font-size: 10.5px;
+  color: var(--jx-text-muted);
+}
+
+.jx-recipe-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.jx-recipe-preview {
+  margin: 0;
+  max-height: 180px;
+  overflow: auto;
+  padding: 8px 10px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+  color: var(--jx-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.jx-recipe-buttons {
+  display: flex;
+  gap: var(--jx-space-group);
+}
+
+/* The rework entry sits in the ③ action area with the export actions (§7.3). */
+.jx-repair-entry {
+  display: flex;
+  align-items: center;
+}
+
+/* The update entry (ruling B, 2026-09-09): inside the detail the user chose to open,
+   left-aligned like the check link — a full-width button would read as the detail's
+   primary action, which is exactly the interruption degraded must not be. */
+.jx-health-detail .jx-chip {
+  align-self: flex-start;
+}
+
+/* ── Panel tabs (stage 1-16, UI_SPEC §10) ──────────────────────────────────────
+   The tab row reuses `.jx-tabs` / `.jx-tab` from the build stylesheet (same tokens,
+   same motion); only the hidden panes are new. `hidden` on a flex container is
+   overridden by any `display` rule, so the two panes that carry one declare it here. */
+.jx-run-pane[hidden],
+.jx-run-actions[hidden] {
+  display: none;
+}
+
+/* ── Config tab (stage 1-16) ───────────────────────────────────────────────────
+   `font-mono` is allowed here and almost nowhere else (UI_SPEC §3): the editor shows
+   JSON, and JSON is read, not skimmed. Keyword highlighting stays inside `accent` —
+   no new palette exists to borrow from (§2). */
+.jx-config {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.jx-config-note {
+  margin: 0;
+  color: var(--jx-text-secondary);
+  font-size: 10.5px;
+}
+
+.jx-cmds {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.jx-cmd {
+  border: 1px solid var(--jx-surface-border);
+  background: var(--jx-accent-dim);
+  color: var(--jx-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: var(--jx-radius-pill);
+  cursor: pointer;
+}
+
+.jx-cmd:hover {
+  color: var(--jx-accent);
+  border-color: var(--jx-accent);
+}
+
+.jx-editor {
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  padding: 8px 10px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+  color: var(--jx-text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  white-space: pre;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* The one error visual (§2): the field that failed, in `error`. No new colour. */
+.jx-editor.is-invalid {
+  border-color: var(--jx-error);
+}
+
+.jx-editor:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 2px;
+}
+
+.jx-config-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--jx-space-group);
+}
+
+.jx-config-feedback {
+  margin: 0;
+  font-size: 10.5px;
+  color: var(--jx-text-muted);
+}
+
+.jx-config-feedback[data-tone='ok'] {
+  color: var(--jx-text-secondary);
+}
+
+.jx-config-feedback[data-tone='error'] {
+  color: var(--jx-error);
+}
+
+.jx-config-error {
+  margin: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--jx-error);
+  border-radius: var(--jx-radius-element);
+  color: var(--jx-error);
+  font-size: 10.5px;
+}
+
+.jx-config-error-head {
+  margin: 0 0 4px;
+}
+
+.jx-config-reasons {
+  margin: 0;
+  padding-left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.jx-config-reasons code,
+.jx-config-reason {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--jx-accent);
+  margin-right: 6px;
+}
+
+/* ── Capability summary (stage 1-16) ───────────────────────────────────────────
+   Two lists, never one: sensitive lines are drawn apart and in `warn`, because a
+   network hop that looks like "reads text from this page" is not a defence (§2:
+   `warn` is the only colour allowed to mean suspected risk). */
+.jx-capability {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+}
+
+.jx-capability-heading {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+.jx-capability-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.jx-capability-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+}
+
+.jx-capability-detail {
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+.jx-capability-sensitive {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--jx-surface-border);
+}
+
+.jx-capability-item--risk {
+  color: var(--jx-warn);
+}
+
+.jx-capability-caveat {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10px;
+}
+
+/* ── Version list (stage 1-16) ──────────────────────────────────────────────── */
+.jx-config-versions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.jx-versions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.jx-version {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 10.5px;
+  color: var(--jx-text-secondary);
+}
+
+.jx-version-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--jx-text-primary);
+}
+
+.jx-version-note,
+.jx-version-date {
+  color: var(--jx-text-muted);
+}
+
+.jx-version-current {
+  color: var(--jx-accent);
+  font-size: 10px;
+}
+
+.jx-versions-empty {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+/* ── Runtime inspect tab (stage 1-16) ──────────────────────────────────────────
+   Left: the steps in order. Right: what the selected one was handed, wrote, took.
+   Debug density is allowed (§10); the spacing and radius tokens are not negotiable. */
+.jx-inspect-tab {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.jx-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: none;
+}
+
+.jx-step {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--jx-text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: var(--jx-radius-element);
+  cursor: pointer;
+  text-align: left;
+}
+
+.jx-step.is-active {
+  border-color: var(--jx-surface-border);
+  background: var(--jx-accent-dim);
+  color: var(--jx-text-primary);
+}
+
+.jx-step:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 2px;
+}
+
+.jx-step-time {
+  color: var(--jx-text-muted);
+  font-size: 9px;
+}
+
+.jx-step-detail {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jx-inspect-row {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.jx-inspect-label {
+  color: var(--jx-text-muted);
+  font-size: 10px;
+}
+
+.jx-inspect-value {
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+}
+
+.jx-out {
+  margin: 0;
+  max-height: 120px;
+  overflow: auto;
+  padding: 6px 8px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+  color: var(--jx-text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.jx-inspect-more,
+.jx-inspect-note {
+  color: var(--jx-text-muted);
+  font-size: 10px;
+  margin: 0;
+}
+
+.jx-inspect-note--error {
+  color: var(--jx-error);
+}
+
+.jx-inspect-empty {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
 }

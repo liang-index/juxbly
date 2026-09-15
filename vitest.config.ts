@@ -29,6 +29,12 @@ const SUBPATH_ALIASES = [
     find: /^@juxbly\/ui\/copy$/,
     replacement: fileURLToPath(new URL('./packages/ui/src/copy', import.meta.url)),
   },
+  // 1-15: shared export serialisers, no `ui` dependency — importing this subpath never
+  // creates a ui↔capabilities cycle.
+  {
+    find: /^@juxbly\/capabilities\/export$/,
+    replacement: fileURLToPath(new URL('./packages/capabilities/src/export', import.meta.url)),
+  },
 ]
 
 const PACKAGE_ALIASES = PACKAGES.map((name) => ({

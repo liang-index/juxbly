@@ -1,0 +1,270 @@
+/**
+ * Options page styles — same tokens, page scale instead of popup scale.
+ *
+ * The management page carries more prose than the popup, so the type is one step larger
+ * and the sections are separated by whitespace rather than rules; a divider for every
+ * block is the density of a settings page nobody re-reads.
+ */
+
+.jx-options {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px var(--jx-space-panel) 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  background: var(--jx-surface-base-1);
+  color: var(--jx-text-primary);
+  font: 500 14px/1.55 system-ui, sans-serif;
+}
+
+.jx-options-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.jx-options-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.jx-options-heading {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.jx-options-note {
+  margin: 0;
+  color: var(--jx-text-secondary);
+  font-size: 12px;
+}
+
+.jx-options-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jx-options-label {
+  color: var(--jx-text-secondary);
+  font-size: 12px;
+}
+
+.jx-options-input {
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+  color: var(--jx-text-primary);
+  padding: 7px 10px;
+  font: inherit;
+}
+
+.jx-options-input:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 1px;
+}
+
+.jx-options-key-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.jx-options-key-row .jx-options-input {
+  flex: 1;
+}
+
+.jx-options-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jx-options-primary,
+.jx-options-secondary,
+.jx-options-danger {
+  border: 0;
+  border-radius: var(--jx-radius-element);
+  padding: 7px 13px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.jx-options-primary {
+  background: var(--jx-accent);
+  color: var(--jx-on-accent);
+}
+
+.jx-options-primary:disabled,
+.jx-options-secondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.jx-options-primary:focus-visible,
+.jx-options-secondary:focus-visible,
+.jx-options-danger:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 2px;
+}
+
+.jx-options-secondary {
+  background: transparent;
+  border: 1px solid var(--jx-surface-border);
+  color: var(--jx-text-primary);
+}
+
+.jx-options-danger {
+  background: var(--jx-error);
+  color: var(--jx-on-accent);
+}
+
+.jx-options-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jx-options-check input:focus-visible {
+  outline: 2px solid var(--jx-accent);
+  outline-offset: 2px;
+}
+
+.jx-options-result {
+  margin: 0;
+  font-size: 12px;
+}
+
+.jx-options-result--ok {
+  color: var(--jx-accent);
+}
+
+.jx-options-result--auth,
+.jx-options-result--network,
+.jx-options-result--endpoint,
+.jx-options-result--unknown,
+.jx-options-result--error {
+  color: var(--jx-error);
+}
+
+.jx-options-stats {
+  margin: 0;
+  display: flex;
+  gap: 28px;
+}
+
+.jx-options-stats dt {
+  color: var(--jx-text-secondary);
+  font-size: 11px;
+}
+
+.jx-options-stats dd {
+  margin: 2px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.jx-options-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.jx-options-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--jx-surface-border);
+}
+
+.jx-options-row-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.jx-options-row-meta {
+  color: var(--jx-text-muted);
+  font-size: 11px;
+}
+
+.jx-options-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--jx-text-secondary);
+  font-size: 12px;
+}
+
+/* ── Version identity (stage 1-16) ─────────────────────────────────────────────
+   text-meta at the foot of the page: a bug report needs a build number, and nothing
+   more. Deliberately not a heading, not a link, not a logo (§2 discipline). */
+.jx-options-version {
+  margin: 0;
+  color: var(--jx-text-muted);
+  font-size: 10.5px;
+}
+
+/* ── Feedback entry (stage 1-16) ───────────────────────────────────────────────
+   Two paths, one diagnostic line, and nothing that loads: the entry is text and links
+   only, which is what makes "no network on open" true rather than promised. */
+.jx-feedback-paths {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jx-feedback-path {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.jx-feedback-title {
+  margin: 0;
+  color: var(--jx-text-primary);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.jx-feedback-diagnostic {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.jx-feedback-line {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--jx-text-secondary);
+  padding: 4px 8px;
+  border: 1px solid var(--jx-surface-border);
+  border-radius: var(--jx-radius-element);
+  background: var(--jx-surface-base-2);
+}
+
+.jx-options-result {
+  margin: 0;
+  font-size: 11px;
+  color: var(--jx-text-muted);
+}
+
+.jx-options-result[data-tone='ok'] {
+  color: var(--jx-text-secondary);
+}
+
+.jx-options-result[data-tone='error'] {
+  color: var(--jx-error);
+}

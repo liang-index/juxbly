@@ -23,6 +23,7 @@ import type {
   RunOptions,
   RunOutcome,
   RunState,
+  RunStepTrace,
   RuntimePorts,
   TokenUsage,
 } from '@juxbly/core'
@@ -77,6 +78,9 @@ export class ToolRuntime {
     let firstLlmHash: string | null = null
     let lastDataName: string | null = null
     let render: RenderResult | undefined
+    // Stage 1-16: what the inspect tab draws. Timing and shape only — never a copy of
+    // the data, which already sits in the variable bag.
+    const trace: RunStepTrace[] = []
 
     try {
       for (; index < steps.length; index += 1) {
@@ -94,6 +98,24 @@ export class ToolRuntime {
           )
         }
 
+        // The engine is the only thing that runs a tool *by itself*, and a `copy` export is
+        // the one step that must never run by itself: `navigator.clipboard` needs a user
+        // gesture, and a tool that auto-runs on page load overwriting the clipboard the
+        // user just filled is the worst possible failure of the reuse promise (1-15 AC5).
+        // The panel's Copy button does not go through a step at all — it calls the
+        // clipboard port directly from the click — so *every* `copy` step that reaches
+        // here is unattended, and refusing is the only honest answer. Refusing loudly also
+        // beats the alternative: without a gesture the platform call fails anyway, as an
+        // unattributed error three layers down. Checked before the input variable is
+        // resolved so the refusal names the real cause even when the data is broken too.
+        if (step.type === 'export' && step.format === 'copy') {
+          throw new StepFailure(
+            'CAPABILITY_FAILED',
+            'an export step may not use the "copy" format: writing the clipboard needs a user gesture, so a run can never deliver it — the panel Copy button is the only path',
+            index,
+          )
+        }
+
         const stepStartedAt = Date.now()
         // `extract` is the only step that produces data without consuming any (§5.2).
         const items = step.type === 'extract' ? [] : bag.records(step.input_from)
@@ -107,6 +129,14 @@ export class ToolRuntime {
             bag.set(step.output_to, cached.value)
             llmOutputs[step.output_to] = cached.value
             llmCached = true
+            trace.push({
+              index,
+              type: 'llm',
+              inputCount: items.length,
+              outputTo: step.output_to,
+              durationMs: Date.now() - stepStartedAt,
+              cached: true,
+            })
             this.ports.log({ tag: 'RUNTIME', message: 'step:cached', details: [index, 'llm'] })
             continue
           }
@@ -130,6 +160,16 @@ export class ToolRuntime {
           lastDataName = step.output_to
         }
 
+        trace.push({
+          index,
+          type: step.type,
+          inputCount: step.type === 'extract' ? null : items.length,
+          ...(step.type === 'render' || step.type === 'export'
+            ? {}
+            : { outputTo: step.output_to }),
+          durationMs: Date.now() - stepStartedAt,
+        })
+
         this.ports.log({
           tag: 'RUNTIME',
           message: 'step',
@@ -139,6 +179,25 @@ export class ToolRuntime {
     } catch (error) {
       const failure = classifyFailure(error, index)
       this.ports.log({ tag: 'RUNTIME', message: 'failed', details: [failure.code, index] })
+
+      // The failing step is recorded like any other, plus its error: "which step" is the
+      // first question an inspect tab is opened to answer, and a failed run is exactly
+      // when somebody opens it.
+      const failed = steps[index]
+      if (failed !== undefined) {
+        trace.push({
+          index,
+          type: failed.type,
+          inputCount: null,
+          durationMs: 0,
+          error: {
+            code: failure.code,
+            message: failure.message,
+            ...(failure.step === undefined ? {} : { step: failure.step }),
+            ...(failure.selector === undefined ? {} : { selector: failure.selector }),
+          },
+        })
+      }
 
       return {
         ok: false,
@@ -152,6 +211,7 @@ export class ToolRuntime {
           ...(failure.step === undefined ? {} : { step: failure.step }),
           ...(failure.selector === undefined ? {} : { selector: failure.selector }),
         },
+        steps: trace,
       }
     }
 
@@ -169,6 +229,7 @@ export class ToolRuntime {
       summary: buildSummary(bag, lastDataName),
       ...(render === undefined ? {} : { render }),
       runState: { last_extract_hash: firstLlmHash, last_llm_outputs: llmOutputs },
+      steps: trace,
     }
   }
 

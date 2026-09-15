@@ -105,3 +105,19 @@ export interface CapabilityInput<Step> {
   step: Step
   items: readonly Record<string, unknown>[]
 }
+
+/** §5.2 `ExportStep.format` — the three shapes a result can be taken away as (stage 1-15). */
+export type ExportFormat = 'copy' | 'csv' | 'json'
+
+/**
+ * §6.1 the `export` capability's result — `docs/ARCHITECTURE.md` §5.5 / §6.1 (stage 1-15).
+ *
+ * `bytes` is a measure for the UI ("what did this export cost"), not a promise of exact
+ * on-disk size: for csv / json it is the serialized string length, for copy the number of
+ * characters placed on the clipboard.
+ */
+export interface ExportResult {
+  format: ExportFormat
+  itemCount: number
+  bytes?: number
+}

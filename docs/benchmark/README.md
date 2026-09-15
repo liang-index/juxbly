@@ -21,6 +21,25 @@ tests/benchmark/
 └── reports/          aggregated metrics, comparable over time
 ```
 
+## Corpus seeds that already exist
+
+Nothing in `tests/benchmark/` exists yet, but two things are already usable as seed material and
+should be pulled in when 2-1 opens the corpus rather than rebuilt:
+
+- **`tests/fixtures/pages/`** — the fixture pages (regular list, table, shadow roots, custom
+  elements, lazy loading, infinite scroll, hashed classes, mixed fields, single record). Each
+  header comment names the bucket it stresses. `apps/playground` already serves them at
+  `/pages/<file>`, so a case can point at a local URL instead of a snapshot while the corpus is
+  being assembled.
+- **The stage 1-14 dogfood records** — five or more real sites, each recorded with the fields
+  `BENCHMARK_GUIDE.md` asks for (`bucket`, `url`, `task_description`, `expected_fields`,
+  `ground_truth`, `notes`, `verified_on`) plus a failure case per site
+  (`docs/testing/MANUAL_ACCEPTANCE.md`, 1-14). They live in the closure report until 2-2 turns
+  them into `cases/*.json`.
+
+Neither is a substitute for the corpus: local fixtures measure the parser, real sites measure the
+product.
+
 ## Web Corpus policy
 
 - **Snapshot minimally.** Store the HTML and assets needed to reproduce the task — not a full media archive. Prefer referencing live URLs where possible; snapshot when the page is too volatile or requires interaction state.

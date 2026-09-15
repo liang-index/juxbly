@@ -1,0 +1,39 @@
+# Secret scanning — `gitleaks/gitleaks-action`.
+#
+# Why this file exists: four test fixtures are credential-shaped **on purpose**. The
+# sanitiser has to be shown redacting something that looks like a credential, and the
+# key-input step has to be handed something that looks like a key. A scanner cannot tell a
+# fixture from a leak and it is right to report them — that judgement is not available to
+# it — so the excuse has to be written down somewhere. This is that place.
+#
+# Both lines below are load-bearing and both were measured rather than assumed. The
+# measurements are recorded next to each choice because the two ways of getting this wrong
+# are silent: they make the scanner report *less*, which no test would notice.
+
+# 1. Extend, do not replace.
+#
+#    gitleaks swaps its default ruleset for this file unless told otherwise. Measured: with
+#    this line removed the scan reports "no leaks found" on this repository — not because
+#    there are none, but because no rule was ever loaded.
+[extend]
+useDefault = true
+
+# 2. Excuse the fixture token only — not a path.
+#
+#    The obvious design is to scope this to test files. It cannot be done safely here:
+#    `condition` is ignored in the global `[[allowlists]]` section, so criteria are OR-ed,
+#    and a `paths` entry alone then excuses **every** finding in every test file. Measured:
+#    a realistic key planted in a test file was reported zero times under that design.
+#    The rule-scoped form (`[[rules.allowlists]]`) does honour `condition = "AND"`, but
+#    declaring `[[rules]] id = "generic-api-key"` replaces the built-in rule definition
+#    instead of amending it — measured: `github-pat` and `private-key` stopped firing.
+#
+#    So the match is on the fixture token alone. That is narrow in the way that matters:
+#    the token appears in the four fixtures and nowhere else, so a real credential is still
+#    caught wherever it is committed — including inside a test file. Measured after the
+#    change: the planted key is caught in a test file and in a non-test file, both.
+#
+#    Adding a fixture: give it the same token. Do not widen this match.
+[[allowlists]]
+description = "Credential-shaped fixtures — their content is what the tests assert on."
+regexes = ['''abcdef123456''']

@@ -23,19 +23,33 @@ type DotPath<T> = T extends string
     }[keyof T & string]
 
 /**
- * Look up a copy key at runtime. Interpolation does not exist yet — the first real
- * need arrives with a later stage's copy, and adding `vars` then is additive.
+ * Look up a copy key at runtime.
+ *
+ * `{name}` placeholders are filled from `vars` when a key carries one — the first need
+ * arrived with stage 1-13's cost estimate, where the number is produced at run time and
+ * splitting the sentence in two to avoid interpolation would put English word order in
+ * a component. A placeholder with no matching var is left alone rather than blanked: a
+ * sentence with a hole in it is easier to notice than one that silently reads wrong.
  *
  * A missing key can never throw: UI text failing must not break the UI. It degrades to
  * the key itself plus a console warning (visible in dev, harmless in prod).
  */
-export function t(key: CopyKey): string {
+export type CopyVars = Readonly<Record<string, string | number>>
+
+export function t(key: CopyKey, vars?: CopyVars): string {
   let cursor: unknown = en
   for (const part of key.split('.')) {
     if (typeof cursor !== 'object' || cursor === null) return warnMissing(key)
     cursor = (cursor as Record<string, unknown>)[part]
   }
-  return typeof cursor === 'string' ? cursor : warnMissing(key)
+
+  const value = typeof cursor === 'string' ? cursor : warnMissing(key)
+  if (vars === undefined) return value
+
+  return value.replace(/\{(\w+)\}/g, (match, name: string) => {
+    const replacement = vars[name]
+    return replacement === undefined ? match : String(replacement)
+  })
 }
 
 function warnMissing(key: string): string {

@@ -10,7 +10,14 @@
  */
 import type { ToolCategory, ToolDefinition, ToolStep } from '@juxbly/dsl'
 import type { TokenUsage } from './messages'
-import type { HealthStatus, RunState, RunSummary, ToolRecord } from './tool-record'
+import type {
+  HealthStatus,
+  RunState,
+  RunSummary,
+  SemanticCheck,
+  StructureFingerprint,
+  ToolHealth,
+} from './tool-record'
 
 // ── Page analysis (packages/analyzer output; input to the build flow) ──────────
 
@@ -243,24 +250,97 @@ export interface RunOutcome {
    */
   runState?: RunState
   error?: RunError
+  /**
+   * Per-step timing and shape (stage 1-16, §5.5): what the runtime inspect tab draws.
+   *
+   * **No data is copied here.** A trace names the step, the variable it wrote and how
+   * long it took; the values stay in `outputs`, where they already live. Duplicating them
+   * would leave a second copy of page content behind every run and give the project two
+   * places to keep clean — the panel resolves `outputs[outputTo]` when it draws.
+   *
+   * Absent when the tool was rejected before its first step ran.
+   */
+  steps?: RunStepTrace[]
+}
+
+/**
+ * One step, as the runtime lived it (stage 1-16).
+ *
+ * `durationMs` is measured around the capability call only: the engine's own variable
+ * resolution is not the step's cost, and folding it in would make a slow step look like
+ * a slow engine.
+ */
+export interface RunStepTrace {
+  /** Index in `ToolDefinition.steps`; the inspect tab lists them in order. */
+  index: number
+  type: ToolStep['type']
+  /**
+   * Rows handed to the step. `null` for `extract`, which reads the page and consumes no
+   * variable (§5.2) — "0 rows" and "nothing was handed over" are different answers.
+   */
+  inputCount: number | null
+  /** The variable this step wrote; absent for `render` and `export` (§5.2). */
+  outputTo?: string
+  durationMs: number
+  /** True when the llm cache answered: no model call, nothing spent. */
+  cached?: boolean
+  /** Present on the step that failed — the same `RunError` the run reports. */
+  error?: RunError
 }
 
 // ── Health evaluation (packages/health) ────────────────────────────────────────
+//
+// The contracts below are transcribed once, here (§5.5 discipline — core is the
+// dependency-graph bottom and the type SSOT); `packages/health` re-exports them and
+// implements the pure judgement behind them. They describe what stage 1-11 shipped:
+// `HealthInput` carries no page content and no extracted values, which is what makes
+// `evaluateHealth` a pure function the §10 state machine can be tested against.
+
+export type ExecutionLayer = 'ok' | 'failed'
+export type ResultLayer = 'ok' | 'deviated' | 'no-baseline'
+export type StructureLayer = 'ok' | 'drifted' | 'no-baseline'
+export type SemanticLayer = 'not-run' | 'ok' | 'suspicious' | 'error'
+
+/** The four per-layer verdicts, kept separate so the panel can answer "why is this yellow". */
+export interface HealthLayers {
+  execution: ExecutionLayer
+  result: ResultLayer
+  structure: StructureLayer
+  semantic: SemanticLayer
+}
 
 export interface HealthInput {
-  tool: ToolDefinition
-  record: ToolRecord
-  extract: ExtractResult | null
-  error?: ExtractError
+  /** The health stored before this run — the baseline every layer compares against. */
+  previous: ToolHealth
+  /** Set when extract threw. The only signal that can break a tool outright. */
+  extractError?: ExtractError | null
+  /** This run's summary; appended to the window by the caller, not by `evaluateHealth`. */
+  summary: RunSummary
+  /** Structure statistics captured for this run; null when nothing could be read. */
+  fingerprint: StructureFingerprint | null
+  /** Present only when a semantic check ran for this run. */
+  semantic?: SemanticCheck | null
+  /** Set when a check was attempted and failed (no key, network, timeout). */
+  semanticError?: boolean
+  /** Wall-clock time, injected so the throttle is testable without fake timers. */
+  now?: number
+  /** Set by the user pressing "check now": their action, their tokens. */
+  forceSemanticCheck?: boolean
 }
 
 export interface HealthEvaluation {
   status: HealthStatus
-  /** Which layer fired — the check panel explains "why yellow/red" with this. */
-  layer: 'execution' | 'result' | 'structure' | 'semantic'
+  /** Whether the status moved — the panel only says something when it did. */
+  changed: boolean
+  /** Why, in one sentence. Never contains page content or extracted values (§10). */
   reason: string
-  /** True only for the semantic layer — the only token-spending layer; must be visible. */
-  tokenUsed: boolean
+  layers: HealthLayers
+  /** The structure baseline to store: a fresh capture, or the previous one kept. */
+  fingerprint: StructureFingerprint | null
+  /** Consecutive clean-run count, carried forward for the "recover twice" rule. */
+  consecutiveCleanRuns: number
+  /** Whether a semantic check should run (the caller owns actually running it). */
+  semanticCheckRequested: boolean
 }
 
 // ── Repair session (packages/repair) ───────────────────────────────────────────
@@ -330,14 +410,7 @@ export interface RenderResult {
   truncated: boolean
 }
 
-// ── export output ────────────────────────────────────────────────────────────
-
-export interface ExportResult {
-  ok: boolean
-  format: 'copy' | 'csv' | 'json'
-  /** Number of exported records. The exported content itself never travels back. */
-  itemCount: number
-  /** Filename for csv / json downloads; undefined for copy. */
-  filename?: string
-  error?: string
-}
+// The `export` capability's `ExportResult` (stage 1-15) lives next to the capability
+// contract in `capability.ts` — this file's earlier §5.5 print of it (with `ok`,
+// `filename` / `error`) was superseded and removed; the capability-facing shape is the
+// source of truth.

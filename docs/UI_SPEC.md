@@ -146,7 +146,7 @@ Do not mechanically require every component to implement every state; check the 
 | Run panel | Loading (light progress indicator; users expect "instant open", keep visuals restrained) / Empty / Error / Degraded badge |
 | Result-area provenance rows (① result header / ④ promise line / ⑤ retention line) | Static information, **no Loading, no dialogs, no onboarding overlays**; retention undo (`Don't keep`) requires a second confirmation on click (§7.3) |
 | Empty results | 0 rows ≠ error: first run or historically empty → normal empty-state guidance copy; not red, no warning |
-| Suspected broken (degraded) | A small "?" note in the panel corner; details visible only when opened — **no interruption, no dialogs** |
+| Suspected broken (degraded) | A small "?" note in the panel corner; details visible only when opened — **no interruption, no dialogs**. The opened detail carries "Check once" and an **"Update this tool"** entry into the build flow (stage 1-12, Maintainer ruling B, 2026-09-09): "the page changed" only ever reaches degraded — a container that stops matching returns `hitCount: 0`, an answer, not an error — so the repair flow has to be reachable from here or it is unreachable from the case it exists for. Wording is "update", never "fix": nothing is broken yet |
 | Confirmed broken | Error visual state + one explanation line + CTA ("this tool can't run anymore — the page may have changed") |
 | All delete actions | Confirmation dialog; direct deletion forbidden |
 | All list views | Show guidance copy when there is no data; blank areas forbidden |
@@ -294,6 +294,75 @@ The OSS edition **is not another skin**: on top of the same token system it allo
 - The "this is Juxbly" first-glance recognition must be identical between the Store edition and the OSS edition.
 - **The inspector panel can open during the build stage** (backfilled in V1.12): the intermediate evidence behind the generated plan (page analysis results, fields to extract) can be reviewed before highlight confirmation, without waiting for the first run — for developers who want the details.
 - **"Advanced mode" memo** (backfilled in V1.12): the config/inspector tabs do not depend on a JS sandbox and could later ship as an optional "advanced mode" toggle for the Store Build (edit scope limited to allowlisted capabilities) — a middle path far cheaper than a full JS sandbox. When to ship it is a product decision; this document only records feasibility.
+
+### 10.1 Run panel tabs (stage 1-16)
+
+| Item | Rule |
+|---|---|
+| Tabs | One container, three tabs — **Result / Config / Inspect**. The tab switches what is drawn; the result pane is hidden, never unmounted, so a run in progress keeps its render mount point (§7.6) |
+| State | The open tab and the version-list expansion live in the panel, and a command sets **the same state** — a command and the panel can never disagree |
+| Result | Unchanged from §7.3: provenance ①–⑤ stay on the result tab |
+
+### 10.2 Config tab (stage 1-16)
+
+| Item | Rule |
+|---|---|
+| Editor | `font-mono` JSON, two-space indent; `spellCheck` off; `error` outline when the draft is refused |
+| Save = new version | Saving sends an explicit versioned write (`repair` request with `trigger: 'user'`): **`version + 1`, old version kept** (PRODUCT §12). A bare merge-into-record save is forbidden on this path |
+| Validation | `validateToolDefinition` runs on the draft before anything is sent — an invalid JSON, unknown field, or unknown `type` is refused with **field-level reasons** (`path` + `message`), and the draft is never cleared (§7: a refusal must not cost the user their edit) |
+| No AI re-check | The edit is the user's; no model pass reviews it, and nothing is auto-corrected (§12.7 no silent repair) |
+| Capability summary | Rendered from the draft when it parses (from the saved definition otherwise) — an edit shows its own consequences before it is saved |
+| Versions | The rollback list (C3) lives here behind a "Versions" toggle: a plain list, rollback per row, no switcher UI, no "was broken" badge |
+| Scope | The edit surface is the DSL's allowlisted capabilities only. A JS sandbox / arbitrary-JS editing is explicitly **not** built (recorded above as a possible Store "advanced mode") |
+
+### 10.3 Runtime inspect tab (stage 1-16)
+
+| Item | Rule |
+|---|---|
+| Layout | Step list (`extract → transform → llm → render`, definition order) on the left; the selected step's input / output / duration on the right |
+| Data | The runtime trace (`RunOutcome.steps`, §5.5) carries **no data copies** — the panel resolves a step's input/output from the variable bag at draw time |
+| Unreached steps | Steps a failed run never reached are still listed, marked "not reached" — a list that stops at the failure would read as if the definition stopped there |
+| Truncation | Previews cut at a row cap and a character cap, each with a "+N more" count; a debug view must never freeze the panel |
+| Logging | Nothing drawn here is written to a log (§12.1 debug-first; the values are page content shown only because a person opened this tab) |
+
+### 10.4 Command registry (stage 1-16)
+
+```ts
+interface SlashCommand {
+  name: string          // the literal token, leading slash included
+  run(): void
+  via: string           // data-entry id of the clickable equivalent — required
+}
+interface CommandRegistry {
+  register(cmd: SlashCommand): void
+  match(input: string): SlashCommand | null   // case-insensitive, whitespace-tolerant
+  all(): readonly SlashCommand[]
+}
+```
+
+- **No command-only behaviour**: a command is a name for something that already has a button. `via` is required, and a test asserts the panel renders every id the commands name.
+- V1 has exactly three: `/edit` → the Config tab, `/inspect` → the Inspect tab, `/versions` → the version list in the Config tab.
+- The commands render as chips (`/edit` `/inspect` `/versions`) in the Config tab; a chip click goes through the same `match()` a typed command would.
+
+### 10.5 Capability summary (stage 1-16)
+
+| Item | Rule |
+|---|---|
+| Nature | A **static** read of the definition — nothing is executed, nothing is inferred from the page |
+| Content | One line per step ("reads text from this page", "sends what it read to your model provider", …) with a shape detail (field count, op, task, view, format) |
+| Sensitive group | Steps that leave the device or reach sensitive state (network / cookies) are drawn **apart from the plain lines and in `warn`** — mixed in, a network hop would read like a local read, and this is the first visible line of defence against indirect prompt injection |
+| Honesty | A `custom` llm instruction (and any step type the summary does not recognise) gets "cannot tell you" — never a guess dressed as a fact (§9) |
+| Caveat | The panel always states that this is what the definition *declares*; Juxbly does not run it to find out |
+
+### 10.6 Version identity and feedback entry (stage 1-16)
+
+| Item | Rule |
+|---|---|
+| Version badge | `text-meta` paragraph at the foot of the settings page (`v{version} · open source build`); **not a brand slot** — no logo, no link, no heading. Its value is the manifest version, declared once so the badge and the manifest cannot disagree |
+| Feedback entry | A section of the settings page, two paths: **report a problem** (GitHub issue) and **suggest a scenario** (GitHub discussion) — §9.2's two kinds of feedback |
+| Zero collection | No network request on open (text and links only); nothing is attached to the destinations — no page content, no tool data, no identifiers |
+| Diagnostic line | `Juxbly v{version} · Chrome {major} · open source build` — shown, and copied **by the user's click**, never assembled with anything they did not see |
+| Placement | "Not forcefully fixed" (§9.2): the prototype's popup-bottom placement is one option; the settings page is the shipped one, and the behaviour constraints above are what is locked |
 
 ---
 

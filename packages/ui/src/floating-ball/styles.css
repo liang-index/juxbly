@@ -83,6 +83,35 @@
   }
 }
 
+/* ── First-install glow (stage 1-13) ─────────────────────────────────────────
+   A breath on the very first page after install: the ball brightens, holds,
+   settles. No ring — the has-tools pulse above is the ring; this one is the
+   ball itself waking once. Separate class, separate trigger, separate flag. */
+.jx-ball.is-install-glow {
+  animation: jx-install-glow 1400ms var(--jx-motion-signature) 1;
+}
+
+@keyframes jx-install-glow {
+  0% {
+    opacity: 0.32;
+    box-shadow:
+      -6px 0 18px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(94, 234, 212, 0);
+  }
+  45% {
+    opacity: 1;
+    box-shadow:
+      -6px 0 22px rgba(94, 234, 212, 0.28),
+      0 0 10px 2px rgba(94, 234, 212, 0.22);
+  }
+  100% {
+    opacity: 0.32;
+    box-shadow:
+      -6px 0 18px rgba(0, 0, 0, 0.35),
+      0 0 0 0 rgba(94, 234, 212, 0);
+  }
+}
+
 /* ── Six-state visual mapping (UI_SPEC §6) ─────────────────────────────────── */
 
 .jx-ball[data-state='listening'] {
@@ -131,12 +160,29 @@
     animation: jx-once-pulse-fade 900ms var(--jx-motion-flow) 1;
   }
 
+  .jx-ball.is-install-glow {
+    /* Same degradation: opacity only, no shadow work (§7.5 — mandatory, not optional). */
+    animation: jx-install-glow-fade 1400ms var(--jx-motion-flow) 1;
+  }
+
   .jx-ball[data-state='analyzing'] {
     animation: none;
   }
 
   .jx-ball {
     transition-duration: 0s;
+  }
+}
+
+@keyframes jx-install-glow-fade {
+  0% {
+    opacity: 0.32;
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.32;
   }
 }
 
