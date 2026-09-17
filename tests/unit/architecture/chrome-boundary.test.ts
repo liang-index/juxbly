@@ -123,9 +123,9 @@ describe('architecture: platform API boundary', () => {
     expect(statSync(join(REPO_ROOT, PLATFORM_PACKAGE)).isDirectory()).toBe(true)
   })
 
-  // Same reason as key-leak's widened scan: the walk is O(source tree), and the tree
-  // outgrew the default 5 s timeout. A size-flaky guard is an ignored guard.
-  it('no source file outside the sanctioned locations references platform APIs', { timeout: 30_000 }, () => {
+  // Same reason as key-leak's widened scan: the walk is O(source tree), so the budget has
+  // to follow repo size *and* filesystem latency — a size-flaky guard is an ignored guard.
+  it('no source file outside the sanctioned locations references platform APIs', { timeout: 120_000 }, () => {
     const offenders: string[] = []
 
     for (const root of SCAN_ROOTS) {

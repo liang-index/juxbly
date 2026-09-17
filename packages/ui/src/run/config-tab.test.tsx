@@ -97,7 +97,10 @@ function mounted({ saveEdit, onSaved }: Harness = {}): HTMLElement {
     <ConfigTab
       tool={definition()}
       ports={{
-        saveEdit: saveEdit ?? vi.fn().mockResolvedValue({ ok: true, version: 2 }),
+        // Typed by the async function rather than by `vi.fn()` alone: an untyped
+        // `vi.fn()` widens to `Mock<Procedure | Constructable>` under vitest 4 and stops
+        // being assignable to this port.
+        saveEdit: saveEdit ?? vi.fn(async () => ({ ok: true, version: 2 })),
         loadVersions: vi.fn().mockResolvedValue({ version: 1, versions: [] }),
         rollback: vi.fn().mockResolvedValue({ ok: false }),
       }}

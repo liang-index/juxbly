@@ -139,7 +139,7 @@ Reported every run:
 |---|---|
 | **Build Success Rate** | share of cases that end in a usable tool (the headline number) |
 | Correct / Partial / Wrong | human-labelled distribution (`BENCHMARK_GUIDE.md`) |
-| Correction Rate | how many confirmations needed user correction |
+| Clarification Rate (proxy) | how many builds were preceded by a clarifying question — an offline stand-in for "needed user correction" (see below) |
 | Health false-positive rate | cases flagged degraded/broken on a page that had not actually broken |
 | Repair success rate | repairs that produce a working new version |
 | Latency and token cost | per case, for runs that used an `llm` step |
@@ -151,7 +151,7 @@ What each one counts, exactly, because "build success" can mean four different t
 | Metric | Counted as |
 |---|---|
 | **Build Success Rate** | the case generated a DSL that passed §5.4 validation, ran without an execution error, and returned at least one item. A tool that runs and finds nothing did not succeed |
-| **Correction Rate** | the model answered with a clarifying question before it would build. Offline nobody can answer it, so the runner re-asks once with `noMoreQuestions` and records the flag. This is a **proxy** for the product's "user had to correct it" — the offline runner has no user, and it does not pretend otherwise |
+| **Clarification Rate (proxy)** | the model answered with a clarifying question before it would build. Offline nobody can answer it, so the runner re-asks once with `noMoreQuestions` and records the flag. This is a **proxy** for the product's "user had to correct it" — the offline runner has no user, and it does not pretend otherwise. The JSON field keeps the historical name `correctionRate` so old result files stay readable |
 | **Health false-positive** | of the cases that ran, those that were still reported as not healthy. A benchmark run is a tool's first run ever, so there is no history to deviate from: any non-healthy verdict here is a false positive by construction |
 | **Repair success** | **not measured.** The runner does not repair — V1 forbids silent auto-repair, and a repair rate measured without a user deciding to repair would be a number about nothing. Reported as `not measured`, never as `0%` |
 | **Latency / tokens** | per case, wall clock around generation plus execution; tokens are the sum of the proposal and the run |
@@ -162,6 +162,7 @@ What each one counts, exactly, because "build success" can mean four different t
 - Never drop failed cases from the reported set without saying so.
 - Report the model, the date, and the corpus revision with every number.
 - Published claims use the current measured value, even when it is unimpressive.
+- A run where every case stopped with the same error measured nothing. It is an environment failure (unreachable endpoint, wrong key, no quota), not a `0%` baseline — the report says so at the top and the command exits non-zero. Delete that run's result before running again: the next run's delta is computed against the previous file, and a +60 pp improvement over an outage is a lie.
 
 ## Running it
 
@@ -175,6 +176,8 @@ JUXBLY_LLM_API_KEY=... pnpm test:bench --limit 5     # a slice
 `JUXBLY_LLM_BASE_URL` and `JUXBLY_LLM_MODEL` are optional (BYOK, so any OpenAI-compatible endpoint works; the default model is `gpt-4o-mini`). The key is read from the environment only — it is never written to a result, a report or a log.
 
 Without a key the run is **skipped and says so**: no model call, exit 0, and CI leaves a "Benchmark skipped" note instead of a green tick that means nothing.
+
+When the key is there but nothing gets through, the run **fails**: every case stops with the same error code, the report opens with "Not a benchmark result", and the command exits 1. Nothing is deleted for you — the failed result stays on disk as evidence, and the message names the file to remove before the next attempt.
 
 Every run writes two files: `results/<run-id>.json` (raw, refused if it already exists) and `reports/<run-id>.md` (aggregated, with the delta against the previous run). Judgements go in `results/labels.json` as `LabeledResult` entries; until they are there the report says how many cases are pending and counts them as neither right nor wrong.
 

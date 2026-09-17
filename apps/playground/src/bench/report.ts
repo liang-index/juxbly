@@ -18,12 +18,13 @@ export function renderReport(report: MetricsReport, previous: MetricsReport | nu
   lines.push(`- Generated: ${report.generatedAt}`)
   lines.push(`- Cases: ${report.total}`)
   lines.push('')
+  if (report.environmentFailure !== null) lines.push(...environmentLines(report.environmentFailure))
   lines.push('## Headline')
   lines.push('')
   lines.push(`| Metric | This run |${previous === null ? '' : ' Previous | Delta |'}`)
   lines.push(`|---|--${previous === null ? '' : '|--|--'}-|`)
   lines.push(`| Build Success Rate | ${percent(report.buildSuccessRate)} |${previous === null ? '' : ` ${percent(previous.buildSuccessRate)} | ${delta(report.buildSuccessRate, previous.buildSuccessRate)} |`}`)
-  lines.push(`| Correction Rate | ${percent(report.correctionRate)} |${previous === null ? '' : ` ${percent(previous.correctionRate)} | ${delta(report.correctionRate, previous.correctionRate)} |`}`)
+  lines.push(`| Clarification Rate (proxy) | ${percent(report.correctionRate)} |${previous === null ? '' : ` ${percent(previous.correctionRate)} | ${delta(report.correctionRate, previous.correctionRate)} |`}`)
   lines.push(`| Health false-positive | ${percent(report.healthFalsePositiveRate)} |${previous === null ? '' : ` ${percent(previous.healthFalsePositiveRate)} | ${delta(report.healthFalsePositiveRate, previous.healthFalsePositiveRate)} |`}`)
   lines.push(`| Repair success | ${report.repairSuccessRate === null ? 'not measured' : percent(report.repairSuccessRate)} |`)
   lines.push('')
@@ -32,6 +33,22 @@ export function renderReport(report: MetricsReport, previous: MetricsReport | nu
   lines.push(...costLines(report))
   lines.push(...failureLines(report))
   return lines.join('\n')
+}
+
+/**
+ * The banner for a run that never reached the model.
+ *
+ * Deliberately the first thing in the file: a reader who opens the report has to be
+ * told "this is not a result" before they see any number, because every number below
+ * is the same number — the outage, counted once per case.
+ */
+function environmentLines(code: string): string[] {
+  return [
+    '> **Not a benchmark result.** Every case failed at generation with the same error',
+    `> (\`${code}\`), so no case ever reached the model. The rates below describe the`,
+    '> environment, not Juxbly — do not publish them and do not diff against them.',
+    '',
+  ]
 }
 
 function judgementLines(report: MetricsReport): string[] {

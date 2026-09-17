@@ -1,12 +1,12 @@
 # Stage 2-3 — the benchmark, on the shared-core trigger (docs/testing/TESTING.md).
 #
-# Only a change to one of the six shared packages can move these numbers, so only a
+# Only a change to one of the seven shared packages can move these numbers, so only a
 # change to one of them pays for a run. A benchmark on every pull request would be
 # noise anyway: it would train reviewers to ignore the one signal it exists to give.
 #
-# The six packages are the shared-core trigger as `docs/testing/TESTING.md` defines it.
-# `packages/llm` is deliberately absent — stage 2-4 changes prompts, and whether a prompt
-# change should buy a benchmark run is a Maintainer call, not something to smuggle in here.
+# The trigger is the shared core — the six packages `docs/testing/TESTING.md` defines,
+# plus `packages/llm`: stage 2-4 changes prompts, so a prompt change has to buy a
+# benchmark run rather than slip through without one.
 #
 # A pull request runs a **slice** (5 cases): enough to catch a runner that is broken,
 # not enough to spend real money on an unmerged branch. The full run that produces the
@@ -23,6 +23,7 @@ on:
       - packages/health/**
       - packages/analyzer/**
       - packages/repair/**
+      - packages/llm/**
       - apps/playground/src/**
       - tests/benchmark/**
       - .github/workflows/benchmark.yml

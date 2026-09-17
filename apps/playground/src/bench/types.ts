@@ -110,4 +110,13 @@ export interface MetricsReport {
   failedCases: FailureExcerpt[]
   /** Cases with no judgement yet, so the report cannot be read as final. */
   pendingCases: string[]
+  /**
+   * The error code every single case failed with, when they all failed with the same one.
+   *
+   * A run where no case ever reached the model measured nothing: its 0% is a fact about
+   * the network or the key, not about Juxbly. Reporting that as a baseline — or diffing
+   * the next real run against it — would manufacture an improvement out of an outage.
+   * `null` when at least one case got through, or when the failures differ.
+   */
+  environmentFailure: string | null
 }

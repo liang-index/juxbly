@@ -627,9 +627,17 @@ async function statOf(path) {
   return stat(path)
 }
 
+/**
+ * Rewrites `corpus/index.json`.
+ *
+ * `generatedAt` is a **corpus revision**, not a write time: it is the stamp a benchmark
+ * report carries so its numbers can be tied to the snapshots they came from. But this
+ * function is also called by the health check, which `pnpm test` runs — so stamping it
+ * unconditionally meant every test run bumped the revision and left a tracked file dirty,
+ * while the corpus itself had not changed. The stamp now moves only when the corpus moves.
+ */
 export async function writeCorpusIndex(metas) {
-  const index = {
-    generatedAt: new Date().toISOString(),
+  const body = {
     count: metas.length,
     buckets: Object.fromEntries(
       BUCKETS.map((bucket) => [bucket, metas.filter((meta) => meta.bucket === bucket).length]),
@@ -642,6 +650,25 @@ export async function writeCorpusIndex(metas) {
       sizeBytes: meta.sizeBytes,
     })),
   }
+
+  const previous = await readCorpusIndex()
+  const unchanged = previous !== null && JSON.stringify(corpusOf(previous)) === JSON.stringify(body)
+  const index = { generatedAt: unchanged ? previous.generatedAt : new Date().toISOString(), ...body }
+
   await writeFile(join(CORPUS_ROOT, 'index.json'), `${JSON.stringify(index, null, 2)}\n`)
   return index
+}
+
+/** The existing index, or `null` when there is not one yet. */
+export async function readCorpusIndex() {
+  try {
+    return JSON.parse(await readFile(join(CORPUS_ROOT, 'index.json'), 'utf8'))
+  } catch {
+    return null
+  }
+}
+
+/** Everything except the stamp — the part that decides whether the corpus changed. */
+function corpusOf(index) {
+  return { count: index.count, buckets: index.buckets, snapshots: index.snapshots }
 }

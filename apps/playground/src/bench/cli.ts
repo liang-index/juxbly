@@ -55,6 +55,17 @@ export async function main(argv: readonly string[]): Promise<number> {
   process.stdout.write(`  results: ${resultPath}\n`)
   process.stdout.write(`  report:  ${reportPath}\n`)
   process.stdout.write(`  build success rate: ${report.buildSuccessRate === null ? 'n/a' : `${(report.buildSuccessRate * 100).toFixed(1)}%`}\n`)
+
+  if (report.environmentFailure !== null) {
+    process.stderr.write(
+      `\nbenchmark FAILED: every case stopped at generation with \`${report.environmentFailure}\`.\n` +
+        `  No case reached the model, so this run measured nothing — it is not a 0% baseline and\n` +
+        `  the next run must not be diffed against it. Check JUXBLY_LLM_BASE_URL, the key and\n` +
+        `  network egress, then delete ${resultPath} and run again.\n`,
+    )
+    return 1
+  }
+
   return 0
 }
 

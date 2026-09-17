@@ -1624,7 +1624,9 @@ interface RunResult {
   runId: string // <ISO stamp>-<model slug>; also the results/ and reports/ file name
   startedAt: string
   finishedAt: string
-  corpusRevision: string // corpus/index.json generatedAt — the denominator of every number
+  corpusRevision: string // corpus/index.json generatedAt — the denominator of every number.
+                         // It advances only when the corpus changes, not on every rewrite:
+                         // the health check regenerates the index on every `pnpm test`.
   model: string
   cases: CaseResult[]
 }
@@ -1650,6 +1652,7 @@ Two rules the runner holds to, because both are easy to break by accident:
 
 - **An unjudged case is pending, never wrong.** `MetricsReport.labelCounts.pending` exists for this; `aggregate()` has no path from "nobody looked" to `wrong`.
 - **A rate with an empty denominator is `null`, not zero.** Zero is a measurement; `null` is an admission that nothing was measured.
+- **A run that never reached the model is not a result.** `MetricsReport.environmentFailure` is the error code every case died with, or `null` when at least one got through. Fifty `NETWORK` failures measure the network, not Juxbly: the report leads with that fact and `pnpm test:bench` exits non-zero. Its result file has to be removed before the next run, because the delta is computed against the previous file and an improvement over an outage is not an improvement.
 
 `apps/playground/src/bench/` holds the implementation (`pnpm test:bench`), loaded outside a browser through Vite's SSR pipeline so it imports `@juxbly/*` the way tests do.
 

@@ -39,7 +39,24 @@ export function aggregate(run: RunResult, labeled: readonly LabeledResult[] = []
     byBucket: byBucket(run.cases, labels),
     failedCases: failures(run.cases),
     pendingCases: run.cases.filter((entry) => !labels.has(entry.caseId)).map((entry) => entry.caseId),
+    environmentFailure: environmentFailure(run.cases),
   }
+}
+
+/**
+ * The one error code that stopped every case, if there is one.
+ *
+ * `NETWORK` on all 50 cases is not "50 failures", it is one failure — the endpoint was
+ * unreachable. The same holds for a wrong key (`AUTH`) or an exhausted quota
+ * (`RATE_LIMIT`): the run never asked the question it exists to ask. Naming it lets the
+ * report say so and the CLI refuse to pass it off as a measurement.
+ */
+export function environmentFailure(cases: readonly CaseResult[]): string | null {
+  if (cases.length === 0) return null
+  const codes = cases.map((entry) => (entry.generationSucceeded ? undefined : entry.generationError))
+  const first = codes[0]
+  if (first === undefined || first === '') return null
+  return codes.every((code) => code === first) ? first : null
 }
 
 /** Built and ran and returned something — the headline number, `null` when nothing ran. */

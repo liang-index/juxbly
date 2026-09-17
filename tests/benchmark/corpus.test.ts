@@ -114,9 +114,10 @@ function fixtureUrl(name: string): string {
   return pathToFileURL(join(FIXTURES, name)).href
 }
 
-// The health check spawns a CLI (about 2.5 s); the default 5 s per-test budget turns into a
-// flaky guard as soon as the machine is busy, and a flaky guard is an ignored guard.
-describe('web corpus', { timeout: 30_000 }, () => {
+// The health check spawns a CLI that walks the whole corpus: about 2.5 s on a normal disk,
+// and measured 47 s wall / 5 s user on a machine with a slow filesystem. The budget follows
+// the slow case — a guard that fails on I/O latency is a guard that gets ignored.
+describe('web corpus', { timeout: 120_000 }, () => {
   it('passes the health check', () => {
     const report = healthCheck()
     expect(report.problems).toEqual([])
@@ -174,6 +175,23 @@ describe('web corpus', { timeout: 30_000 }, () => {
     expect(Object.keys(index.buckets).sort()).toEqual(['A', 'B', 'C', 'D', 'E'])
     expect(index.snapshots.length).toBe(index.count)
   })
+
+  /**
+   * The health check rewrites `index.json`, and `pnpm test` runs the health check. If that
+   * rewrite restamped `generatedAt`, every test run would leave a tracked file dirty and
+   * silently move the revision that ties a benchmark report to the corpus behind it.
+   *
+   * Asserted through a second health-check run rather than by importing the writer: the
+   * writer is a plain `.mjs` with no declaration file, and the path that actually broke is
+   * "the health check rewrote the stamp", so the guard should exercise that path.
+   */
+  it('keeps the corpus revision still when the corpus did not change', () => {
+    const before = JSON.parse(readFileSync(join(CORPUS, 'index.json'), 'utf8')).generatedAt
+    runCli('scripts/check-corpus.mjs', ['--json'])
+    const after = JSON.parse(readFileSync(join(CORPUS, 'index.json'), 'utf8')).generatedAt
+    expect(after).toBe(before)
+  })
+
 })
 
 describe.runIf(hasChromium())('snapshot pipeline (needs chromium)', { timeout: 60_000 }, () => {

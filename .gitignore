@@ -33,5 +33,19 @@ tsxCache/
 # Local scratch
 *.local
 
+# Benchmark run output (stage 2-3).
+#
+# A run's raw result is regenerable and depends on whoever paid for it (key, model,
+# network, day). Committing them makes the repository a place where only the good runs
+# ever land — the exact self-deception `task/stage-2-4.md` forbids. The durable artefact
+# is `labels.json` (a person's judgement, run-independent) plus the numbers written into
+# `docs/benchmark/README.md`. Same for the generated per-run report; the template stays.
+tests/benchmark/results/*
+!tests/benchmark/results/.gitkeep
+!tests/benchmark/results/labels.json
+tests/benchmark/reports/*
+!tests/benchmark/reports/.gitkeep
+!tests/benchmark/reports/judgement-template.md
+
 # Agent working notes (internal; never part of the public tree)
 .workbuddy/

@@ -69,6 +69,28 @@ describe('aggregate', () => {
     expect(report.byBucket.E.buildSuccessRate).toBeNull()
   })
 
+  it('names the one error that stopped every case, so an outage is not read as 0%', () => {
+    const outage: RunResult = {
+      ...RUN,
+      cases: [
+        result({ caseId: 'A-01', bucket: 'A', generationSucceeded: false, generationError: 'NETWORK' }),
+        result({ caseId: 'B-01', bucket: 'B', generationSucceeded: false, generationError: 'NETWORK' }),
+      ],
+    }
+    expect(aggregate(outage).environmentFailure).toBe('NETWORK')
+  })
+
+  it('reports no environment failure once a single case reaches the model', () => {
+    const mixed: RunResult = {
+      ...RUN,
+      cases: [
+        result({ caseId: 'A-01', bucket: 'A', itemCount: 5 }),
+        result({ caseId: 'B-01', bucket: 'B', generationSucceeded: false, generationError: 'NETWORK' }),
+      ],
+    }
+    expect(aggregate(mixed).environmentFailure).toBeNull()
+  })
+
   it('gives every failure a reason, not just a count', () => {
     const failures = aggregate(RUN, LABELED).failedCases
     // In case order: C-01 ran and found nothing, C-02 never produced a tool.
@@ -99,5 +121,20 @@ describe('renderReport', () => {
     const [firstCase] = RUN.cases
     const clean = aggregate({ ...RUN, cases: firstCase === undefined ? [] : [firstCase] })
     expect(renderReport(clean)).toContain('None.')
+  })
+
+  it('leads with the outage banner so the numbers cannot be read first', () => {
+    const outage = aggregate({
+      ...RUN,
+      cases: [
+        result({ caseId: 'A-01', bucket: 'A', generationSucceeded: false, generationError: 'NETWORK' }),
+        result({ caseId: 'A-02', bucket: 'A', generationSucceeded: false, generationError: 'NETWORK' }),
+      ],
+    })
+    const markdown = renderReport(outage)
+    expect(markdown).toContain('Not a benchmark result')
+    expect(markdown).toContain('NETWORK')
+    // The warning has to precede the first number, not follow it.
+    expect(markdown.indexOf('Not a benchmark result')).toBeLessThan(markdown.indexOf('Headline'))
   })
 })
