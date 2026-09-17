@@ -46,6 +46,9 @@ tests/benchmark/results/*
 tests/benchmark/reports/*
 !tests/benchmark/reports/.gitkeep
 !tests/benchmark/reports/judgement-template.md
+# The attribution write-up is an analysis, not a run: it survives any single run and it
+# is the artefact stage 2-4 is judged on. Per-run reports stay ignored.
+!tests/benchmark/reports/attribution-*.md
 
 # Agent working notes (internal; never part of the public tree)
 .workbuddy/

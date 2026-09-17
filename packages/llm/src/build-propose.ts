@@ -175,7 +175,7 @@ export function buildInstruction(input: InstructionInput): string {
     'A ToolDefinition is:',
     '  {"tool_id": "tool_8f3a2b", "name": "<short name>", "description": "<one sentence>",',
     '   "category": "data" | "enhance" | "analyze" | "export",',
-    '   "url_pattern": "<glob matching this page>", "version": 1,',
+    '   "url_pattern": "https://<exact host>/<path, trailing * allowed>", "version": 1,',
     '   "steps": [',
     '     {"type": "extract", "mode": "list" | "single", "selector": "<container css>",',
     '      "fields": {"<name>": "<css, relative to selector>"},',
@@ -189,6 +189,7 @@ export function buildInstruction(input: InstructionInput): string {
     '- Build selectors from stable anchors only: semantic custom-element tags (e.g. shreddit-post), aria-* and data-* attributes, stable class names, or structural position (:nth-of-type).',
     "- Never use hashed or generated class names (like css-1x2y3z or jss1234): they change on the site's next deploy and the tool will break.",
     '- Field selectors are relative to the container selector.',
+    '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match.',
     '- "link" reads href, "image" reads src, "text" reads text.',
   )
 

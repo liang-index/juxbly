@@ -33,9 +33,62 @@ export interface SnapshotHost {
  * (the measurement is in the snapshot's `bucketEvidence`). A port that pretended to
  * load more would be inventing content the benchmark never measured.
  */
+/**
+ * The globals a mounted view needs, taken from the snapshot's own realm.
+ *
+ * `render` is a real step and `mountView` is React DOM (`createRoot` + `flushSync`), so
+ * a host that cannot host a view turns every tool that ends in `render` into
+ * `CAPABILITY_FAILED` — and since Build Success Rate demands a clean run, the headline
+ * number collapses to 0% for reasons that have nothing to do with the product.
+ *
+ * They must come from *this* document's jsdom realm: React checks nodes with
+ * `instanceof Element`, and a second realm's `Element` would reject the very nodes the
+ * port hands out.
+ */
+const VIEW_HOST_GLOBALS = [
+  'window',
+  'document',
+  'navigator',
+  'Document',
+  'DocumentFragment',
+  'Element',
+  'HTMLElement',
+  'HTMLTemplateElement',
+  'Node',
+  'NodeFilter',
+  'ShadowRoot',
+  'DOMParser',
+  'Event',
+  'CustomEvent',
+  'MouseEvent',
+  'KeyboardEvent',
+  'CSSStyleDeclaration',
+  'MutationObserver',
+  'getComputedStyle',
+  'requestAnimationFrame',
+  'cancelAnimationFrame',
+]
+
+function installViewHost(window: Window & typeof globalThis): void {
+  const globals = globalThis as unknown as Record<string, unknown>
+  const source = window as unknown as Record<string, unknown>
+  for (const name of VIEW_HOST_GLOBALS) {
+    if (source[name] === undefined) continue
+    // `navigator` and friends are getter-only on the Node global object (Node 21+), so a
+    // plain assignment throws; redefining the property is the only way to replace them.
+    Object.defineProperty(globals, name, {
+      value: source[name],
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    })
+  }
+}
+
 export function createSnapshotHost(html: string, url: string): SnapshotHost {
   const { window } = new JSDOM(html, { url })
   const document = window.document
+  installViewHost(window)
   mountDeclarativeShadowRoots(document)
 
   const dom: DomPort = {
