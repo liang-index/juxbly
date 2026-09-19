@@ -1,0 +1,29 @@
+{
+  "case_id": "D-08",
+  "bucket": "D",
+  "expected_fields": [
+    "title",
+    "nominations",
+    "awards"
+  ],
+  "item_count_range": [
+    15,
+    17
+  ],
+  "sample": [
+    {
+      "title": "Birdman",
+      "nominations": "9",
+      "awards": "4"
+    },
+    {
+      "title": "The Grand Budapest Hotel",
+      "nominations": "9",
+      "awards": "4"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

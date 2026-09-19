@@ -1,0 +1,49 @@
+{
+  "id": "C-03",
+  "url": "https://shoelace.style/components/button",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:06.358Z",
+  "sizeBytes": 405638,
+  "verifiedOn": "2026-09-10",
+  "title": "Button",
+  "bucketEvidence": {
+    "verdict": "116 of 344 shadow roots carry content",
+    "shadowRootCount": 344,
+    "shadowRootWithContentCount": 116,
+    "customElementCount": 344,
+    "shadowHostSample": [
+      "sl-button",
+      "sl-menu-item",
+      "sl-icon",
+      "sl-menu-item",
+      "sl-icon"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 81240,
+    "assetCount": 5,
+    "nodeCount": 4229,
+    "shadowRootCount": 344,
+    "shadowRootWithContentCount": 116,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 344,
+    "classTokenCount": 177,
+    "hashedClassTokens": 28,
+    "maxRepeatingCount": 1139
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://shoelace.style/robots.txt"
+  },
+  "notes": "344 custom elements, 116 shadow roots carrying content: the densest C page in the corpus.",
+  "personalDataHits": []
+}

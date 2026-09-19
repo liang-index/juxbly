@@ -1,0 +1,13 @@
+{
+  "id": "C-07",
+  "bucket": "C",
+  "url": "https://lit.dev/docs/",
+  "corpus": "corpus/C-07/index.html",
+  "task_description": "List every page in the Lit documentation navigation with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "The site is built with Lit, so both the navigation and the content are custom elements; several nested lists share the same item class.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,50 @@
+{
+  "id": "E-04",
+  "url": "https://mui.com/material-ui/react-button/",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:21:35.688Z",
+  "sizeBytes": 738677,
+  "verifiedOn": "2026-09-10",
+  "title": "React Button component - Material UI",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.55",
+    "hashedClassTokens": 209,
+    "hashedClassRatio": 0.55,
+    "classTokenCount": 380,
+    "hashedSample": [
+      "__className_fa2f99",
+      "__className_d1796c",
+      "__className_34246c",
+      "__className_c5436a",
+      "css-14uhdw1"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 83651,
+    "assetCount": 3,
+    "nodeCount": 3155,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 380,
+    "hashedClassTokens": 209,
+    "maxRepeatingCount": 341
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://mui.com/robots.txt"
+  },
+  "notes": "A component page with live demos: 209 generated tokens and no two components sharing a prefix.",
+  "personalDataHits": []
+}

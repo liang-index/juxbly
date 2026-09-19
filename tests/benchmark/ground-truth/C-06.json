@@ -1,0 +1,30 @@
+{
+  "case_id": "C-06",
+  "bucket": "C",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "item_count_range": [
+    15,
+    20
+  ],
+  "sample": [
+    {
+      "title": "Icon",
+      "anchor": "icon"
+    },
+    {
+      "title": "Focusable and disabled",
+      "anchor": "focusable-and-disabled"
+    },
+    {
+      "title": "Elevated button tokens",
+      "anchor": "elevated-button-tokens"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

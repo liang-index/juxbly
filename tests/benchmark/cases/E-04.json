@@ -1,0 +1,13 @@
+{
+  "id": "E-04",
+  "bucket": "E",
+  "url": "https://mui.com/material-ui/react-button/",
+  "corpus": "corpus/E-04/index.html",
+  "task_description": "List every button demo on this page with its name and the anchor that jumps to it.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "A component page with live demos: 200+ generated class tokens and no two components sharing a prefix. The demo nav and the page nav have the same shape.",
+  "verified_on": "2026-09-10"
+}

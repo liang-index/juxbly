@@ -1,0 +1,56 @@
+{
+  "id": "D-06",
+  "url": "https://react.dev/learn",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:18:10.245Z",
+  "sizeBytes": 257640,
+  "verifiedOn": "2026-09-10",
+  "title": "Quick Start \u2013 React",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 9 repeated structure(s): div|span.sp-syntax-keyword 44->54; div|span.sp-syntax-definition 32->39; div|span.sp-syntax-punctuation 311->372; div|br. 122->127; div|span.sp-syntax-tag 39->45",
+    "grownGroups": 9,
+    "grownSample": [
+      "div|span.sp-syntax-keyword 44->54",
+      "div|span.sp-syntax-definition 32->39",
+      "div|span.sp-syntax-punctuation 311->372",
+      "div|br. 122->127",
+      "div|span.sp-syntax-tag 39->45"
+    ],
+    "nodesBeforeScroll": 2432,
+    "nodesAfterScroll": 2496,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 108627,
+    "assetCount": 1,
+    "nodeCount": 2496,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 9,
+    "customElementCount": 1,
+    "classTokenCount": 468,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 372
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "CC-BY-4.0",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://react.dev/robots.txt"
+  },
+  "notes": "Grows by lazily mounting page sections, not by appending a feed. Honest D, weaker shape.",
+  "personalDataHits": []
+}

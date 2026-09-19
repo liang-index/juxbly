@@ -1,0 +1,12 @@
+{
+  "id": "D-03",
+  "bucket": "D",
+  "url": "https://mastodon.social/explore",
+  "corpus": "corpus/D-03/index.html",
+  "task_description": "List the author of every post in this trending feed.",
+  "expected_fields": [
+    "author"
+  ],
+  "notes": "Snapshot caveat: the feed rows are virtual-list placeholders (opacity 0, fixed height) and each post body is present only as escaped markup, so post text is not extractable from this snapshot. Author display names are; text extraction is expected to fail here until the snapshot is re-captured.",
+  "verified_on": "2026-09-10"
+}

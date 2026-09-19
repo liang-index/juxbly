@@ -1,0 +1,26 @@
+{
+  "case_id": "E-02",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    5,
+    5
+  ],
+  "sample": [
+    {
+      "title": "Isotope Filter & sort magical layouts",
+      "url": "https://isotope.metafizzy.co"
+    },
+    {
+      "title": "Flickity Touch, responsive, flickable carousels",
+      "url": "https://flickity.metafizzy.co"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

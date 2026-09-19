@@ -1,0 +1,26 @@
+{
+  "case_id": "B-08",
+  "bucket": "B",
+  "expected_fields": [
+    "title"
+  ],
+  "item_count_range": [
+    8,
+    12
+  ],
+  "sample": [
+    {
+      "title": "Testing"
+    },
+    {
+      "title": "Passwords"
+    },
+    {
+      "title": "Frontend"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

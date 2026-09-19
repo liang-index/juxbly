@@ -1,0 +1,26 @@
+{
+  "case_id": "D-07",
+  "bucket": "D",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "item_count_range": [
+    12,
+    16
+  ],
+  "sample": [
+    {
+      "title": "✨ Features",
+      "anchor": "#-features"
+    },
+    {
+      "title": "Environment Support",
+      "anchor": "#environment-support"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -1,0 +1,352 @@
+[
+  {
+    "caseId": "A-01",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 2/4 fields found; missing: availability, rating",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-02",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 2/3 fields found; partial values: tags; 24 items outside the expected range (renamed: text->quote)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-03",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 0/4 fields found; partial values: number, first_name, last_name, username; 2 items outside the expected range (renamed: number->row_number)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-04",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 2/3 fields found; missing: price (renamed: url->link)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-05",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 2/3 fields found; missing: signature; 71 items outside the expected range (renamed: summary->description)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-06",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 1/2 fields found; missing: anchor; 94 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-07",
+    "label": "wrong",
+    "notes": "[invalid-output | high confidence] no usable tool: generation failed (EMPTY_REPLY)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-08",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: url; 56 items outside the expected range (renamed: name->topic_name)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-09",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: url; 152 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-10",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 2/3 fields found; partial values: version; 16 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-11",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: url",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "A-12",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: description (renamed: name->description)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-01",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: url; 92 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-02",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 0/2 fields found; missing: url; partial values: title; 11 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-03",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: url (renamed: title->name)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-04",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (232 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-05",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (54 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-06",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 0/3 fields found; missing: description, url; partial values: name; 40 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-07",
+    "label": "partial",
+    "notes": "[wrong-element | medium confidence] 26 items outside the expected range, but every field found (renamed: title->name)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-08",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (25 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-09",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: links; 15 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "B-10",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (11 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-01",
+    "label": "wrong",
+    "notes": "[zero-match | high confidence] produced no items",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-02",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 2/3 fields found; missing: version (renamed: channel->version, info->channel)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-03",
+    "label": "wrong",
+    "notes": "[invalid-output | high confidence] no usable tool: generation produced nothing and recorded no error code",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-04",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; partial values: name",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-05",
+    "label": "correct",
+    "notes": "[field-semantics | high confidence] 25 items in range, every field found (renamed: title->entry)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-06",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 0/2 fields found; missing: anchor; partial values: title; 11 items outside the expected range (renamed: title->heading)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-07",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 1/2 fields found; missing: url; 32 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-08",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (59 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-09",
+    "label": "partial",
+    "notes": "[wrong-element | medium confidence] 27 items outside the expected range, but every field found",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "C-10",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 0/2 fields found; missing: url; partial values: title",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-01",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 2/3 fields found; partial values: tags; 144 items outside the expected range (renamed: text->quote)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-02",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (25 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-03",
+    "label": "correct",
+    "notes": "[field-semantics | high confidence] 79 items in range, every field found",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-04",
+    "label": "correct",
+    "notes": "[field-semantics | high confidence] 60 items in range, every field found",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-05",
+    "label": "correct",
+    "notes": "[field-semantics | high confidence] 80 items in range, every field found",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-06",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 1/2 fields found; missing: url; 126 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-07",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (83 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "D-08",
+    "label": "correct",
+    "notes": "[field-semantics | high confidence] 16 items in range, every field found",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-01",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (5 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-02",
+    "label": "wrong",
+    "notes": "[invalid-output | high confidence] no usable tool: generation produced nothing and recorded no error code",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-03",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 1/2 fields found; missing: description; 30 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-04",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 0/2 fields found; missing: url; partial values: title; 14 items outside the expected range (renamed: title->name)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-05",
+    "label": "partial",
+    "notes": "[field-semantics | low confidence] 1/2 fields found; missing: url",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-06",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (5 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-07",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 1/2 fields found; missing: url; 51 items outside the expected range",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-08",
+    "label": "wrong",
+    "notes": "[wrong-element | medium confidence] no expected field found in the output (3 items)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-09",
+    "label": "wrong",
+    "notes": "[invalid-output | high confidence] no usable tool: generation produced nothing and recorded no error code",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  },
+  {
+    "caseId": "E-10",
+    "label": "partial",
+    "notes": "[wrong-element | low confidence] 0/3 fields found; missing: name, description; partial values: default_value; 490 items outside the expected range (renamed: default_value->variable_name)",
+    "judgedAt": "2026-09-17",
+    "judge": "agent (mechanical pre-label via scripts/prelabel.mjs), accepted by Maintainer"
+  }
+]

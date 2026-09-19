@@ -11,6 +11,7 @@
  */
 import type { DomPort } from '@juxbly/core'
 import type { ExtractStep, FieldType } from '@juxbly/dsl'
+import { isSelfSelector } from '@juxbly/dsl'
 import { CapabilityError } from '../errors'
 import type { FieldValue } from './field-value'
 import { emptyFieldValue, hasValue, readFieldValue } from './field-value'
@@ -103,7 +104,12 @@ function readRecord(dom: DomPort, step: ExtractStep, scope?: Element): Record<st
 
   for (const [name, selector] of Object.entries(step.fields)) {
     const type: FieldType = step.field_types?.[name] ?? 'text'
-    const [element] = query(dom, selector, scope)
+    // `:self` is the one selector that is resolved before querying: the container is never
+    // among its own `querySelectorAll` matches, so "the value is this element" has to be
+    // answered here (§5.2). Without a container (single mode, no selector) there is no
+    // element to be, and the field is empty — never the document root, whose text would be
+    // the whole page.
+    const [element] = isSelfSelector(selector) ? [scope] : query(dom, selector, scope)
     record[name] = element === undefined ? emptyFieldValue(type) : readFieldValue(element, type)
   }
 

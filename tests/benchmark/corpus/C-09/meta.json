@@ -1,0 +1,48 @@
+{
+  "id": "C-09",
+  "url": "https://redux-toolkit.js.org/",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:53.288Z",
+  "sizeBytes": 27147,
+  "verifiedOn": "2026-09-10",
+  "title": "Redux Toolkit",
+  "bucketEvidence": {
+    "verdict": "4 of 12 shadow roots carry content",
+    "shadowRootCount": 12,
+    "shadowRootWithContentCount": 4,
+    "customElementCount": 12,
+    "shadowHostSample": [
+      "canary-trigger-searchbar",
+      "canary-content",
+      "canary-input",
+      "canary-search"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 80956,
+    "assetCount": 1,
+    "nodeCount": 312,
+    "shadowRootCount": 12,
+    "shadowRootWithContentCount": 4,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 12,
+    "classTokenCount": 91,
+    "hashedClassTokens": 13,
+    "maxRepeatingCount": 128
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://redux-toolkit.js.org/robots.txt"
+  },
+  "notes": "A thinner C page than the component libraries: 12 roots, 4 carrying content \u2014 the bucket floor.",
+  "personalDataHits": []
+}

@@ -1,0 +1,14 @@
+{
+  "id": "D-08",
+  "bucket": "D",
+  "url": "https://www.scrapethissite.com/pages/ajax-javascript/",
+  "corpus": "corpus/D-08/index.html",
+  "task_description": "Collect every film in the table: title, how many nominations it had, and how many awards it won.",
+  "expected_fields": [
+    "title",
+    "nominations",
+    "awards"
+  ],
+  "notes": "Lazy loading without a scrollbar: the table only exists after the year control is clicked. The Best Picture column carries only a flag icon and no text, so it cannot be produced as a value — a tool that reports it as empty is not wrong.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,30 @@
+{
+  "case_id": "C-04",
+  "bucket": "C",
+  "expected_fields": [
+    "name",
+    "description"
+  ],
+  "item_count_range": [
+    65,
+    78
+  ],
+  "sample": [
+    {
+      "name": "label",
+      "description": "The input’s label. Alternatively, you can use the label attribute."
+    },
+    {
+      "name": "prefix",
+      "description": "Used to prepend a presentational icon or similar element to the input."
+    },
+    {
+      "name": "suffix",
+      "description": "Used to append a presentational icon or similar element to the input."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

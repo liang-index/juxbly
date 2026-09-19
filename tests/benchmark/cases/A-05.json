@@ -1,0 +1,14 @@
+{
+  "id": "A-05",
+  "bucket": "A",
+  "url": "https://docs.python.org/3/library/functions.html",
+  "corpus": "corpus/A-05/index.html",
+  "task_description": "List every built-in function documented here: its name, its signature, and the first line describing what it does.",
+  "expected_fields": [
+    "name",
+    "signature",
+    "summary"
+  ],
+  "notes": "Definition lists, not a table - there is no row or column to anchor on. The page also contains class entries and exceptions that are not functions.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "E-10",
+  "bucket": "E",
+  "url": "https://mui.com/material-ui/customization/theming/",
+  "corpus": "corpus/E-10/index.html",
+  "task_description": "Extract every row of the theme variable table: the variable name, its default value, and what it controls.",
+  "expected_fields": [
+    "name",
+    "default_value",
+    "description"
+  ],
+  "notes": "Generated classes over the theme object rather than over a component - E is not a component-page artefact. The table sits inside a markdown body with no table-specific class.",
+  "verified_on": "2026-09-10"
+}

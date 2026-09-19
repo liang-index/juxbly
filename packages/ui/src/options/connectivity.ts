@@ -11,11 +11,12 @@
  */
 import type { CopyKey } from '../copy'
 
-export type ConnectivityClass = 'ok' | 'auth' | 'network' | 'endpoint' | 'unknown'
+export type ConnectivityClass = 'ok' | 'auth' | 'unavailable' | 'network' | 'endpoint' | 'unknown'
 
 export const CONNECTIVITY_COPY: Readonly<Record<ConnectivityClass, CopyKey>> = {
   ok: 'options.connectivity.ok',
   auth: 'options.connectivity.auth',
+  unavailable: 'options.connectivity.unavailable',
   network: 'options.connectivity.network',
   endpoint: 'options.connectivity.endpoint',
   unknown: 'options.connectivity.unknown',
@@ -35,6 +36,8 @@ export function classifyConnectivity(code: string | null): ConnectivityClass {
   switch (code) {
     case 'AUTH':
       return 'auth'
+    case 'MODEL_UNAVAILABLE':
+      return 'unavailable'
     case 'NETWORK':
     case 'TIMEOUT':
     case 'ABORTED':

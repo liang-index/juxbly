@@ -1,0 +1,44 @@
+{
+  "id": "B-03",
+  "url": "https://nuxt.com/docs/guide/directory-structure/app",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:17:52.631Z",
+  "sizeBytes": 214909,
+  "verifiedOn": "2026-09-10",
+  "title": "app.vue \u00b7 Nuxt Directory Structure v4",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://nuxt.com/"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 293526,
+    "assetCount": 4,
+    "nodeCount": 1003,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 637,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 209
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://nuxt.com/robots.txt"
+  },
+  "notes": "Nuxt docs. 637 distinct class tokens and almost no repetition \u2014 hard for the wrong reason.",
+  "personalDataHits": [
+    "email"
+  ]
+}

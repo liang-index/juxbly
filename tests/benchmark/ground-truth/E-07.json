@@ -1,0 +1,30 @@
+{
+  "case_id": "E-07",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    25,
+    32
+  ],
+  "sample": [
+    {
+      "title": "Overview",
+      "url": "/docs/"
+    },
+    {
+      "title": "Overview",
+      "url": "/docs/tutorial/"
+    },
+    {
+      "title": "Getting Started 9",
+      "url": "/docs/tutorial/getting-started/"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

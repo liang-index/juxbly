@@ -1,0 +1,30 @@
+{
+  "case_id": "E-04",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    18,
+    26
+  ],
+  "sample": [
+    {
+      "title": "Basic button",
+      "url": "/material-ui/react-button/#basic-button"
+    },
+    {
+      "title": "Text button",
+      "url": "/material-ui/react-button/#text-button"
+    },
+    {
+      "title": "Contained button",
+      "url": "/material-ui/react-button/#contained-button"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

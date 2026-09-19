@@ -1,0 +1,13 @@
+{
+  "id": "E-01",
+  "bucket": "E",
+  "url": "https://emotion.sh/docs/introduction",
+  "corpus": "corpus/E-01/index.html",
+  "task_description": "List every page in the Emotion documentation sidebar with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Emotion emits css-* class names for the layout, so only the link targets are stable anchors; the aside element itself carries a generated class.",
+  "verified_on": "2026-09-10"
+}

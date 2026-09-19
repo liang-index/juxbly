@@ -1,0 +1,26 @@
+{
+  "case_id": "B-04",
+  "bucket": "B",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    70,
+    85
+  ],
+  "sample": [
+    {
+      "title": "Entry",
+      "url": "/concepts/#entry"
+    },
+    {
+      "title": "Output",
+      "url": "/concepts/#output"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

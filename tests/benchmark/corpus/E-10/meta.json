@@ -1,0 +1,50 @@
+{
+  "id": "E-10",
+  "url": "https://mui.com/material-ui/customization/theming/",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:22:25.845Z",
+  "sizeBytes": 421302,
+  "verifiedOn": "2026-09-10",
+  "title": "Theming - Material UI",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.48",
+    "hashedClassTokens": 138,
+    "hashedClassRatio": 0.483,
+    "classTokenCount": 286,
+    "hashedSample": [
+      "__className_fa2f99",
+      "__className_d1796c",
+      "__className_34246c",
+      "__className_c5436a",
+      "css-14uhdw1"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 83651,
+    "assetCount": 3,
+    "nodeCount": 1901,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 286,
+    "hashedClassTokens": 138,
+    "maxRepeatingCount": 249
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://mui.com/robots.txt"
+  },
+  "notes": "138 of 286 tokens generated, over the theme object rather than a component \u2014 E is not a component-page artefact.",
+  "personalDataHits": []
+}

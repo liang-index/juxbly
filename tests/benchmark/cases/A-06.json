@@ -1,0 +1,13 @@
+{
+  "id": "A-06",
+  "bucket": "A",
+  "url": "https://www.crummy.com/software/BeautifulSoup/bs4/doc/",
+  "corpus": "corpus/A-06/index.html",
+  "task_description": "Build me a table of contents for this page: every section heading and the anchor link that jumps to it.",
+  "expected_fields": [
+    "title",
+    "anchor"
+  ],
+  "notes": "Long prose documentation. Most repeated structures here are paragraphs and code blocks that are not records; the headings are the only record-shaped list.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "B-06",
+  "bucket": "B",
+  "url": "https://crates.io/",
+  "corpus": "corpus/B-06/index.html",
+  "task_description": "Collect the newest crates on the front page: name, what it does, and its page.",
+  "expected_fields": [
+    "name",
+    "description",
+    "url"
+  ],
+  "notes": "An Ember app: nothing in the initial HTML survives into the rendered page. The same list shape repeats for several other sections, so picking the right section matters.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,26 @@
+{
+  "case_id": "B-07",
+  "bucket": "B",
+  "expected_fields": [
+    "title",
+    "description"
+  ],
+  "item_count_range": [
+    5,
+    8
+  ],
+  "sample": [
+    {
+      "title": "Workspaces",
+      "description": "First package manager built specifically around workspaces, Yarn lets you split your project into sub-components."
+    },
+    {
+      "title": "Stability",
+      "description": "Yarn guarantees that installs that work today will keep working the same way in the future."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -1,0 +1,13 @@
+{
+  "id": "A-11",
+  "bucket": "A",
+  "url": "https://go.dev/doc/",
+  "corpus": "corpus/A-11/index.html",
+  "task_description": "List every documentation topic on this page with its title and where it links to.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "A documentation hub built from many small link groups, so there is no single dominant container to find.",
+  "verified_on": "2026-09-10"
+}

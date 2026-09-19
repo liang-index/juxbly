@@ -1,0 +1,13 @@
+{
+  "id": "E-05",
+  "bucket": "E",
+  "url": "https://chakra-ui.com/docs/components/button",
+  "corpus": "corpus/E-05/index.html",
+  "task_description": "List every entry in the on-this-page outline on this page, with its title and anchor.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Highest generated-class ratio in the corpus (213 of 245 tokens): no semantic anchor survives anywhere on the page.",
+  "verified_on": "2026-09-10"
+}

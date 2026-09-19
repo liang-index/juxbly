@@ -1,0 +1,26 @@
+{
+  "case_id": "C-01",
+  "bucket": "C",
+  "expected_fields": [
+    "name",
+    "url"
+  ],
+  "item_count_range": [
+    95,
+    105
+  ],
+  "sample": [
+    {
+      "name": "Ask before http on by default",
+      "url": "/feature/5143933628841984"
+    },
+    {
+      "name": "Avoid caching module failures",
+      "url": "/feature/5214647044145152"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

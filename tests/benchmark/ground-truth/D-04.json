@@ -1,0 +1,26 @@
+{
+  "case_id": "D-04",
+  "bucket": "D",
+  "expected_fields": [
+    "author"
+  ],
+  "item_count_range": [
+    45,
+    70
+  ],
+  "sample": [
+    {
+      "author": "Neatnik :prami:"
+    },
+    {
+      "author": "NewsThump"
+    },
+    {
+      "author": "Rod Faulkner"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -1,0 +1,26 @@
+{
+  "case_id": "C-10",
+  "bucket": "C",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    24,
+    32
+  ],
+  "sample": [
+    {
+      "title": "Developing Components",
+      "url": "/guides/developing-components/"
+    },
+    {
+      "title": "Getting Started",
+      "url": "/guides/developing-components/getting-started/"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

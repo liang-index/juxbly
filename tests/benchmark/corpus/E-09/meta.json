@@ -1,0 +1,50 @@
+{
+  "id": "E-09",
+  "url": "https://react-hook-form.com/get-started",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:21:55.144Z",
+  "sizeBytes": 395632,
+  "verifiedOn": "2026-09-10",
+  "title": "Get Started | React Hook Form",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.30",
+    "hashedClassTokens": 35,
+    "hashedClassRatio": 0.299,
+    "classTokenCount": 117,
+    "hashedSample": [
+      "Nav_actionButtonWrapper__MzNfc",
+      "Nav_actionButtonGroup__9qBup",
+      "Nav_tsIcon__phrDd",
+      "Nav_tools__z0liM",
+      "Nav_menuExpandLink__8gPYg"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 56672,
+    "assetCount": 4,
+    "nodeCount": 6853,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 2,
+    "customElementCount": 1,
+    "classTokenCount": 117,
+    "hashedClassTokens": 35,
+    "maxRepeatingCount": 1898
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://react-hook-form.com/robots.txt"
+  },
+  "notes": "35 of 124 tokens generated: a lower ratio, kept to stop the bucket collapsing into \"ratio > 0.8\".",
+  "personalDataHits": []
+}

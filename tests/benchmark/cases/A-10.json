@@ -1,0 +1,14 @@
+{
+  "id": "A-10",
+  "bucket": "A",
+  "url": "https://www.kernel.org/",
+  "corpus": "corpus/A-10/index.html",
+  "task_description": "Collect the kernel release table: which channel each row is, the version, and the release date.",
+  "expected_fields": [
+    "channel",
+    "version",
+    "date"
+  ],
+  "notes": "Two candidate containers on one page - a release table and a news list. Only the table carries a channel and a date.",
+  "verified_on": "2026-09-10"
+}

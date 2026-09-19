@@ -1,0 +1,14 @@
+{
+  "id": "C-02",
+  "bucket": "C",
+  "url": "https://chromestatus.com/roadmap",
+  "corpus": "corpus/C-02/index.html",
+  "task_description": "Collect every milestone on this roadmap: which channel it is, which Chrome version, and its dates.",
+  "expected_fields": [
+    "channel",
+    "version",
+    "info"
+  ],
+  "notes": "Same component tree as C-01 on a different route. The version number is split across several elements inside the shadow root (a logo span, the word Chrome, then the number).",
+  "verified_on": "2026-09-10"
+}

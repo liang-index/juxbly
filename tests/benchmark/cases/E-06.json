@@ -1,0 +1,13 @@
+{
+  "id": "E-06",
+  "bucket": "E",
+  "url": "https://emotion.sh/docs/styled",
+  "corpus": "corpus/E-06/index.html",
+  "task_description": "List every page in the Emotion documentation sidebar with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Same generator as E-01 on a different route, which is the point: the ratio is a property of the site, not of the page.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,77 @@
+{
+  "id": "D-04",
+  "url": "https://mastodon.online/explore",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:21:24.813Z",
+  "sizeBytes": 104342,
+  "verifiedOn": "2026-09-10",
+  "title": "Trending - Mastodon",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 35 repeated structure(s): svg|path. 20->26; div|article. 20->60; article|div. 20->60; div|div.focusable.status__wrapper 18->57; div|span. 36->114",
+    "grownGroups": 35,
+    "grownSample": [
+      "svg|path. 20->26",
+      "div|article. 20->60",
+      "article|div. 20->60",
+      "div|div.focusable.status__wrapper 18->57",
+      "div|span. 36->114"
+    ],
+    "nodesBeforeScroll": 602,
+    "nodesAfterScroll": 900,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 0,
+    "assetCount": 26,
+    "nodeCount": 777,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 35,
+    "customElementCount": 0,
+    "classTokenCount": 158,
+    "hashedClassTokens": 42,
+    "maxRepeatingCount": 74
+  },
+  "rights": {
+    "basis": "reviewed-tos",
+    "license": "AGPL-3.0 (Mastodon); public timeline",
+    "reviewedOn": "2026-09-10",
+    "reviewNote": "Second instance, different rendering: keeps the bucket from being one server-bug."
+  },
+  "robots": {
+    "status": "unavailable",
+    "rule": null,
+    "url": "https://mastodon.online/robots.txt"
+  },
+  "notes": "Same software as D-03, different content and a smaller growth delta.",
+  "personalDataHits": [
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email"
+  ]
+}

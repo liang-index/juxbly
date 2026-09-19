@@ -1,0 +1,50 @@
+{
+  "id": "C-01",
+  "url": "https://chromestatus.com/features",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:22.467Z",
+  "sizeBytes": 84785,
+  "verifiedOn": "2026-09-10",
+  "title": "Chrome Platform Status",
+  "bucketEvidence": {
+    "verdict": "18 of 159 shadow roots carry content",
+    "shadowRootCount": 159,
+    "shadowRootWithContentCount": 18,
+    "customElementCount": 159,
+    "shadowHostSample": [
+      "chromedash-app",
+      "chromedash-header",
+      "chromedash-drawer",
+      "sl-drawer",
+      "sl-popup"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 30045,
+    "assetCount": 3,
+    "nodeCount": 34,
+    "shadowRootCount": 159,
+    "shadowRootWithContentCount": 18,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 159,
+    "classTokenCount": 92,
+    "hashedClassTokens": 25,
+    "maxRepeatingCount": 100
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "CC-BY-2.5 (Chromium project)",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://chromestatus.com/robots.txt"
+  },
+  "notes": "Nested open shadow roots three levels deep \u2014 already the hardest known C case (stage 1-9).",
+  "personalDataHits": []
+}

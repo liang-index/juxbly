@@ -1,0 +1,12 @@
+{
+  "id": "B-08",
+  "bucket": "B",
+  "url": "https://bun.sh/",
+  "corpus": "corpus/B-08/index.html",
+  "task_description": "List every API tab shown on this page by name.",
+  "expected_fields": [
+    "title"
+  ],
+  "notes": "3200 nodes rendered entirely client-side with no server-rendered equivalent. The tabs are buttons in a scroll container, not links, so a link-based container guess finds nothing.",
+  "verified_on": "2026-09-10"
+}

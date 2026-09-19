@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Oscar Winning Films: AJAX and Javascript | Scrape This Site | A public sandbox for learning web scraping</title>
+    <link rel="icon" type="image/png" href="/static/images/scraper-icon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Click through a bunch of great films. Learn how content is added to the page asynchronously with Javascript and how you can scrape it.">
+
+    <link href="assets/style-1.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+    <link href="assets/style-2.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" type="text/css" href="assets/style-3.css">
+
+    
+<meta name="robots" content="noindex">
+<link href="about:blank" rel="stylesheet">
+
+
+  </head>
+
+  <body>
+    <nav id="site-nav">
+            <div class="container">
+                <div class="col-md-12">
+                    <ul class="nav nav-tabs">
+                        <li id="nav-homepage">
+                            <a href="/" class="nav-link hidden-sm hidden-xs">
+                                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" id="nav-logo">
+                                Scrape This Site
+                            </a>
+                        </li>
+                        <li id="nav-sandbox" class="">
+                            <a href="/pages/" class="nav-link">
+                                <i class="glyphicon glyphicon-console hidden-sm hidden-xs"></i>
+                                Sandbox
+                            </a>
+                        </li>
+                        <li id="nav-lessons">
+                            <a href="/lessons/" class="nav-link">
+                                <i class="glyphicon glyphicon-education hidden-sm hidden-xs"></i>
+                                Lessons
+                            </a>
+                        </li>
+                        <li id="nav-faq">
+                            <a href="/faq/" class="nav-link">
+                                <i class="glyphicon glyphicon-flag hidden-sm hidden-xs"></i>
+                                FAQ
+                            </a>
+                        </li>
+                        
+                        <li id="nav-login" class="pull-right">
+                            <a href="/login/" class="nav-link">
+                                Login
+                            </a>
+                        </li>
+                        
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        
+
+    
+
+    <div id="page">
+
+        <section id="oscars">
+            <div class="container">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1>
+                            Oscar Winning Films: AJAX and Javascript
+                            <small>87 items</small>
+                        </h1>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <p class="lead">
+                            Click through a bunch of great films. Learn how content is added to the page asynchronously with Javascript and how you can scrape it.
+                            Look for ways that you can tell visually when a site is loading content with AJAX. Then, browse through your network tab to see those AJAX requests and scrape them.
+                        </p>
+                        <hr>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>
+                            <i class="glyphicon glyphicon-education"></i> There are <a href="/lessons/">3 video lessons</a> that show you how to scrape this page.
+                        </p>
+                        <hr>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <p>
+                            
+                                Data via
+                                <a href="https://en.wikipedia.org/wiki/List_of_Academy_Award-winning_films" class="data-attribution" target="_blank">https://en.wikipedia.org/wiki/List_of_Academy_Award-winning_films</a>
+                            
+                        </p>
+                        <hr>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <h3>
+                            Choose a Year to View Films
+                        </h3>
+                        <a href="#" class="year-link" id="2015">2015</a>
+                        <a href="#" class="year-link active" id="2014">2014</a>
+                        <a href="#" class="year-link" id="2013">2013</a>
+                        <a href="#" class="year-link" id="2012">2012</a>
+                        <a href="#" class="year-link" id="2011">2011</a>
+                        <a href="#" class="year-link" id="2010">2010</a>
+                    </div><!--.col-->
+                </div><!--.row-->
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="loading" style="display: none;">
+                            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="center-block">
+                        </div>
+                        <table class="table" style="">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Nominations</th>
+                                    <th>Awards</th>
+                                    <th>Best Picture</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body"><tr class="film"><td class="film-title">Birdman</td><td class="film-nominations">9</td><td class="film-awards">4</td><td class="film-best-picture"><i class="glyphicon glyphicon-flag"></i></td></tr><tr class="film"><td class="film-title">The Grand Budapest Hotel</td><td class="film-nominations">9</td><td class="film-awards">4</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Whiplash</td><td class="film-nominations">5</td><td class="film-awards">3</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">The Imitation Game</td><td class="film-nominations">8</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">American Sniper</td><td class="film-nominations">6</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Boyhood</td><td class="film-nominations">6</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Interstellar</td><td class="film-nominations">5</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">The Theory of Everything</td><td class="film-nominations">5</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Ida</td><td class="film-nominations">2</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Selma</td><td class="film-nominations">2</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Citizenfour</td><td class="film-nominations">1</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Big Hero 6</td><td class="film-nominations">1</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Crisis Hotline: Veterans Press 1</td><td class="film-nominations">1</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">The Phone Call</td><td class="film-nominations">1</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Still Alice</td><td class="film-nominations">1</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr><tr class="film"><td class="film-title">Feast</td><td class="film-nominations">1</td><td class="film-awards">1</td><td class="film-best-picture"></td></tr></tbody>
+                        </table>
+                    </div><!--.col-->
+                </div><!--.row-->
+
+            </div><!--.container-->
+        </section>
+
+    </div><!--#page-->
+
+
+    <section id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center text-muted">
+                    Lessons and Videos © Hartley Brody 2023
+                </div><!--.col-->
+            </div><!--.row-->
+        </div><!--.container-->
+    </section>
+  
+
+
+  
+  
+
+  
+
+
+
+  
+  <link href="assets/style-5.css" rel="stylesheet" type="text/css">
+
+  <!-- pnotify messages -->
+  
+
+  <!-- golbal video controls -->
+  
+
+  <!-- insert google analytics here -->
+  
+
+  <!-- Facebook Pixel Code -->
+  
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=764287443701341&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Facebook Pixel Code -->
+
+  <!-- Google Code for Remarketing Tag -->
+  
+    
+    <noscript>
+    <div style="display:inline;">
+    <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/950945448/?guid=ON&amp;script=0"/>
+    </div>
+  </noscript>
+
+  <!-- Global site tag (gtag.js) - Google AdWords: 950945448 -->
+  
+  
+
+</body></html>

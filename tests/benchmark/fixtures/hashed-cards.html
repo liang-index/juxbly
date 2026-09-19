@@ -1,0 +1,46 @@
+<!doctype html>
+<!--
+  Corpus pipeline fixture — bucket `E` (hashed / CSS-in-JS classes).
+
+  Every element carries a generated class name in one of the shapes real CSS-in-JS
+  toolchains emit (`sc-` from styled-components, `_` from CSS modules, `name-<hex>` from
+  CSS-module hashing). Bucket `E` requires >= 20 *distinct* hashed tokens and a hashed
+  ratio >= 0.20 (`BUCKET_THRESHOLDS`), so the count is deliberate: a page with three
+  hashed classes is not a bucket-`E` page, it is a bucket-`A` page with a build step.
+
+  The semantic classes next to them are deliberate too. A page where *every* token is
+  hashed is the easy case; the hard case — and the one the selector generator has to
+  survive — is a page where a handful of readable names sit on top of dozens that mean
+  nothing.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hashed catalogue</title>
+  </head>
+  <body>
+    <h1 class="sc-3f7a91c2 sc-7b2c4d1e heading">Latest posts</h1>
+    <ul class="sc-9a1b8e3f sc-2d5f6a7b sc-4e8c9d0a feed">
+      <li class="sc-6b3a2f1c sc-8c7d6e5f card post">
+        <span class="sc-1f2a3b4c sc-5d6e7f8a title">Wireless keyboard review</span>
+        <span class="sc-9b0c1d2e sc-a3b4c5d6 meta">Ana Ruiz</span>
+        <span class="sc-c7d8e9f0 sc-e1f2a3b4 meta">12 March</span>
+      </li>
+      <li class="sc-0a1b2c3d sc-b5c6d7e8 card post">
+        <span class="sc-d9e0f1a2 sc-f3a4b5c6 title">Mechanical switches, three years on</span>
+        <span class="sc-1234567a sc-89abcdef meta">Bo Chen</span>
+        <span class="sc-fedcba98 sc-0f1e2d3c meta">8 March</span>
+      </li>
+      <li class="sc-4b5a6978 sc-c1d2e3f4 card post">
+        <span class="sc-5a6b7c8d sc-7e8f9a0b title">Desk setups that survived a move</span>
+        <span class="sc-1c2d3e4f sc-2a3b4c5d meta">Cleo Marsh</span>
+        <span class="sc-3e4f5a6b sc-4c5d6e7f meta">2 March</span>
+      </li>
+      <li class="sc-5f6a7b8c sc-6e7f8a9b card post">
+        <span class="sc-7d8e9f0a sc-8b9cad1e title">A hub that finally fits the bag</span>
+        <span class="sc-9f0a1b2c sc-a1b2c3d4 meta">Dana Silva</span>
+        <span class="sc-b3c4d5e6 sc-c5d6e7f8 meta">27 February</span>
+      </li>
+    </ul>
+  </body>
+</html>

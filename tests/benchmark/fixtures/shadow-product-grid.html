@@ -1,0 +1,79 @@
+<!doctype html>
+<!--
+  Corpus pipeline fixture — bucket `C` (shadow DOM / custom elements).
+
+  The page defines a custom element and attaches an open shadow root from script. That is
+  the only way a shadow root can exist at all: it cannot be written in HTML markup.
+
+  Why this fixture is written this way and not like `tests/fixtures/pages/shadow-*.html`:
+  those declare `<template data-shadow-mode>` and rely on a *test helper* to move the
+  content into the host, so a plain browser (and therefore the capture pipeline) sees no
+  shadow root at all — measured, `probe` reports `shadow=0` for both of them. The corpus
+  capture has no helper; it has a real page. So this one upgrades itself.
+
+  Properties it must keep:
+    - >= 1 open shadow root carrying >= 5 elements inside (`cMinShadowRootsWithContent`)
+    - the shadow content survives serialization as `<template shadowrootmode="open">`
+      with children inside `template.content` — the bug this test now guards
+    - the inline script is stripped from the snapshot, so the captured page still shows
+      the rendered shadow tree without running any code
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Shadow product grid</title>
+  </head>
+  <body>
+    <h1>Component store</h1>
+    <product-grid>
+      <product-card>
+        <span slot="title">Wireless keyboard</span>
+        <span slot="price">$49.00</span>
+        <span slot="rating">4.5</span>
+      </product-card>
+      <product-card>
+        <span slot="title">Wireless mouse</span>
+        <span slot="price">$29.00</span>
+        <span slot="rating">4.0</span>
+      </product-card>
+      <product-card>
+        <span slot="title">USB-C hub</span>
+        <span slot="price">$39.00</span>
+        <span slot="rating">3.5</span>
+      </product-card>
+      <product-card>
+        <span slot="title">Mechanical keyboard</span>
+        <span slot="price">$89.00</span>
+        <span slot="rating">5.0</span>
+      </product-card>
+      <product-card>
+        <span slot="title">Laptop stand</span>
+        <span slot="price">$35.00</span>
+        <span slot="rating">4.2</span>
+      </product-card>
+      <product-card>
+        <span slot="title">Desk lamp</span>
+        <span slot="price">$54.00</span>
+        <span slot="rating">4.8</span>
+      </product-card>
+    </product-grid>
+
+    <script>
+      class ProductCard extends HTMLElement {
+        connectedCallback() {
+          if (this.shadowRoot) return
+          const root = this.attachShadow({ mode: 'open' })
+          root.innerHTML = [
+            '<article class="card">',
+            '<header class="card__header"><h2 class="card__title"><slot name="title"></slot></h2></header>',
+            '<p class="card__price"><slot name="price"></slot></p>',
+            '<p class="card__rating"><slot name="rating"></slot></p>',
+            '<footer class="card__footer"><button class="card__action" type="button">Add to cart</button></footer>',
+            '</article>',
+          ].join('')
+        }
+      }
+      customElements.define('product-card', ProductCard)
+    </script>
+  </body>
+</html>

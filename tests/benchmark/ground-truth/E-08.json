@@ -1,0 +1,30 @@
+{
+  "case_id": "E-08",
+  "bucket": "E",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "item_count_range": [
+    14,
+    22
+  ],
+  "sample": [
+    {
+      "title": "Documentation",
+      "url": "/docs/"
+    },
+    {
+      "title": "Quick Start",
+      "url": "/docs/quick-start/"
+    },
+    {
+      "title": "Tutorials",
+      "url": "/docs/tutorial/"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

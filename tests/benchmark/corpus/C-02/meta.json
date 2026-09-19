@@ -1,0 +1,50 @@
+{
+  "id": "C-02",
+  "url": "https://chromestatus.com/roadmap",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:28.797Z",
+  "sizeBytes": 167430,
+  "verifiedOn": "2026-09-10",
+  "title": "Chrome Platform Status",
+  "bucketEvidence": {
+    "verdict": "15 of 213 shadow roots carry content",
+    "shadowRootCount": 213,
+    "shadowRootWithContentCount": 15,
+    "customElementCount": 213,
+    "shadowHostSample": [
+      "chromedash-app",
+      "chromedash-header",
+      "chromedash-drawer",
+      "sl-drawer",
+      "sl-popup"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 30045,
+    "assetCount": 3,
+    "nodeCount": 34,
+    "shadowRootCount": 213,
+    "shadowRootWithContentCount": 15,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 213,
+    "classTokenCount": 63,
+    "hashedClassTokens": 7,
+    "maxRepeatingCount": 88
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "CC-BY-2.5 (Chromium project)",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://chromestatus.com/robots.txt"
+  },
+  "notes": "Same component tree, different route: rows again live inside shadow roots.",
+  "personalDataHits": []
+}

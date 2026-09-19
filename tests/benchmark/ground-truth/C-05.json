@@ -1,0 +1,23 @@
+{
+  "case_id": "C-05",
+  "bucket": "C",
+  "expected_fields": [
+    "title"
+  ],
+  "item_count_range": [
+    22,
+    28
+  ],
+  "sample": [
+    {
+      "title": "Introduction"
+    },
+    {
+      "title": "Quick Start"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

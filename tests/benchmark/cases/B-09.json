@@ -1,0 +1,13 @@
+{
+  "id": "B-09",
+  "bucket": "B",
+  "url": "https://docs.github.com/en",
+  "corpus": "corpus/B-09/index.html",
+  "task_description": "Collect every documentation category on this page together with the page links listed under it.",
+  "expected_fields": [
+    "category",
+    "links"
+  ],
+  "notes": "Docs hub with client-side navigation. Two levels of record in one item: a category card that contains its own list of links.",
+  "verified_on": "2026-09-10"
+}

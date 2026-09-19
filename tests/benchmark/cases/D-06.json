@@ -1,0 +1,13 @@
+{
+  "id": "D-06",
+  "bucket": "D",
+  "url": "https://react.dev/learn",
+  "corpus": "corpus/D-06/index.html",
+  "task_description": "List every page in the Learn navigation with its title and the link it points to.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Grows by lazily mounting page sections rather than by appending a feed - an honest D case with a weaker shape than a scroll feed.",
+  "verified_on": "2026-09-10"
+}

@@ -1,0 +1,32 @@
+{
+  "case_id": "A-01",
+  "bucket": "A",
+  "expected_fields": [
+    "title",
+    "price",
+    "availability",
+    "rating"
+  ],
+  "item_count_range": [
+    20,
+    20
+  ],
+  "sample": [
+    {
+      "title": "A Light in the Attic",
+      "price": "£51.77",
+      "availability": "In stock",
+      "rating": "Three"
+    },
+    {
+      "title": "Tipping the Velvet",
+      "price": "£53.74",
+      "availability": "In stock",
+      "rating": "One"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

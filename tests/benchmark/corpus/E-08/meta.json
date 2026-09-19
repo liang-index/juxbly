@@ -1,0 +1,52 @@
+{
+  "id": "E-08",
+  "url": "https://www.gatsbyjs.com/",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:21:44.161Z",
+  "sizeBytes": 188949,
+  "verifiedOn": "2026-09-10",
+  "title": "The Best React-Based Framework | Gatsby",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.93",
+    "hashedClassTokens": 85,
+    "hashedClassRatio": 0.934,
+    "classTokenCount": 91,
+    "hashedSample": [
+      "css-1jgzl0j",
+      "_1nrsguc",
+      "_1hqpeon3m",
+      "_1nrsgu0",
+      "_1nrsgud"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 0,
+    "assetCount": 0,
+    "nodeCount": 370,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 1,
+    "customElementCount": 0,
+    "classTokenCount": 91,
+    "hashedClassTokens": 85,
+    "maxRepeatingCount": 84
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.gatsbyjs.com/robots.txt"
+  },
+  "notes": "A marketing shell on the same generator as E-07 \u2014 125 of 136 tokens generated.",
+  "personalDataHits": [
+    "email"
+  ]
+}

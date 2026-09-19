@@ -1,0 +1,49 @@
+{
+  "id": "E-01",
+  "url": "https://emotion.sh/docs/introduction",
+  "bucket": "E",
+  "capturedAt": "2026-09-10T15:20:40.516Z",
+  "sizeBytes": 55147,
+  "verifiedOn": "2026-09-10",
+  "title": "Emotion \u2013 Introduction",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.47",
+    "hashedClassTokens": 32,
+    "hashedClassRatio": 0.471,
+    "classTokenCount": 68,
+    "hashedSample": [
+      "css-gb8pey",
+      "css-t13dtp",
+      "css-194wjke",
+      "css-fu5c8j",
+      "css-b247zp"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 20181,
+    "assetCount": 1,
+    "nodeCount": 625,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 68,
+    "hashedClassTokens": 32,
+    "maxRepeatingCount": 62
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "unavailable",
+    "rule": null,
+    "url": "https://emotion.sh/robots.txt"
+  },
+  "notes": "Emotion emits `css-*` names: 32 of 68 tokens are generated, so class names are unusable as anchors.",
+  "personalDataHits": []
+}

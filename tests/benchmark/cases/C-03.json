@@ -1,0 +1,13 @@
+{
+  "id": "C-03",
+  "bucket": "C",
+  "url": "https://shoelace.style/components/button",
+  "corpus": "corpus/C-03/index.html",
+  "task_description": "Extract every row from the component API tables: the name and what it means.",
+  "expected_fields": [
+    "name",
+    "description"
+  ],
+  "notes": "Densest C page in the corpus. Two API tables (slots and attributes/properties) with different columns, plus a code-preview component that also renders rows.",
+  "verified_on": "2026-09-10"
+}

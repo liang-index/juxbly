@@ -1,0 +1,38 @@
+{
+  "case_id": "D-02",
+  "bucket": "D",
+  "expected_fields": [
+    "title",
+    "url",
+    "tags"
+  ],
+  "item_count_range": [
+    40,
+    70
+  ],
+  "sample": [
+    {
+      "title": "n8n Assistant Launches as a Preview AI Workflow Builder for Cloud and Docker Users",
+      "url": "/alifar/n8n-assistant-launches-as-a-preview-ai-workflow-builder-for-cloud-and-docker-users-4071",
+      "tags": [
+        "#ai",
+        "#automation",
+        "#tools",
+        "#n8n"
+      ]
+    },
+    {
+      "title": "Grow Your Social Media By Sharing Stats & Analytics",
+      "url": "/urielbitton/grow-your-social-media-by-sharing-stats-analytics-3f12",
+      "tags": [
+        "#analytics",
+        "#buildinpublic",
+        "#marketing"
+      ]
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

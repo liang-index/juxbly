@@ -1,0 +1,55 @@
+{
+  "id": "D-01",
+  "url": "https://quotes.toscrape.com/scroll",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:16:31.404Z",
+  "sizeBytes": 24745,
+  "verifiedOn": "2026-09-10",
+  "title": "Quotes to Scrape",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 6 repeated structure(s): div|div.quote 10->70; div|span.text 10->70; div|span. 10->70; span|small.author 10->70; div|div.tags 10->70",
+    "grownGroups": 6,
+    "grownSample": [
+      "div|div.quote 10->70",
+      "div|span.text 10->70",
+      "div|span. 10->70",
+      "span|small.author 10->70",
+      "div|div.tags 10->70"
+    ],
+    "nodesBeforeScroll": 109,
+    "nodesAfterScroll": 537,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 127302,
+    "assetCount": 2,
+    "nodeCount": 332,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 6,
+    "customElementCount": 0,
+    "classTokenCount": 15,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 103
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://quotes.toscrape.com/robots.txt"
+  },
+  "notes": "Infinite scroll by design: starts with ten quotes and appends on scroll. The canonical D case.",
+  "personalDataHits": []
+}

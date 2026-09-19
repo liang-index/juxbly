@@ -1,0 +1,13 @@
+{
+  "id": "C-01",
+  "bucket": "C",
+  "url": "https://chromestatus.com/features",
+  "corpus": "corpus/C-01/index.html",
+  "task_description": "List every feature in this table with its name and the link to its detail page.",
+  "expected_fields": [
+    "name",
+    "url"
+  ],
+  "notes": "The hardest known C case: rows are custom elements whose content lives three shadow roots deep, so light-DOM querying returns row shells with no fields.",
+  "verified_on": "2026-09-10"
+}

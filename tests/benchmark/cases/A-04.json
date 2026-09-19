@@ -1,0 +1,14 @@
+{
+  "id": "A-04",
+  "bucket": "A",
+  "url": "https://scrapeme.live/shop/",
+  "corpus": "corpus/A-04/index.html",
+  "task_description": "List every product in this shop grid with its name, price and the link to its page.",
+  "expected_fields": [
+    "name",
+    "price",
+    "url"
+  ],
+  "notes": "A realistic WooCommerce storefront: the price sits in its own element separate from the title, and the product link wraps an image rather than the name.",
+  "verified_on": "2026-09-10"
+}

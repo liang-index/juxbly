@@ -1,0 +1,42 @@
+{
+  "id": "A-08",
+  "url": "https://www.sqlite.org/lang.html",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:22.837Z",
+  "sizeBytes": 33756,
+  "verifiedOn": "2026-09-10",
+  "title": "Query Language Understood by SQLite",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 128,
+    "repeatingSelector": "path."
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 6868,
+    "assetCount": 1,
+    "nodeCount": 401,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 14,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 128
+  },
+  "rights": {
+    "basis": "public-domain",
+    "license": "public domain",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.sqlite.org/robots.txt"
+  },
+  "notes": "A long index of statement names: a list that looks like a table and is not one.",
+  "personalDataHits": []
+}

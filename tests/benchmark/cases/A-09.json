@@ -1,0 +1,13 @@
+{
+  "id": "A-09",
+  "bucket": "A",
+  "url": "https://nginx.org/en/docs/",
+  "corpus": "corpus/A-09/index.html",
+  "task_description": "Collect every documentation page linked from this index, with its title and link.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Nested link groups with almost no class names: the \"biggest container\" heuristic has real competition from the site navigation and the language switcher.",
+  "verified_on": "2026-09-10"
+}

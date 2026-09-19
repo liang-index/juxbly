@@ -1,0 +1,57 @@
+{
+  "id": "D-02",
+  "url": "https://dev.to/",
+  "bucket": "D",
+  "capturedAt": "2026-09-10T16:16:45.983Z",
+  "sizeBytes": 564053,
+  "verifiedOn": "2026-09-10",
+  "title": "DEV Community",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 55 repeated structure(s): svg|path. 80->140; a|svg.crayons-icon 19->76; div|div. 47->161; div|div.crayons-story__top 18->75; div|div.crayons-story__meta 18->75",
+    "grownGroups": 55,
+    "grownSample": [
+      "svg|path. 80->140",
+      "a|svg.crayons-icon 19->76",
+      "div|div. 47->161",
+      "div|div.crayons-story__top 18->75",
+      "div|div.crayons-story__meta 18->75"
+    ],
+    "nodesBeforeScroll": 1848,
+    "nodesAfterScroll": 4583,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 305178,
+    "assetCount": 3,
+    "nodeCount": 2455,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 55,
+    "customElementCount": 0,
+    "classTokenCount": 257,
+    "hashedClassTokens": 32,
+    "maxRepeatingCount": 112
+  },
+  "rights": {
+    "basis": "reviewed-tos",
+    "license": "AGPL-3.0 (platform); posts are public and CC BY-SA 4.0",
+    "reviewedOn": "2026-09-10",
+    "reviewNote": "robots.txt allows / (only /search, /admin, /mod and auth paths are disallowed); no login; feed is public."
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://dev.to/robots.txt"
+  },
+  "notes": "Home feed appends article cards. 1790 nodes initial, ~3800 after three scrolls.",
+  "personalDataHits": []
+}

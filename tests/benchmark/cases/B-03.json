@@ -1,0 +1,13 @@
+{
+  "id": "B-03",
+  "bucket": "B",
+  "url": "https://nuxt.com/docs/guide/directory-structure/app",
+  "corpus": "corpus/B-03/index.html",
+  "task_description": "List every file and directory in the Nuxt project structure shown in the sidebar, with the page it documents.",
+  "expected_fields": [
+    "title",
+    "url"
+  ],
+  "notes": "Almost no repeated structure on the page body; the only record-shaped list is the file tree in the sidebar, which is nested and rendered client-side.",
+  "verified_on": "2026-09-10"
+}

@@ -6,6 +6,9 @@
  *
  * - **the fixture pages** (`tests/fixtures/pages/`) and the lifecycle page — the pages a
  *   tool is built and broken against, and the seed corpus Phase 2 grows from;
+ * - **the Web Corpus** (`tests/benchmark/corpus/`) — the snapshotted pages Phase 2 measures
+ *   against. Served from here so "the snapshot loads offline" can be asserted over HTTP
+ *   rather than trusted;
  * - **a recorded model** at `/v1/chat/completions`, OpenAI-compatible, so the extension's
  *   own BYOK client talks to it unmodified. Nothing about the product knows this endpoint
  *   is a recording: it is set as `api_base_url`, exactly like a provider would be;
@@ -22,6 +25,7 @@ import { extname, join, normalize, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createModelMock } from './lib/model-mock.mjs'
 import { LIFECYCLE_PATH, PAGE_VARIANTS, lifecyclePage } from './lib/pages.mjs'
+import { CORPUS_ROOT } from './lib/corpus.mjs'
 
 const HERE = fileURLToPath(new URL('.', import.meta.url))
 const REPO_ROOT = resolve(HERE, '../..')
@@ -54,6 +58,8 @@ export function createPlaygroundServer(options = {}) {
     if (url.pathname.startsWith('/__harness/')) return await handleHarness(req, res, url)
     if (url.pathname === LIFECYCLE_PATH) return html(res, lifecyclePage(model.state().variant))
     if (url.pathname.startsWith('/pages/')) return await serveFixture(res, url, fixturesDir)
+    if (url.pathname.startsWith('/corpus/')) return await serveCorpus(res, url)
+    if (url.pathname === '/corpus-index') return await sendFile(res, join(CORPUS_ROOT, 'index.json'))
     if (url.pathname === '/') return await sendFile(res, join(HERE, 'index.html'))
     if (url.pathname === '/model-state') return send(res, 200, model.state())
     return send(res, 404, { error: 'not found' })
@@ -85,6 +91,16 @@ export function createPlaygroundServer(options = {}) {
     }
 
     return send(res, 404, { error: 'unknown harness endpoint' })
+  }
+
+  /**
+   * The Web Corpus (stage 2-1). Serving it is what makes "offline-loadable" a testable
+   * claim: a snapshot only counts once the playground can hand it back over HTTP with no
+   * network behind it.
+   */
+  async function serveCorpus(res, url) {
+    const name = normalize(url.pathname.slice('/corpus/'.length)).replace(/^(\.\.[/\\])+/, '')
+    await sendFile(res, join(CORPUS_ROOT, name))
   }
 
   async function serveFixture(res, url, dir) {

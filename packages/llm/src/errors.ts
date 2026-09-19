@@ -15,8 +15,16 @@ export type LlmErrorCode =
   | 'NOT_CONFIGURED'
   /** Endpoint unreachable, DNS failure, connection reset. */
   | 'NETWORK'
-  /** 401 / 403. */
+  /** 401 — the key itself was refused. */
   | 'AUTH'
+  /**
+   * 403 — the key was accepted and the request was refused anyway: this model is not
+   * available to this account, or not in this region. Distinct from AUTH because the next
+   * action is different — re-checking the key cannot change it. OpenRouter answers 403
+   * "This model is not available in your region." for every `openai/*` model from some
+   * regions; a wrong model id answers 400, so 403 really is availability, not a typo.
+   */
+  | 'MODEL_UNAVAILABLE'
   /** 429 — a distinct copy path from NETWORK (§11: quota vs connection). */
   | 'RATE_LIMIT'
   /** Any other non-2xx status. */
@@ -35,6 +43,7 @@ export const LLM_ERROR_CODES: readonly LlmErrorCode[] = [
   'NOT_CONFIGURED',
   'NETWORK',
   'AUTH',
+  'MODEL_UNAVAILABLE',
   'RATE_LIMIT',
   'HTTP_ERROR',
   'TIMEOUT',
@@ -70,6 +79,7 @@ const MESSAGES: Record<LlmErrorCode, string> = {
   NOT_CONFIGURED: 'No model endpoint is configured yet.',
   NETWORK: 'The model endpoint could not be reached.',
   AUTH: 'The model endpoint rejected the API key.',
+  MODEL_UNAVAILABLE: 'The endpoint accepted the key but will not serve that model.',
   RATE_LIMIT: 'The model endpoint is rate limiting this key.',
   HTTP_ERROR: 'The model endpoint returned an error.',
   TIMEOUT: 'The model did not answer in time.',

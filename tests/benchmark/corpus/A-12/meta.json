@@ -1,0 +1,48 @@
+{
+  "id": "A-12",
+  "url": "https://www.gnu.org/software/emacs/manual/",
+  "bucket": "A",
+  "capturedAt": "2026-09-10T15:17:29.027Z",
+  "sizeBytes": 14626,
+  "verifiedOn": "2026-09-10",
+  "title": "GNU Emacs Manuals Online - GNU Project - Free Software Foundation",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 130,
+    "repeatingSelector": "td."
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 22192,
+    "assetCount": 2,
+    "nodeCount": 395,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 13,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 130
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "GFDL-1.3",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.gnu.org/robots.txt"
+  },
+  "notes": "Hand-written 1990s HTML: table-based layout with no semantic container at all.",
+  "personalDataHits": [
+    "email",
+    "email",
+    "email",
+    "email",
+    "email"
+  ]
+}

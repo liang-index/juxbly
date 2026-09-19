@@ -1,0 +1,49 @@
+{
+  "id": "C-05",
+  "url": "https://material-web.dev/",
+  "bucket": "C",
+  "capturedAt": "2026-09-10T15:53:38.074Z",
+  "sizeBytes": 511109,
+  "verifiedOn": "2026-09-10",
+  "title": "Material Web",
+  "bucketEvidence": {
+    "verdict": "72 of 163 shadow roots carry content",
+    "shadowRootCount": 163,
+    "shadowRootWithContentCount": 72,
+    "customElementCount": 165,
+    "shadowHostSample": [
+      "nav-drawer",
+      "top-app-bar",
+      "md-icon-button",
+      "md-icon-button",
+      "md-icon-button"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 4241,
+    "assetCount": 3,
+    "nodeCount": 65,
+    "shadowRootCount": 163,
+    "shadowRootWithContentCount": 72,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 165,
+    "classTokenCount": 64,
+    "hashedClassTokens": 6,
+    "maxRepeatingCount": 175
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "Apache-2.0",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://material-web.dev/robots.txt"
+  },
+  "notes": "Material web components \u2014 the page the stage 1-14 dogfood run used.",
+  "personalDataHits": []
+}

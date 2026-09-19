@@ -1,0 +1,26 @@
+{
+  "case_id": "D-03",
+  "bucket": "D",
+  "expected_fields": [
+    "author"
+  ],
+  "item_count_range": [
+    60,
+    90
+  ],
+  "sample": [
+    {
+      "author": "Qasim Rashid, Esq."
+    },
+    {
+      "author": "J. L. Westover"
+    },
+    {
+      "author": "Neatnik :prami:"
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -1,0 +1,29 @@
+{
+  "case_id": "A-05",
+  "bucket": "A",
+  "expected_fields": [
+    "name",
+    "signature",
+    "summary"
+  ],
+  "item_count_range": [
+    50,
+    60
+  ],
+  "sample": [
+    {
+      "name": "abs",
+      "signature": "abs(number, /)",
+      "summary": "Return the absolute value of a number. The argument may be an integer, a floating-point number, or an object implementing __abs__(). If the argument is a complex number, its magnitude is returned."
+    },
+    {
+      "name": "aiter",
+      "signature": "aiter(async_iterable, /)",
+      "summary": "Return an asynchronous iterator for an asynchronous iterable. Equivalent to calling x.__aiter__()."
+    }
+  ],
+  "verified_on": "2026-09-10",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

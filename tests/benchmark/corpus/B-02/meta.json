@@ -1,0 +1,42 @@
+{
+  "id": "B-02",
+  "url": "https://vuejs.org/guide/essentials/template-syntax.html",
+  "bucket": "B",
+  "capturedAt": "2026-09-10T15:18:19.254Z",
+  "sizeBytes": 106485,
+  "verifiedOn": "2026-09-10",
+  "title": "Template Syntax | Vue.js",
+  "bucketEvidence": {
+    "verdict": "client-side navigation kept the page alive",
+    "spaNavigation": true,
+    "navigatedTo": "https://vuejs.org/"
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 0,
+    "assetCount": 0,
+    "nodeCount": 1347,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 1,
+    "customElementCount": 0,
+    "classTokenCount": 143,
+    "hashedClassTokens": 1,
+    "maxRepeatingCount": 284
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-10"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://vuejs.org/robots.txt"
+  },
+  "notes": "VitePress: a static shell that is hydrated into a client-routed app.",
+  "personalDataHits": []
+}
