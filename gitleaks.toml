@@ -37,3 +37,23 @@ useDefault = true
 [[allowlists]]
 description = "Credential-shaped fixtures — their content is what the tests assert on."
 regexes = ['''abcdef123456''']
+
+# 3. Excuse the prototype's storage key name — again the token, not the path.
+#
+#    `docs/prototypes/juxbly-prototype-v1.html` once held
+#    `var STORE_KEY = 'jx-proto-accepted-v1'`, a `localStorage` key name that
+#    `generic-api-key` matches only because it has the shape `...key = '...'`. The
+#    identifier was renamed to `STORE_NAME`, which clears the working tree — but
+#    `security.yml` also runs a scheduled full-history sweep, and a rename cannot
+#    rewrite history, so that line failed the weekly scan indefinitely.
+#
+#    Measured with gitleaks 8.30.1 (the version `security.yml` pins), full history:
+#    2 findings before this entry, 0 after. Both are the same token — one in the
+#    prototype, one in the closure report that quoted it while recording the rename.
+#
+#    Note this file is only read when the workflow sets `GITLEAKS_CONFIG`. A scheduled
+#    run on a branch predating that setting still scans with default rules and will
+#    still report this token; there is no config-only way to silence such a run.
+[[allowlists]]
+description = "Prototype localStorage key name — credential-shaped identifier, not a credential."
+regexes = ['''jx-proto-accepted-v1''']

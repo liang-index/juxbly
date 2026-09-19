@@ -15,6 +15,7 @@
 import type { ValidationError, ValidationResult } from '@juxbly/core'
 import { isFragileSelector } from '@juxbly/core'
 import type { ToolDefinition } from './types'
+import { SELF_SELECTOR } from './field-selector'
 import { checkRegexSafety } from './safe-regex'
 import { parseUrlPattern } from './url-pattern'
 
@@ -239,6 +240,20 @@ function validateExtract(step: Record<string, unknown>, path: string, errors: Va
   }
   if (isRecord(fields)) {
     for (const [name, value] of Object.entries(fields)) {
+      // An empty selector used to pass validation and then throw at run time: `""` is not
+      // a selector, and `query` classified it as SELECTOR_SYNTAX mid-run. It is the shape a
+      // model reaches for when it wants the element itself and has no way to say so, so the
+      // message names the spelling that exists (`§5.2`) rather than just refusing.
+      if (typeof value === 'string' && value.trim() === '') {
+        errors.push(
+          err(
+            `${path}.fields.${name}`,
+            'FIELD_SELECTOR_EMPTY',
+            `the selector for field "${name}" is empty — use "${SELF_SELECTOR}" to take the container itself, or a real CSS selector`,
+          ),
+        )
+        continue
+      }
       if (typeof value === 'string' && isFragileSelector(value)) {
         errors.push(
           err(

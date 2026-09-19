@@ -67,6 +67,7 @@ content is wrong, but because it is process.
 | `docs/testing/TESTING.md` | test layers and the regression rule |
 | `docs/concepts/tool-lifecycle.md` | the lifecycle a tool moves through |
 | `docs/architecture/README.md` | architecture decision records |
+| `docs/architecture/selector-quality.md` | selector quality: the measured state, and the rules for iterating on it |
 | `docs/getting-started/README.md` | build-order walkthrough |
 | `docs/recipes/README.md` | curated recipes |
 | `docs/benchmark/README.md` | how the Web Corpus benchmark works |

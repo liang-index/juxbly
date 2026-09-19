@@ -98,6 +98,9 @@ export const en = {
       ok: 'Connected. The key and endpoint work.',
       // Three categories, three next steps (§9 rule 2) — never "the test failed".
       auth: 'The endpoint rejected that key. Check the key and try again.',
+      // The key worked and the model did not: saying "check the key" here sends the user to
+      // look at the one thing that is already right.
+      unavailable: 'That endpoint accepted the key but will not serve this model. Try a different model.',
       network: 'The endpoint could not be reached. Check your connection, then try again.',
       endpoint: 'The endpoint answered, but not as an OpenAI-compatible API. Check the endpoint and model.',
       unknown: 'The test did not finish. Try again.',

@@ -4,8 +4,8 @@
 #
 # Stage 1-14: gitleaks-action moved v2 -> v3. v2 runs on Node 20, which GitHub removes from
 # hosted runners on 2026-09-16 — after that date v2 stops working regardless of any opt-out.
-# v3 is the same action on Node 24 (no input or behaviour change). `actions/checkout`
-# follows to v6, its Node 24 release.
+# v3 is the same action on Node 24 (no input or behaviour change). `actions/checkout` is
+# held at v7, the version Dependabot moved main to; it is the same Node 24 line as v6.
 name: security-scan
 
 on:
@@ -28,7 +28,7 @@ jobs:
     name: Secret scanning (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history so gitleaks can scan prior commits
       - name: gitleaks
@@ -41,3 +41,11 @@ jobs:
           # re-measured. Bump this and re-run the four checks recorded in that file.
           GITLEAKS_VERSION: 8.30.1
           GITLEAKS_CONFIG: gitleaks.toml
+          # A Dependabot pull request's GITHUB_TOKEN is forced read-only no matter what
+          # `permissions` says, so every GitHub API write the action attempts fails with
+          # 403 and turns the job red even when the scan itself is clean. The scan result
+          # still lives in the job log and the exit code; comments / artifact / summary
+          # add nothing the log does not already show.
+          GITLEAKS_ENABLE_COMMENTS: 'false'
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'false'
+          GITLEAKS_ENABLE_SUMMARY: 'false'

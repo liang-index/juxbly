@@ -96,11 +96,21 @@ export function parseOptions(argv: readonly string[], env: Record<string, string
  * immutable, so an aggregation rule that changes later still produces a comparable
  * delta instead of freezing today's arithmetic into a file.
  */
+/**
+ * Run results are named after their run id, which starts with an ISO date —
+ * `2026-09-17T15-50-52-905-deepseek_deepseek_chat.json`. The prefix is the filter because
+ * `results/` is not only runs: `labels.json` lives beside them, and it sorts last, so a
+ * plain "last .json file" picked the judgements and crashed on a missing `cases`.
+ */
+const RUN_RESULT_FILE = /^\d{4}-\d{2}-\d{2}T/
+
 export async function previousReport(currentRunId: string): Promise<MetricsReport | null> {
   const directory = join(BENCHMARK_DIR, 'results')
   let names: string[]
   try {
-    names = (await readdir(directory)).filter((name) => name.endsWith('.json')).sort()
+    names = (await readdir(directory))
+      .filter((name) => name.endsWith('.json') && RUN_RESULT_FILE.test(name))
+      .sort()
   } catch {
     return null
   }

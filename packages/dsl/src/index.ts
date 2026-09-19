@@ -26,6 +26,8 @@ export type {
 export { parseUrlPattern, UrlPatternError } from './url-pattern'
 export type { UrlPattern } from './url-pattern'
 
+export { SELF_SELECTOR, isSelfSelector } from './field-selector'
+
 export { matchUrl } from './match-url'
 export { patternToUrl } from './url-pattern'
 

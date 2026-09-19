@@ -32,6 +32,13 @@ describe('connectivity error classes', () => {
     expect(classifyConnectivity('INVALID_REQUEST')).toBe('endpoint')
   })
 
+  it('files a refused model as unavailable, not as a bad key', () => {
+    // The key worked — the endpoint said yes to it and no to the model. Calling that "the
+    // endpoint rejected that key" sends the user to re-check the one thing that is right.
+    expect(classifyConnectivity('MODEL_UNAVAILABLE')).toBe('unavailable')
+    expect(CONNECTIVITY_COPY.unavailable).toBe('options.connectivity.unavailable')
+  })
+
   it('treats "no error" as success and never as an unknown failure', () => {
     expect(classifyConnectivity(null)).toBe('ok')
   })

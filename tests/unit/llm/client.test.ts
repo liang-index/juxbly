@@ -171,6 +171,15 @@ describe('callLlm — failures', () => {
     ).rejects.toMatchObject({ code: 'HTTP_ERROR', status: 500 })
   })
 
+  it('does not call a refused model an auth failure', async () => {
+    // 403 is the shape a region block takes: OpenRouter answers it for every `openai/*`
+    // model from some regions while the key is perfectly valid. Filing it under AUTH would
+    // tell the user to re-check the key, which cannot change the answer.
+    await expect(
+      callLlm({ endpoint: ENDPOINT, messages: [] }, { fetchImpl: httpStatus(403) }),
+    ).rejects.toMatchObject({ code: 'MODEL_UNAVAILABLE', status: 403 })
+  })
+
   it('reports a dead endpoint as a network failure', async () => {
     const fetchImpl: LlmFetch = async () => {
       throw new TypeError('fetch failed')

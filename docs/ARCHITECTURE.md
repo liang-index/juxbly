@@ -169,7 +169,20 @@ interface ExtractStep {
   mode: 'single' | 'list'
   /** list mode: CSS selector of the repeating-unit container; omitted in single mode */
   selector?: string
-  /** field name → CSS selector (relative to selector; document root in single mode) */
+  /**
+   * field name → CSS selector (relative to selector; document root in single mode).
+   *
+   * `":self"` is the one value that is not CSS: it reads the container element itself.
+   * A container is never among its own `querySelectorAll` matches, so "the value is this
+   * element" was inexpressible — and phase 2's benchmark showed the model writing `""` or
+   * `:self` for it anyway, failing the whole step after the rows had already been found.
+   * `:self` was chosen over `self` (a valid type selector that would silently match
+   * nothing if a host forgot to handle it) and over `:scope` (real CSS whose
+   * `querySelectorAll` result legitimately excludes the scope element, so borrowing the
+   * name would have inverted its meaning). It adds vocabulary, not control flow (EC §6.1).
+   * With no container — single mode without `selector` — `:self` has no element to be and
+   * the field is empty; it never falls back to the document root, whose text is the page.
+   */
   fields: Record<string, string>
   /** Type hints, default all text. image reads src/alt, link reads href */
   field_types?: Partial<Record<string, FieldType>>
@@ -279,6 +292,10 @@ Validated **twice** — before saving and before every run. Any failure rejects:
    **hashed class** (build output like `css-1x2y3z`): it changes on the site's next deploy, so a definition that passes today is
    guaranteed to break later. Rejected with `SELECTOR_FRAGILE`. The hashed-class rule itself lives in `@juxbly/core`
    (`selector.ts`) and is shared with the analyzer's selector policy, so generation and validation cannot drift apart.
+10. A `fields` value may not be empty — rejected with `FIELD_SELECTOR_EMPTY`, naming the field and pointing at `":self"`.
+    An empty selector used to pass validation and then throw `SELECTOR_SYNTAX` mid-run; it is the shape a model reaches for when
+    it wants the element itself, so it is refused at save time with the spelling that exists rather than at run time with the
+    one that does not.
 
 ### 5.5 Runtime contracts
 
@@ -680,7 +697,8 @@ interface PromptSpec { system: string; instruction: string; data: string }
 type LlmErrorCode =
   | 'NOT_CONFIGURED'   // no key / model yet — 1-13's onboarding step takes over
   | 'NETWORK'          // endpoint unreachable
-  | 'AUTH'             // 401 / 403
+  | 'AUTH'             // 401 — the key itself was refused
+  | 'MODEL_UNAVAILABLE' // 403 — the key was accepted, the model was refused (region / account)
   | 'RATE_LIMIT'       // 429 — a distinct copy path from NETWORK (§11)
   | 'HTTP_ERROR'       // any other non-2xx
   | 'TIMEOUT'
@@ -1677,3 +1695,25 @@ Two rules the runner holds to, because both are easy to break by accident:
 > who want stronger results are then guided to configure BYOK. The value is not saving money but
 > **removing the configuration barrier at first use**:
 > the steepest cut in the product funnel.
+
+## 15. Known problem areas
+
+### 15.1 Selector quality engineering
+
+**Status: measured, not solved.** The M0 review found selector trouble to be the single
+largest cause of wrong runs, and there is no one-time fix — it is continuous work from M1 on.
+Stage 2-4 was its first dedicated stage and it is benchmark-driven by construction.
+
+The measurements, the three findings that changed what we built, and the standing rules for
+iterating are in [`docs/architecture/selector-quality.md`](architecture/selector-quality.md).
+Two of them belong here because they are contracts, not commentary:
+
+- **Build success is not correctness.** On the benchmark run that `results/labels.json`
+  carries, 90% of tools built and 10% were correct. Reports must carry both numbers; build
+  success alone hides the gap that is the actual product quality.
+- **`":self"` is part of the DSL** (§5.2): it reads the container element itself, which a
+  relative query can never return. An empty field selector is rejected at validation as
+  `FIELD_SELECTOR_EMPTY` (§5.4 rule 10), never left to fail mid-run.
+
+The site adaptation library (per-site selector knowledge) is **deferred pending validation**,
+with the three measurements that would decide it written into the deep-dive document.

@@ -69,6 +69,17 @@ Every judgement is recorded in `tests/benchmark/reports/` using `judgement-templ
 | Command | What it does |
 |---|---|
 | `node scripts/check-cases.mjs` (`pnpm test:cases`) | case and ground-truth health check |
+| `node scripts/prelabel.mjs results/<run-id>.json` | proposes a label per case from the ground truth, with the evidence attached — `reports/<run-id>/prelabel.md` |
+
+Pre-labelling is a shortcut through the boring half of judging, not a judge. It compares
+the item count against `item_count_range` and every ground-truth sample value against what
+the tool produced, matching fields **by content rather than by name** — a tool that calls
+the column `stock` where the ground truth says `availability` is not wrong. Three things it
+will not do: it never labels an infrastructure failure (a case that died on `RATE_LIMIT`
+says nothing about the product and stays `pending`); it never calls a case `correct`
+without the count in range *and* every field found; and it never proposes
+`structure-changed`, which would need two captures of the same site. A person confirms or
+overrules every label before it reaches `results/labels.json`.
 
 It asserts, and fails loudly on: required fields present in every case and every ground truth; ids unique, matching `<bucket>-<NN>`, and matching the case's own bucket; every case still pointing at the snapshot it claims — same url, same bucket, `index.html` present; one ground truth per case and one case per snapshot; `item_count_range` ordered, non-zero, and narrow enough that a tool can fall outside it; every declared field carrying a non-empty value in every sample item, and no sample item carrying a field the case did not declare; full `A`/`C` coverage and ≥3 elsewhere; no selector, DOM API or CSS fragment smuggled into a task description; and no credential, email or CJK in any sample.
 

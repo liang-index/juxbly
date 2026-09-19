@@ -220,12 +220,19 @@ export async function callLlm(req: LlmRequest, deps: LlmClientDeps = {}): Promis
     }
 
     if (!response.ok) {
+      // 401 and 403 are different failures wearing the same face. 401: the key was refused.
+      // 403: the key was accepted and the *request* was refused — the model is not available
+      // to this account or in this region. Filing both under AUTH tells the user to go
+      // re-check a key that is fine, which is worse than saying nothing (§11: an error copy
+      // has to point at a next step that can work).
       const code =
-        response.status === 401 || response.status === 403
+        response.status === 401
           ? 'AUTH'
-          : response.status === 429
-            ? 'RATE_LIMIT'
-            : 'HTTP_ERROR'
+          : response.status === 403
+            ? 'MODEL_UNAVAILABLE'
+            : response.status === 429
+              ? 'RATE_LIMIT'
+              : 'HTTP_ERROR'
       throw createLlmError(code, { status: response.status })
     }
 

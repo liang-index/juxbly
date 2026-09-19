@@ -67,6 +67,44 @@ describe('extractSingle', () => {
   })
 })
 
+describe('the ":self" field selector', () => {
+  it('reads the container itself in list mode', () => {
+    // The container is never among its own querySelectorAll matches, so "the value is this
+    // element" is only expressible as :self (§5.2). The benchmark showed the model writing
+    // "" or ":self" for it anyway, and both used to fail the whole step.
+    const host = createFixtureHost('list-page.html')
+
+    const outcome = extractList(
+      host.dom,
+      step({ mode: 'list', selector: '.results li.product', fields: { whole: ':self', title: '.title' } }),
+    )
+
+    expect(outcome.records[0]).toEqual({ whole: 'Wireless keyboard $49.00 4.6', title: 'Wireless keyboard' })
+  })
+
+  it('reads the container itself in single mode', () => {
+    const host = createFixtureHost('single-record.html')
+
+    const outcome = extractSingle(
+      host.dom,
+      step({ mode: 'single', selector: '.profile', fields: { whole: ':self' } }),
+    )
+
+    expect(outcome.records).toEqual([{ whole: 'Ada Lovelace Research lead London' }])
+  })
+
+  it('is empty rather than the whole document when there is no container', () => {
+    // The dangerous reading would be the document root: its text is the entire page, and a
+    // field that returns the page would look like a value instead of a bug.
+    const host = createFixtureHost('list-page.html')
+
+    const outcome = extractSingle(host.dom, step({ mode: 'single', fields: { page: ':self' } }))
+
+    expect(outcome.records).toEqual([{ page: '' }])
+    expect(summarizeFields(outcome.records, ['page']).missingFields).toEqual(['page'])
+  })
+})
+
 describe('zero hits and broken selectors', () => {
   it('reports zero hits as an answer, not an error', () => {
     const host = createFixtureHost('list-page.html')

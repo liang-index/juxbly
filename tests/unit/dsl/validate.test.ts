@@ -376,6 +376,30 @@ describe('rule 8 — unknown types and unknown fields are rejected', () => {
 })
 
 describe('rule 9 — selectors must not anchor on a hashed class', () => {
+  it('accepts ":self" as a field selector — it is the DSL, not a hashed class', () => {
+    const input = validDefinition()
+    input['steps'] = [
+      { type: 'extract', mode: 'list', selector: 'li.item', fields: { whole: ':self' }, output_to: 'items' },
+      { type: 'render', view: 'table', input_from: 'items' },
+    ]
+    const result = validateToolDefinition(input)
+    if (!result.ok) throw new Error(`unexpected errors: ${JSON.stringify(result.errors)}`)
+  })
+
+  it('rejects an empty field selector and says what to write instead', () => {
+    // It used to pass validation and then throw SELECTOR_SYNTAX mid-run. It is the shape a
+    // model reaches for when it wants the element itself (§5.2), so it is refused here with
+    // the spelling that exists rather than at run time with one that does not.
+    const input = validDefinition()
+    input['steps'] = [
+      { type: 'extract', mode: 'list', selector: 'li.item', fields: { title: '' }, output_to: 'items' },
+      { type: 'render', view: 'table', input_from: 'items' },
+    ]
+    const errors = errorsOf(input)
+    expect(errors.map((error) => error.code)).toContain('FIELD_SELECTOR_EMPTY')
+    expect(errors.find((error) => error.code === 'FIELD_SELECTOR_EMPTY')?.path).toBe('steps[0].fields.title')
+  })
+
   it('rejects a container selector built on a hashed class', () => {
     const input = validDefinition()
     input['steps'] = [
