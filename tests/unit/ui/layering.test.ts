@@ -49,10 +49,11 @@ const LADDER = [
 function declarationOf(css: string, selector: string, property: string): string | null {
   // Anchor on the selector at the start of a line so `.jx-ball` cannot match inside
   // `.jx-ball-something`, and take the first declaration block that follows.
-  const escaped = selector.replace(/\./g, '\\.')
-  const block = new RegExp(`^${escaped}\\s*\\{([^}]*)\\}`, 'm').exec(css)
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const block = new RegExp(`^${escapedSelector}\\s*\\{([^}]*)\\}`, 'm').exec(css)
   if (block === null) return null
-  const match = new RegExp(`${property}\\s*:\\s*([^;]+)`).exec(block[1] ?? '')
+  const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const match = new RegExp(`${escapedProperty}\\s*:\\s*([^;]+)`).exec(block[1] ?? '')
   return match === null ? null : (match[1] ?? '').trim()
 }
 
