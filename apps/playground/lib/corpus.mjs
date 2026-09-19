@@ -281,11 +281,16 @@ export function encodeCjkAsEntities(html) {
  */
 export function stripCjkStyleBlocks(html) {
   let stripped = 0
-  const out = html.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, (block) => {
-    if (!containsCjk(block)) return block
-    stripped += 1
-    return ''
-  })
+  let out = html
+  let previous
+  do {
+    previous = out
+    out = out.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, (block) => {
+      if (!containsCjk(block)) return block
+      stripped += 1
+      return ''
+    })
+  } while (out !== previous)
   return { html: out, stripped }
 }
 
