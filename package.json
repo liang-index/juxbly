@@ -27,7 +27,7 @@
     "globals": "^15.14.0",
     "jsdom": "^26.0.0",
     "playwright": "1.63.0",
-    "prettier": "^3.4.2",
+    "prettier": "^3.9.7",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.1",
     "vitest": "^3.0.0"
