@@ -101,3 +101,40 @@ jobs:
           name: benchmark-report
           path: tests/benchmark/reports/*.md
           if-no-files-found: warn
+
+  # No key, no spend, no model: a recorded proposal replayed against the same frozen
+  # snapshots has to land on the same item counts. This is the check that keeps a
+  # published number checkable — and it runs on every pull request, because it costs
+  # nothing. A drift here means the runtime or the corpus moved after the number was
+  # published, which makes the published number wrong rather than merely old.
+  replay:
+    name: Replay recorded runs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Replay every recorded run
+        run: |
+          shopt -s nullglob
+          digests=(tests/benchmark/digests/*.json)
+          if [ ${#digests[@]} -eq 0 ]; then
+            echo "no recorded runs to replay"
+            exit 0
+          fi
+          for digest in "${digests[@]}"; do
+            echo "::group::replay $digest"
+            node scripts/bench.mjs --replay "$digest"
+            echo "::endgroup::"
+          done

@@ -1,0 +1,29 @@
+{
+  "case_id": "E-11",
+  "bucket": "E",
+  "expected_fields": [
+    "name"
+  ],
+  "item_count_range": [
+    65,
+    80
+  ],
+  "sample": [
+    {
+      "name": "Autocomplete"
+    },
+    {
+      "name": "Button Group"
+    },
+    {
+      "name": "Checkbox"
+    },
+    {
+      "name": "Slider"
+    }
+  ],
+  "verified_on": "2026-09-20",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

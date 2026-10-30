@@ -1,0 +1,12 @@
+{
+  "id": "A-14",
+  "bucket": "A",
+  "url": "https://www.postgresql.org/docs/current/functions-string.html",
+  "corpus": "corpus/A-14/index.html",
+  "task_description": "List the name of every string function documented in these reference tables.",
+  "expected_fields": [
+    "name"
+  ],
+  "notes": "Single-field coverage. Same site as A-07 but several section tables rather than one, and operator rows (text || text) sit between the function rows, so the container and the item are both ambiguous. 57 distinct function names in the tables.",
+  "verified_on": "2026-09-20"
+}

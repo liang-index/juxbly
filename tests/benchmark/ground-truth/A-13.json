@@ -1,0 +1,26 @@
+{
+  "case_id": "A-13",
+  "bucket": "A",
+  "expected_fields": [
+    "name"
+  ],
+  "item_count_range": [
+    240,
+    260
+  ],
+  "sample": [
+    {
+      "name": "Andorra"
+    },
+    {
+      "name": "Anguilla"
+    },
+    {
+      "name": "Zimbabwe"
+    }
+  ],
+  "verified_on": "2026-09-20",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

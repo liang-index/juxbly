@@ -1,0 +1,12 @@
+{
+  "id": "E-12",
+  "bucket": "E",
+  "url": "https://chakra-ui.com/docs/components/checkbox",
+  "corpus": "corpus/E-12/index.html",
+  "task_description": "List the label of every link in this page's on-page table of contents.",
+  "expected_fields": [
+    "label"
+  ],
+  "notes": "Single-field coverage for E: 86% of class tokens are generated, the highest ratio measured in the bucket. 25 anchor labels, each distinct.",
+  "verified_on": "2026-09-20"
+}

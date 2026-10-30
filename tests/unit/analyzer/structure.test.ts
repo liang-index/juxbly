@@ -131,6 +131,60 @@ describe('detectContainers', () => {
     expect(containers).toHaveLength(1)
     expect(containers[0]?.fieldHints).toEqual([])
   })
+  it('offers only fields the repeating unit actually shares', () => {
+    // A badge on one card is decoration; guessing from a single item would offer it as a
+    // column of the list. Sampling several items is what separates the two.
+    const containers = detectContainers(
+      elementsOf(
+        '<ul>' +
+          '<li><span class="title">one</span></li>' +
+          '<li><span class="title">two</span><span class="badge">new</span></li>' +
+          '<li><span class="title">three</span></li>' +
+          '</ul>',
+      ),
+    )
+
+    const selectors = containers[0]?.fieldHints.map((hint) => hint.selector) ?? []
+    expect(selectors).toContain('span.title')
+    expect(selectors).not.toContain('span.badge')
+  })
+
+  it('offers a link field whose value is in an attribute, not in the text', () => {
+    // `<a>` has no words of its own — the URL lives in `href`. An offer list without it
+    // makes a `link` field impossible to build from the suggestions we handed over.
+    const containers = detectContainers(
+      elementsOf(
+        '<ul>' +
+          '<li><a href="/one"><span>One</span></a></li>' +
+          '<li><a href="/two"><span>Two</span></a></li>' +
+          '<li><a href="/three"><span>Three</span></a></li>' +
+          '</ul>',
+      ),
+    )
+
+    const hints = containers[0]?.fieldHints ?? []
+    expect(hints.map((hint) => hint.selector)).toContain('a')
+    expect(hints.find((hint) => hint.selector === 'a')?.sampleText).toBe('/one')
+    // The anchor's text is a different field, so both stay on the menu.
+    expect(hints.map((hint) => hint.selector)).toContain('a>span')
+  })
+
+  it('keeps the inner element when a wrapper carries the same words', () => {
+    const containers = detectContainers(
+      elementsOf(
+        '<ul>' +
+          '<li><h3><span>Alpha</span></h3></li>' +
+          '<li><h3><span>Beta</span></h3></li>' +
+          '<li><h3><span>Gamma</span></h3></li>' +
+          '</ul>',
+      ),
+    )
+
+    const selectors = containers[0]?.fieldHints.map((hint) => hint.selector) ?? []
+    expect(selectors).toContain('h3>span')
+    expect(selectors).not.toContain('h3')
+    expect(containers[0]?.fieldHints[0]?.sampleText).toBe('Alpha')
+  })
 })
 
 describe('detectScrollHint', () => {

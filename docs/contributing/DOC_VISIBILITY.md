@@ -80,6 +80,7 @@ content is wrong, but because it is process.
 |---|---|
 | `task/**` | per-stage construction tickets: implementation notes, `Do Not Implement` lists, per-stage acceptance criteria |
 | `docs/PRODUCT.md` | the deliberation record — what was considered, what was rejected, and why. **The conclusions are public**: they are stated in `README.md` and `contributing/SCOPE.md`. It is the *reasoning* that stays inside |
+| `docs/PHASE3_PLAN.md` | the phase-entry plan: what the last rounds concluded, in what order the next work is done, and the known-issues list. It is a working plan for people inside the project, not a rule anyone outside can act on |
 | `docs/DELTA.md` | change ledger — who changed what, and which stage it affects |
 | `docs/MAINTAINER_RUNBOOK.md` | maintainer operations |
 | `docs/testing/MANUAL_ACCEPTANCE.md` | the executable expansion of the per-stage acceptance criteria |

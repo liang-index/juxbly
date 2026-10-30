@@ -23,11 +23,11 @@ const FIXTURES = join(ROOT, 'tests/benchmark/fixtures')
 
 /** Mirrors `BUCKET_RANGE` in the corpus library; restated so a failure names the shape. */
 const BUCKET_RANGE: Record<string, [number, number]> = {
-  A: [10, 12],
+  A: [10, 14],
   B: [8, 10],
-  C: [8, 10],
-  D: [6, 8],
-  E: [8, 10],
+  C: [8, 11],
+  D: [6, 9],
+  E: [8, 12],
 }
 
 const MIN_SNAPSHOTS = 45

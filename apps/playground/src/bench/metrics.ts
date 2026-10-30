@@ -7,11 +7,26 @@
  * denominator is empty is `null` rather than a flattering zero.
  */
 import { BUCKETS, type Bucket, type CaseResult, type FailureExcerpt, type LabelCounts, type LabeledResult, type MetricsReport, type RunResult } from './types'
+import { fieldMetrics, scoreCase, type CaseScore, type GroundTruth } from './scoring'
 
-export function aggregate(run: RunResult, labeled: readonly LabeledResult[] = []): MetricsReport {
+/**
+ * @param groundTruths by case id. Without one, a case is not scored at field level —
+ *   it is not counted as zero, because "no ground truth" is not "extracted nothing".
+ */
+export function aggregate(
+  run: RunResult,
+  labeled: readonly LabeledResult[] = [],
+  groundTruths: ReadonlyMap<string, GroundTruth> = new Map(),
+): MetricsReport {
   const labels = new Map(labeled.map((entry) => [entry.caseId, entry]))
   const labelCounts = countLabels(run.cases, labels)
   const latencies = run.cases.map((entry) => entry.latencyMs).sort((a, b) => a - b)
+  const scores = run.cases
+    .map((entry) => {
+      const gt = groundTruths.get(entry.caseId)
+      return gt === undefined ? null : scoreCase(entry, gt)
+    })
+    .filter((score): score is NonNullable<typeof score> => score !== null)
 
   return {
     runId: run.runId,
@@ -20,13 +35,16 @@ export function aggregate(run: RunResult, labeled: readonly LabeledResult[] = []
     generatedAt: new Date().toISOString(),
     total: run.cases.length,
     buildSuccessRate: rate(usableCases(run.cases).length, run.cases.length),
+    fieldMetrics: scores.length === 0 ? null : fieldMetrics(scores),
+    selectorFromList: selectorFromList(run.cases),
+    fieldsFromList: fieldsFromList(run.cases),
     labelCounts,
     correctionRate: rate(run.cases.filter((entry) => entry.neededClarification === true).length, run.cases.length),
     healthFalsePositiveRate: healthFalsePositiveRate(run.cases),
-    repairSuccessRate: null,
+    repairSuccessRate: repairSuccessRate(run.cases),
     latencyMs: {
       average: average(latencies),
-      median: latencies[Math.floor(latencies.length / 2)] ?? 0,
+      median: medianOf(latencies) ?? 0,
       max: latencies[latencies.length - 1] ?? 0,
     },
     tokens: run.cases.reduce(
@@ -36,11 +54,55 @@ export function aggregate(run: RunResult, labeled: readonly LabeledResult[] = []
       }),
       { prompt: 0, completion: 0 },
     ),
-    byBucket: byBucket(run.cases, labels),
+    byBucket: byBucket(run.cases, labels, scores),
     failedCases: failures(run.cases),
     pendingCases: run.cases.filter((entry) => !labels.has(entry.caseId)).map((entry) => entry.caseId),
     environmentFailure: environmentFailure(run.cases),
   }
+}
+
+/**
+ * Of the repair rounds a run attempted, how many ended with the repaired tool adopted.
+ *
+ * Attempted means `success` or `failed` — a case with `not-attempted` (control runs,
+ * cases that never produced a tool) is not a denominator. `null` when nothing was
+ * attempted, never zero: no attempt is no measurement.
+ */
+function repairSuccessRate(cases: readonly CaseResult[]): number | null {
+  const attempted = cases.filter(
+    (entry) => entry.repairResult === 'success' || entry.repairResult === 'failed',
+  )
+  if (attempted.length === 0) return null
+  const adopted = attempted.filter((entry) => entry.repairResult === 'success').length
+  return adopted / attempted.length
+}
+
+/**
+ * How often the tool ran a container the analyser had offered.
+ *
+ * Counted over cases that produced a tool, because a case that produced nothing says
+ * nothing about selector choice. This is the failure the corpus keeps showing — a model
+ * that composes its own selector instead of taking one from the list in the same prompt
+ * — made into a number instead of an argument.
+ */
+function selectorFromList(cases: readonly CaseResult[]): { yes: number; no: number } {
+  let yes = 0
+  let no = 0
+  for (const entry of cases) {
+    if (entry.selectorFromList === true) yes += 1
+    else if (entry.selectorFromList === false) no += 1
+  }
+  return { yes, no }
+}
+
+function fieldsFromList(cases: readonly CaseResult[]): { yes: number; no: number } {
+  let yes = 0
+  let no = 0
+  for (const entry of cases) {
+    yes += entry.fieldsFromList?.yes ?? 0
+    no += entry.fieldsFromList?.no ?? 0
+  }
+  return { yes, no }
 }
 
 /**
@@ -88,13 +150,20 @@ function countLabels(cases: readonly CaseResult[], labels: Map<string, LabeledRe
   return counts
 }
 
-function byBucket(cases: readonly CaseResult[], labels: Map<string, LabeledResult>): Record<Bucket, BucketCaseMetrics> {
+function byBucket(
+  cases: readonly CaseResult[],
+  labels: Map<string, LabeledResult>,
+  scores: readonly CaseScore[] = [],
+): Record<Bucket, BucketCaseMetrics> {
   const out = {} as Record<Bucket, BucketCaseMetrics>
+  const byCase = new Map(scores.map((score) => [score.caseId, score]))
   for (const bucket of BUCKETS) {
     const inBucket = cases.filter((entry) => entry.bucket === bucket)
+    const bucketScores = inBucket.map((entry) => byCase.get(entry.caseId)).filter((score): score is CaseScore => score !== undefined)
     out[bucket] = {
       cases: inBucket.length,
       buildSuccessRate: rate(usableCases(inBucket).length, inBucket.length),
+      fieldF1: bucketScores.length === 0 ? null : fieldMetrics(bucketScores).f1,
       labelCounts: countLabels(inBucket, labels),
       correctionRate: rate(inBucket.filter((entry) => entry.neededClarification === true).length, inBucket.length),
     }
@@ -138,4 +207,23 @@ function rate(numerator: number, denominator: number): number | null {
 function average(values: readonly number[]): number {
   if (values.length === 0) return 0
   return values.reduce((sum, value) => sum + value, 0) / values.length
+}
+
+/**
+ * The median, defined for an even count as the average of the two middle values.
+ *
+ * The gates are written as "the median of two runs", so this half of the definition is
+ * the whole of it in practice — and it is the half that a "take the middle element"
+ * shortcut gets wrong. That shortcut returns the *upper* of the two readings, which is
+ * the better one, which is exactly the direction `docs/benchmark/README.md` forbids:
+ * of two readings 37.4% and 38.7%, the reading is 38.1% and not 38.7%.
+ */
+export function medianOf(values: readonly number[]): number | null {
+  if (values.length === 0) return null
+  const sorted = [...values].sort((a, b) => a - b)
+  const middle = Math.floor(sorted.length / 2)
+  if (sorted.length % 2 === 1) return sorted[middle] ?? null
+  const lower = sorted[middle - 1]
+  const upper = sorted[middle]
+  return lower === undefined || upper === undefined ? null : (lower + upper) / 2
 }

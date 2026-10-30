@@ -1,0 +1,49 @@
+{
+  "id": "C-11",
+  "url": "https://shoelace.style/components/badge",
+  "bucket": "C",
+  "capturedAt": "2026-09-20T12:26:45.239Z",
+  "sizeBytes": 176177,
+  "verifiedOn": "2026-09-20",
+  "title": "Badge",
+  "bucketEvidence": {
+    "verdict": "61 of 182 shadow roots carry content",
+    "shadowRootCount": 182,
+    "shadowRootWithContentCount": 61,
+    "customElementCount": 182,
+    "shadowHostSample": [
+      "sl-button",
+      "sl-menu-item",
+      "sl-icon",
+      "sl-menu-item",
+      "sl-icon"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 81240,
+    "assetCount": 5,
+    "nodeCount": 1715,
+    "shadowRootCount": 182,
+    "shadowRootWithContentCount": 61,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 182,
+    "classTokenCount": 163,
+    "hashedClassTokens": 26,
+    "maxRepeatingCount": 382
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-20"
+  },
+  "robots": {
+    "status": "absent",
+    "rule": null,
+    "url": "https://shoelace.style/robots.txt"
+  },
+  "notes": "Single-field coverage for C: the live examples render one repeated custom element, each with a content-bearing shadow root.",
+  "personalDataHits": []
+}

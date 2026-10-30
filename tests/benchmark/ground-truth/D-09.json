@@ -1,0 +1,26 @@
+{
+  "case_id": "D-09",
+  "bucket": "D",
+  "expected_fields": [
+    "author"
+  ],
+  "item_count_range": [
+    40,
+    60
+  ],
+  "sample": [
+    {
+      "author": "pixelfed"
+    },
+    {
+      "author": "Working Class History"
+    },
+    {
+      "author": "donni saphire"
+    }
+  ],
+  "verified_on": "2026-09-20",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

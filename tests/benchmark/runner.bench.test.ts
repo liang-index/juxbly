@@ -44,13 +44,30 @@ const BOOKS_TOOL: ToolDefinition = {
   updated_at: '2026-09-15T00:00:00.000Z',
 }
 
+/** Valid §5.4, and matches nothing on this page — the candidate a ranking has to reject. */
+const EMPTY_TOOL: ToolDefinition = {
+  ...BOOKS_TOOL,
+  tool_id: 'tool_bench_empty',
+  steps: [{ type: 'extract', mode: 'list', selector: 'table.does-not-exist', fields: { title: ':self' }, output_to: 'raw_items' }],
+}
+
+/** The model's answer: a tool, plus the pool it came from (one, unless a test says otherwise). */
+function proposal(tool: ToolDefinition | null, pool: readonly ToolDefinition[] = tool === null ? [] : [tool], extra: Partial<Proposal> = {}): Proposal {
+  return {
+    tool,
+    candidates: [...pool],
+    ...(extra.error === undefined ? {} : { error: extra.error }),
+    askedQuestion: extra.askedQuestion ?? false,
+  }
+}
+
 describe('benchmark runner', () => {
   it('runs one case and reports what happened', async () => {
     const run = await runBenchmark({
       model: MODEL,
       settings: { apiKey: 'not-used' },
       caseId: 'A-01',
-      propose: async () => ({ tool: BOOKS_TOOL, askedQuestion: false }),
+      propose: async () => proposal(BOOKS_TOOL),
     })
 
     expect(run.cases).toHaveLength(1)
@@ -70,7 +87,7 @@ describe('benchmark runner', () => {
       model: MODEL,
       settings: { apiKey: 'not-used' },
       caseId: 'A-01',
-      propose: async () => ({ tool: null, error: 'EMPTY_REPLY', askedQuestion: false }),
+      propose: async () => proposal(null, [], { error: 'EMPTY_REPLY' }),
     })
 
     const result = only(run)
@@ -84,8 +101,8 @@ describe('benchmark runner', () => {
     const attempts: boolean[] = []
     const propose: (request: { noMoreQuestions: boolean }) => Promise<Proposal> = async (request) => {
       attempts.push(request.noMoreQuestions)
-      if (request.noMoreQuestions) return { tool: BOOKS_TOOL, askedQuestion: false }
-      return { tool: null, askedQuestion: true }
+      if (request.noMoreQuestions) return proposal(BOOKS_TOOL)
+      return proposal(null, [], { askedQuestion: true })
     }
 
     const run = await runBenchmark({
@@ -99,6 +116,38 @@ describe('benchmark runner', () => {
     const result = only(run)
     expect(result.neededClarification).toBe(true)
     expect(result.generationSucceeded).toBe(true)
+  })
+
+  /**
+   * The `bestof` experiment, in one case: the model's first candidate is the one it wrote
+   * first, and it matches nothing. `first-valid` takes it anyway; `best-scored` runs both
+   * and takes the one the page agrees with.
+   */
+  it('takes the best-scored candidate when asked to, and the first one otherwise', async () => {
+    const pool = [EMPTY_TOOL, BOOKS_TOOL]
+    const propose = async (): Promise<Proposal> => proposal(EMPTY_TOOL, pool)
+
+    const control = await runBenchmark({
+      model: MODEL,
+      settings: { apiKey: 'not-used' },
+      caseId: 'A-01',
+      propose,
+    })
+    const bestof = await runBenchmark({
+      model: MODEL,
+      settings: { apiKey: 'not-used' },
+      caseId: 'A-01',
+      variant: 'bestof',
+      propose,
+    })
+
+    expect(only(control).selection).toBe('first-valid')
+    expect(only(control).itemCount).toBe(0)
+
+    const picked = only(bestof)
+    expect(picked.selection).toBe('best-scored')
+    expect(picked.candidateCount).toBe(2)
+    expect(picked.itemCount).toBe(20)
   })
 
   it('names the missing case when a case id does not exist', async () => {
@@ -115,7 +164,7 @@ describe('benchmark runner', () => {
       model: MODEL,
       settings: { apiKey: 'not-used' },
       caseId: 'A-01',
-      propose: async () => ({ tool: BOOKS_TOOL, askedQuestion: false }),
+      propose: async () => proposal(BOOKS_TOOL),
       now: () => new Date('2026-09-15T00:00:00.000Z'),
     })
 

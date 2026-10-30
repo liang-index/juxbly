@@ -72,6 +72,7 @@ Browser APIs
 
 - **Code is fixed, configuration is variable.** The model emits JSON; a whitelist interpreter executes it. There is no `eval`, no `new Function`, no remote code loading anywhere in the repository.
 - **Deterministic work never calls the model.** `extract` / `transform` / `render` are local; only `llm` steps cost tokens, and they are skipped when inputs have not changed.
+- **The model is asked once, and the result is reused.** Juxbly asks for a *plan* — a Tool DSL document — not for the data. Every later run re-executes the same plan with no model call at all, which is why the cost of a tool is not the cost of a page: a full 50-case benchmark run (50 proposals plus their executions) costs about **$0.05** on a cheap model, where an agent that drives a browser through every page reports around **$2.50 per page**. Same class of task, roughly two orders of magnitude apart, because one of them pays for judgement once and the other pays for it every time.
 - **Bring your own key.** Any **OpenAI-compatible endpoint** works — OpenAI, OpenRouter, Together, or a local gateway (LM Studio, Ollama's OpenAI-compatible server, …) — set the base URL once. Page content goes from your browser, through your own API key, to the endpoint you chose. There is no Juxbly server in the path and no telemetry.
 
 Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

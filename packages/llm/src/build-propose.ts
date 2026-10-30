@@ -20,9 +20,10 @@ import type {
   Logger,
   PageAnalysis,
 } from '@juxbly/core'
-import type { ToolDefinition } from '@juxbly/dsl'
+import type { ExtractStep, ToolDefinition } from '@juxbly/dsl'
 import { loadSettings } from '@juxbly/storage'
 import { buildPrompt, buildVisionMessages, DEFAULT_SYSTEM_PROMPT, stringifyData } from './build-prompt'
+import { describePage, type PageView } from './page-view'
 import { callLlm, DEFAULT_API_BASE_URL, modelOrDefault } from './client'
 import type { LlmFetch } from './client'
 import { isLlmError } from './errors'
@@ -33,6 +34,22 @@ export interface BuildProposeDeps {
   fetchImpl?: LlmFetch
   logger?: Logger
   timeoutMs?: number
+  /**
+   * Which representation of the page the model is shown (§9.1). Absent means the shipped
+   * one, so the product is unchanged; the Phase 2 benchmark passes `flat` to test whether
+   * choosing from a numbered list beats composing a selector.
+   */
+  pageView?: PageView
+  /**
+   * Closed-loop repair (Round B): the model sees what its own extract step actually
+   * pulled off the page and returns corrected candidates. In-process only — the wire
+   * message is unchanged, exactly like `pageView`. `sampleRows` are page content and go
+   * into the data section (§ red line: page content is data, never instruction).
+   */
+  repair?: {
+    draft: ToolDefinition
+    sampleRows: readonly Record<string, unknown>[]
+  }
 }
 
 /** Never rejects: the panel is waiting on a reply, and a throw would look like nothing happened. */
@@ -58,12 +75,24 @@ export async function handleBuildPropose(
     // request, so a saved key always has something to run against (see `client.ts`).
     if (apiKey.trim() === '') return fail('NOT_CONFIGURED')
 
+    const view = deps.pageView ?? 'summary'
+    const repair = deps.repair
     const instruction = buildInstruction({
       conversation,
       pageAnalysis,
       conservative: conservative === true,
       noMoreQuestions: noMoreQuestions === true,
+      view,
+      ...(repair === undefined ? {} : { repair: true }),
     })
+
+    const pageData = describePage(pageAnalysis, view)
+    // The dry-run observation rides in the data section next to the page: it is page
+    // content the model must read as data, never as instruction.
+    const data =
+      repair === undefined
+        ? pageData
+        : { page: pageData, dryRun: describeDryRun(repair.draft, repair.sampleRows) }
 
     const messages =
       typeof screenshot === 'string' && screenshot !== ''
@@ -71,7 +100,7 @@ export async function handleBuildPropose(
         : buildPrompt({
             system: DEFAULT_SYSTEM_PROMPT,
             instruction,
-            data: stringifyData(summarizeAnalysis(pageAnalysis)),
+            data: stringifyData(data),
           })
 
     const response = await callLlm(
@@ -98,7 +127,7 @@ export async function handleBuildPropose(
       kind: 'build:propose_result',
       requestId,
       ok: true,
-      ...reply,
+      ...('candidates' in reply ? { candidates: resolveRefs(reply.candidates, pageAnalysis, view) } : reply),
       usage: response.usage,
     }
   } catch (error: unknown) {
@@ -157,6 +186,10 @@ export interface InstructionInput {
   pageAnalysis: PageAnalysis
   conservative: boolean
   noMoreQuestions: boolean
+  /** Which representation the data section will use; the rules have to match it. */
+  view?: PageView
+  /** True on a closed-loop repair turn: the model has seen its own dry-run output. */
+  repair?: boolean
 }
 
 /**
@@ -194,9 +227,25 @@ export function buildInstruction(input: InstructionInput): string {
     '- "link" reads href, "image" reads src, "text" reads text.',
   )
 
+  if (input.view === 'flat') {
+    lines.push(
+      '- The data section numbers the containers it found. Write the container selector as `@N` — the index of the one you mean, and nothing else. `@3` is the container listed with `"index": 3`.',
+      '- Field selectors are `@N` as well, indexing the `fields` list inside the container you chose.',
+      '- Plain CSS is still allowed, but only when no listed container or field fits. Prefer the list: the selectors in it have already been checked against this page.',
+    )
+  }
+
   if (input.conservative) {
     lines.push(
       '- A previous attempt did not match this page. Choose the plainest, most literal container and fields; do not generalise.',
+    )
+  }
+
+  if (input.repair === true) {
+    lines.push(
+      '- REPAIR TURN: a candidate was already built and executed against this page. The data section has a "dryRun" object: the extract step that ran, and sample_rows — what each field selector actually produced, first rows first.',
+      '- Read sample_rows as evidence, not as suggestions: a field whose values look right is correct and must keep its selector; a field whose values are wrong, empty, or duplicated has a broken selector.',
+      '- Fix the broken field selectors (and the container only if the rows themselves are wrong). Return the FULL corrected candidate(s) in the "candidates" shape — not a diff, not an explanation.',
     )
   }
 
@@ -220,29 +269,104 @@ export function buildInstruction(input: InstructionInput): string {
 }
 
 /**
+ * `@N` becomes the selector it points at.
+ *
+ * A reference is not a second language the model has to learn: it is the same shape as
+ * a selector, in the same field, and it resolves to exactly the string the analyser
+ * measured. It is also *measurable* — a run can be counted for how many candidates used
+ * a reference and how many ignored the list and wrote CSS, which is the question the
+ * `flat` view exists to answer.
+ *
+ * An index that does not exist is left alone rather than quietly repaired: a nonsense
+ * reference should fail the same way a nonsense selector does, not silently become the
+ * first container.
+ */
+function resolveRefs(
+  candidates: readonly ToolDefinition[],
+  analysis: PageAnalysis,
+  view: PageView,
+): ToolDefinition[] {
+  if (view !== 'flat') return [...candidates]
+  return candidates.map((candidate) => resolveOne(candidate, analysis))
+}
+
+function resolveOne(candidate: ToolDefinition, analysis: PageAnalysis): ToolDefinition {
+  const steps = candidate.steps.map((step) => {
+    if (step.type !== 'extract') return step
+
+    const containerIndex = refIndex(typeof step.selector === 'string' ? step.selector : '')
+    const container = containerIndex === null ? undefined : analysis.containers[containerIndex]
+    const selector = container === undefined ? step.selector : container.tagPath
+
+    const fields = Object.fromEntries(
+      Object.entries(step.fields).map(([name, value]) => {
+        const fieldIndex = refIndex(typeof value === 'string' ? value : '')
+        const hint = fieldIndex === null || container === undefined ? undefined : container.fieldHints[fieldIndex]
+        return [name, hint === undefined ? value : hint.selector]
+      }),
+    )
+
+    // `selector` is optional in `single` mode, and `exactOptionalPropertyTypes` forbids
+    // writing `undefined` back into it — so it is spread only when there is one.
+    return { ...step, ...(selector === undefined ? {} : { selector }), fields }
+  })
+
+  return { ...candidate, steps }
+}
+
+/** `@3` → 3. Anything else is CSS and is left for the page to deal with. */
+function refIndex(value: string): number | null {
+  const match = /^@(\d+)$/.exec(value.trim())
+  if (match === null) return null
+  const index = Number(match[1])
+  return Number.isInteger(index) ? index : null
+}
+
+/** How many dry-run rows the model sees, and how long one cell may be. */
+const DRY_RUN_MAX_ROWS = 3
+const DRY_RUN_MAX_CELL = 120
+
+/**
+ * What the model sees of its own candidate's execution.
+ *
+ * Bounded on purpose: three rows, each cell truncated. The point is observation —
+ * "this selector pulled the promotion banner" is visible in one row — not a dump of
+ * the extraction, which would double the prompt for no new information.
+ */
+export function describeDryRun(
+  draft: ToolDefinition,
+  sampleRows: readonly Record<string, unknown>[],
+): Record<string, unknown> {
+  const step = draft.steps.find((entry): entry is ExtractStep => entry.type === 'extract')
+
+  const rows = sampleRows.slice(0, DRY_RUN_MAX_ROWS).map((row) =>
+    Object.fromEntries(
+      Object.entries(row).map(([name, value]) => [
+        name,
+        typeof value === 'string' && value.length > DRY_RUN_MAX_CELL
+          ? `${value.slice(0, DRY_RUN_MAX_CELL)}…`
+          : value,
+      ]),
+    ),
+  )
+
+  return {
+    ran_extract: step === undefined ? null : { selector: step.selector ?? null, fields: step.fields },
+    sample_rows: rows,
+    row_count_shown: rows.length,
+  }
+}
+
+/**
  * What the model gets to see of the page.
  *
  * Counts, selectors and the truncated visible text — the same material the analyzer
  * produced, never more. The visible text is page content and is wrapped as data by
  * `buildPrompt`.
+ *
+ * The view decides the shape. `summarizeAnalysis` was the only one; it is kept as the
+ * name the shipped view is known by, and `page-view.ts` is where both now live.
  */
 export function summarizeAnalysis(analysis: PageAnalysis): Record<string, unknown> {
-  return {
-    url: analysis.url,
-    title: analysis.title,
-    visibleText: analysis.visibleText,
-    truncated: analysis.truncated,
-    scrollHint: analysis.scrollHint,
-    customElements: analysis.customElements,
-    shadowHosts: analysis.shadowHosts,
-    containers: analysis.containers.map((container) => ({
-      tagPath: container.tagPath,
-      hitCount: container.hitCount,
-      sampleFields: container.sampleFields,
-      fieldHints: container.fieldHints.map((hint) => ({
-        selector: hint.selector,
-        sampleText: hint.sampleText,
-      })),
-    })),
-  }
+  return describePage(analysis, 'summary')
 }

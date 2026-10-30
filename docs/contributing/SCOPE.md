@@ -27,14 +27,22 @@ Everything here is a constraint, not a preference: a change to this list has to 
 
 ## Capability boundaries
 
-Measured before implementation on a 10-site sample, then treated as a constraint:
+Measured, not assumed. The sample of 2026-09-04 was ten sites; the readings below come from
+the Phase 2 corpus — 56 cases, two runs, 112 case-runs — as field-level F1, recomputable
+with `scripts/bench-breakdown.mjs` from the recorded digests:
 
-| Page shape | Status |
-|---|---|
-| Regular, well-structured pages and documents | **Reliable** — this is what V1 targets |
-| Infinite scroll | Best effort |
-| Client-rendered SPA | Best effort |
-| Hashed / generated class names | Best effort |
+| Page shape | Field F1 | Launch status |
+|---|---|---|
+| Semantic structure (tables / lists) | 64.7% | **Promised** |
+| Lazy-loaded / infinite-scroll lists | 55.9% | **Promised** |
+| Shadow DOM / custom elements | 41.6% | Best effort |
+| Client-rendered SPA | 21.3% | Not promised |
+| Hashed / generated class names | 18.4% | Not promised |
+
+The store listing and the launch preset pack promise the first two shapes and nothing else
+(Maintainer ruling 2026-09-22). This narrows the promise, not the product: the engine still
+runs on every shape above, and a shape moves up when a new reading on the same ruler says
+so. `docs/ROADMAP.md` carries the gate that holds back the release.
 
 Best effort means it may work and may not. When it does not, the UI says so rather than
 showing an empty result — and nothing in Juxbly's documentation or store listing may
