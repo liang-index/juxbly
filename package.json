@@ -18,7 +18,8 @@
     "test:e2e": "pnpm build && node apps/playground/e2e/lifecycle.mjs",
     "test:corpus": "node scripts/check-corpus.mjs",
     "test:cases": "node scripts/check-cases.mjs",
-    "test:bench": "node scripts/bench.mjs"
+    "test:bench": "node scripts/bench.mjs",
+    "dogfood": "node scripts/dogfood.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
