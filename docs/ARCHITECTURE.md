@@ -139,8 +139,16 @@ interface ToolDefinition {
 ```ts
 type ToolStep = ExtractStep | TransformStep | LlmStep | RenderStep | ExportStep
 
-/** Field data type — decides extraction and the default view suggestion */
-type FieldType = 'text' | 'image' | 'link'
+/**
+ * Field data type — decides extraction and the default view suggestion.
+ *
+ * `attr` reads a **named attribute**. It exists because a real page routinely keeps the
+ * value outside the text node: books.toscrape carries its star rating as
+ * `class="star-rating Three"` and keeps the untruncated book title in `title=`, and
+ * before `attr` both were unreachable — the other three types returned `""`. Measured
+ * across the 56-case corpus, 2 of 114 field instances were reachable only this way.
+ */
+type FieldType = 'text' | 'image' | 'link' | 'attr'
 
 /**
  * Scroll preparation before extraction (A1).
@@ -186,6 +194,15 @@ interface ExtractStep {
   fields: Record<string, string>
   /** Type hints, default all text. image reads src/alt, link reads href */
   field_types?: Partial<Record<string, FieldType>>
+  /**
+   * Attribute name per field — **required for every field typed `attr`** (§5.4 rule 4).
+   * A separate map, not syntax inside the selector, because the selector goes to
+   * `dom.query` unchanged and a second dialect in it would have to be parsed by every
+   * consumer including `:self` handling and the highlight layer.
+   * Attributes whose *name* marks a credential slot are refused at read time — the same
+   * narrowed rule the corpus capture enforces, see §12.2.
+   */
+  field_attrs?: Partial<Record<string, string>>
   /** Scroll to load more before extracting (see PreScroll). Absent behaves as 'none': only what is already rendered */
   pre_scroll?: PreScroll
   output_to: string       // variable name to write, e.g. "raw_items"

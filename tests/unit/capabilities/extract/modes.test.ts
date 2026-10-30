@@ -186,3 +186,96 @@ describe('the container cap', () => {
     expect(outcome.truncated).toBe(true)
   })
 })
+
+/**
+ * `attr` through a whole list extract — the repair for the case dogfooding found.
+ *
+ * On books.toscrape the star rating lives in the element's `class` and the untruncated
+ * title in `title=`; read as text both columns come back wrong (one empty, one clipped).
+ * The point of these two assertions is that the fix is real end to end, not just inside
+ * `readFieldValue`: `fieldPresence` has to report the field as present, because that is
+ * what health and the panel read.
+ */
+/**
+ * `attr` through a whole list extract — the repair for the case dogfooding found.
+ *
+ * On books.toscrape the star rating lives in the element's `class` and the untruncated
+ * book title in `title=`; read as text both columns come back wrong — one empty, one
+ * clipped. The page shape below is that one, rebuilt small.
+ */
+function bookShelf() {
+  const host = createFixtureHost('list-page.html')
+  const shelf = host.document.createElement('div')
+
+  for (const [stars, full] of [
+    ['Three', 'A Light in the Attic'],
+    ['One', 'Tipping the Velvet'],
+  ] as const) {
+    const book = host.document.createElement('article')
+    book.className = 'book'
+
+    const rating = host.document.createElement('p')
+    rating.className = `star-rating ${stars}`
+
+    const link = host.document.createElement('a')
+    link.setAttribute('title', full)
+    link.textContent = `${full.slice(0, 10)}...`
+
+    book.append(link, rating)
+    shelf.append(book)
+  }
+
+  host.document.body.append(shelf)
+  return host
+}
+
+describe('attr through a list extract', () => {
+  const selector = 'div article.book'
+  const fields = { rating: 'p.star-rating', title: 'a' }
+
+  it('fills both columns the three text types could not', () => {
+    const outcome = extractList(
+      bookShelf().dom,
+      step({
+        mode: 'list',
+        selector,
+        fields,
+        field_types: { rating: 'attr', title: 'attr' },
+        field_attrs: { rating: 'class', title: 'title' },
+      }),
+    )
+
+    expect(outcome.hitCount).toBe(2)
+    expect(outcome.records[0]?.['rating']).toBe('star-rating Three')
+    expect(outcome.records[0]?.['title']).toBe('A Light in the Attic')
+    expect(outcome.records[1]?.['rating']).toBe('star-rating One')
+  })
+
+  it('reports the rating as present, where reading it as text reported it missing', () => {
+    // Presence is what health and the panel read, so this is the assertion that says the
+    // fix is real end to end rather than only inside readFieldValue.
+    const host = bookShelf()
+
+    const asAttr = extractList(
+      host.dom,
+      step({ mode: 'list', selector, fields, field_types: { rating: 'attr', title: 'attr' }, field_attrs: { rating: 'class', title: 'title' } }),
+    )
+    const asText = extractList(host.dom, step({ mode: 'list', selector, fields }))
+
+    expect(summarizeFields(asAttr.records, Object.keys(fields)).missingFields).toEqual([])
+    expect(summarizeFields(asText.records, Object.keys(fields)).missingFields).toEqual(['rating'])
+  })
+
+  it('still reads a value below the cap when the attribute is refused', () => {
+    // A refused credential slot must not fail the run: it is one empty field, reported as
+    // missing like any other.
+    const host = bookShelf()
+    const outcome = extractList(
+      host.dom,
+      step({ mode: 'list', selector, fields, field_types: { rating: 'attr' }, field_attrs: { rating: 'data-api-key' } }),
+    )
+
+    expect(outcome.hitCount).toBe(2)
+    expect(outcome.records[0]?.['rating']).toBe('')
+  })
+})

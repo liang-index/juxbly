@@ -212,7 +212,8 @@ export function buildInstruction(input: InstructionInput): string {
     '   "steps": [',
     '     {"type": "extract", "mode": "list" | "single", "selector": "<container css>",',
     '      "fields": {"<name>": "<css, relative to selector>"},',
-    '      "field_types": {"<name>": "text" | "link" | "image"}, "output_to": "raw_items"},',
+    '      "field_types": {"<name>": "text" | "link" | "image" | "attr"},',
+    '      "field_attrs": {"<name>": "<attribute name>"}, "output_to": "raw_items"},',
     '     {"type": "render", "view": "table" | "card" | "text", "input_from": "raw_items"}',
     '   ]}',
     '',
@@ -225,6 +226,9 @@ export function buildInstruction(input: InstructionInput): string {
     `- To take the container element itself as a value, use the selector ":self". Never leave a field selector empty — there is no way to say "the whole thing" other than ":self".`,
     '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match.',
     '- "link" reads href, "image" reads src, "text" reads text.',
+    '- "attr" reads a named attribute, and must always come with a "field_attrs" entry naming it.',
+    '- Use "attr" when the value is not in the text node: a rating carried as a CSS class (class="star-rating Three"), or a full value kept in title= because the visible text is truncated. Reading such a field as "text" yields an empty or truncated column — do not settle for that.',
+    '- Never read an attribute whose name marks a credential slot (containing key, keys, token or secret); it is refused.',
   )
 
   if (input.view === 'flat') {

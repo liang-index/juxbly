@@ -102,3 +102,77 @@ describe('readFieldValue: link', () => {
     expect(readFieldValue(anchor, 'link')).toBe('')
   })
 })
+
+/**
+ * `attr` — reading a named attribute.
+ *
+ * Added after a dogfooding run: books.toscrape carries its star rating as a CSS class and
+ * keeps the untruncated book title in `title=`, and neither is reachable by `text`. The
+ * evidence is in `tests/benchmark/reports/dogfood-2026-10-30.md`.
+ */
+describe('readFieldValue: attr', () => {
+  function elementWith(attributes: Record<string, string>): Element {
+    const { document } = mixedFields()
+    const node = document.createElement('p')
+    for (const [name, value] of Object.entries(attributes)) node.setAttribute(name, value)
+    document.body.append(node)
+    return node
+  }
+
+  it('reads the named attribute instead of the text node', () => {
+    const node = elementWith({ class: 'star-rating Three' })
+
+    expect(readFieldValue(node, 'attr', 'class')).toBe('star-rating Three')
+  })
+
+  it('reads a class-encoded value the three text types cannot reach', () => {
+    // The case that motivated the type: the text node is empty, so `text` returns ''.
+    const node = elementWith({ class: 'star-rating Three' })
+
+    expect(readFieldValue(node, 'text')).toBe('')
+    expect(readFieldValue(node, 'attr', 'class')).toBe('star-rating Three')
+  })
+
+  it('reads title, the way a page keeps a value it truncated in the text', () => {
+    const node = elementWith({ title: 'A Light in the Attic' })
+    node.textContent = 'A Light in the ...'
+
+    expect(readFieldValue(node, 'attr', 'title')).toBe('A Light in the Attic')
+  })
+
+  it('is empty when the attribute is absent', () => {
+    const node = elementWith({ class: 'star-rating' })
+
+    expect(readFieldValue(node, 'attr', 'title')).toBe('')
+  })
+
+  it('is empty when no attribute was named — never guesses one', () => {
+    // Validation rejects this shape (FIELD_ATTR_REQUIRED). Reaching here anyway must not
+    // silently fall back to text or to "the first attribute".
+    const node = elementWith({ title: 'full title' })
+    node.textContent = 'truncated'
+
+    expect(readFieldValue(node, 'attr')).toBe('')
+  })
+
+  it('refuses an attribute whose name marks a credential slot', () => {
+    const node = elementWith({ 'data-algolia-key': 'abc123', 'data-index': 'products' })
+
+    expect(readFieldValue(node, 'attr', 'data-algolia-key')).toBe('')
+    expect(readFieldValue(node, 'attr', 'data-index')).toBe('products')
+  })
+
+  it('still permits hash — the narrowed rule the corpus check uses', () => {
+    // `data-css-hash` is bookkeeping no scanner objects to; including it would refuse
+    // attributes nobody minds reading.
+    const node = elementWith({ 'data-css-hash': 'jss1234' })
+
+    expect(readFieldValue(node, 'attr', 'data-css-hash')).toBe('jss1234')
+  })
+
+  it('is not the image wrapper — it is always a string', () => {
+    const node = elementWith({ alt: 'tent' })
+
+    expect(typeof readFieldValue(node, 'attr', 'alt')).toBe('string')
+  })
+})

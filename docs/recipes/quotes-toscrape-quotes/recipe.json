@@ -1,0 +1,60 @@
+{
+  "recipe_version": 1,
+  "name": "quotes-toscrape-quotes",
+  "title": "Quotes to Scrape — quote digest",
+  "description": "Collects the quote text, the author, and the tags for every quote on the Quotes to Scrape front page.",
+  "scenario": {
+    "url_pattern": "https://quotes.toscrape.com/",
+    "site_label": "Quotes to Scrape",
+    "category": "data",
+    "capabilities": ["extract", "render"],
+    "page_difficulty": "regular"
+  },
+  "health_baseline": {
+    "expected_item_count": "10-10",
+    "expected_fields": {
+      "text": "text",
+      "author": "text",
+      "tags": "text"
+    }
+  },
+  "definition": {
+    "tool_id": "tool_quotes_toscrape_quotes",
+    "name": "Scrape Quotes",
+    "description": "Extracts each quote on the page with its text, author and tags into a table.",
+    "category": "data",
+    "url_pattern": "https://quotes.toscrape.com/",
+    "version": 1,
+    "steps": [
+      {
+        "type": "extract",
+        "selector": "div.quote",
+        "mode": "list",
+        "fields": {
+          "text": "span.text",
+          "author": "small.author",
+          "tags": "div.tags a.tag"
+        },
+        "field_types": {
+          "text": "text",
+          "author": "text",
+          "tags": "text"
+        },
+        "output_to": "raw_items"
+      },
+      {
+        "type": "render",
+        "input_from": "raw_items",
+        "view": "table"
+      }
+    ],
+    "created_at": "2026-10-30T00:00:00.000Z",
+    "updated_at": "2026-10-30T00:00:00.000Z"
+  },
+  "provenance": {
+    "author": "liang-index",
+    "license": "CC0",
+    "verified_on": "2026-10-30",
+    "juxbly_version": "0.1.0"
+  }
+}

@@ -36,8 +36,16 @@ export interface ToolDefinition {
 
 export type ToolStep = ExtractStep | TransformStep | LlmStep | RenderStep | ExportStep
 
-/** Field data type — decides extraction and the default view suggestion. */
-export type FieldType = 'text' | 'image' | 'link'
+/**
+ * Field data type — decides extraction and the default view suggestion.
+ *
+ * `attr` reads a **named attribute** rather than the element's text. It exists because a
+ * real page routinely keeps the interesting value outside the text node: books.toscrape
+ * encodes its star rating as `<p class="star-rating Three">`, and the same site truncates
+ * a book title in the anchor while keeping the full one in `title`. Before `attr`, both
+ * were unreachable — the three text-ish types could only return `""`.
+ */
+export type FieldType = 'text' | 'image' | 'link' | 'attr'
 
 /**
  * Scroll preparation before extraction (A1).
@@ -67,6 +75,15 @@ export interface ExtractStep {
   fields: Record<string, string>
   /** Type hints, default all text. image reads src/alt, link reads href. */
   field_types?: Partial<Record<string, FieldType>>
+  /**
+   * Attribute name per field, **required for every field typed `attr`** (§5.4 rule 4).
+   *
+   * Kept as its own map next to `field_types` rather than encoded into the selector
+   * (`p.star-rating@class`) on purpose: the selector string is handed to `dom.query`
+   * unchanged, and inventing a second dialect inside it would mean every consumer —
+   * including `:self` handling and the highlight layer — now has to parse it.
+   */
+  field_attrs?: Partial<Record<string, string>>
   /** Scroll before extracting. Absent ≡ take only what is already rendered. */
   pre_scroll?: PreScroll
   /** Variable name to write, e.g. "raw_items". */

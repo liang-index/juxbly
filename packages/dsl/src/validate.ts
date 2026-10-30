@@ -38,7 +38,7 @@ const TOP_LEVEL_FIELDS: readonly string[] = [
  * `CONSUMER_HAS_OUTPUT_TO` code reports it with the right semantics.
  */
 const STEP_FIELDS: Record<string, readonly string[]> = {
-  extract: ['type', 'mode', 'selector', 'fields', 'field_types', 'pre_scroll', 'output_to'],
+  extract: ['type', 'mode', 'selector', 'fields', 'field_types', 'field_attrs', 'pre_scroll', 'output_to'],
   transform: ['type', 'op', 'input_from', 'output_to', 'condition', 'field', 'order', 'pattern', 'group'],
   llm: ['type', 'task', 'input_from', 'output_to', 'prompt', 'target_lang'],
   render: ['type', 'view', 'input_from'],
@@ -287,17 +287,91 @@ function validateExtract(step: Record<string, unknown>, path: string, errors: Va
     }
   }
 
-  const fieldTypes = step['field_types']
-  if (fieldTypes !== undefined) {
-    if (!isRecord(fieldTypes)) {
-      errors.push(err(`${path}.field_types`, 'FIELD_TYPES_INVALID', 'field_types must be an object'))
-    } else {
-      const fieldNames = isRecord(fields) ? Object.keys(fields) : []
-      for (const key of Object.keys(fieldTypes)) {
-        if (!fieldNames.includes(key)) {
-          errors.push(err(`${path}.field_types.${key}`, 'FIELD_TYPE_UNKNOWN_FIELD', `"${key}" is not a field of this extract step`))
-        }
-      }
+  const fieldNames = isRecord(fields) ? Object.keys(fields) : []
+  validateFieldTypes(step['field_types'], path, fieldNames, errors)
+  validateFieldAttrs(step, path, fieldNames, errors)
+}
+
+/**
+ * `field_types` may only name fields the step actually extracts.
+ *
+ * Failing early matters more here than usual: `readRecord` resolves a type per field, and
+ * a type pointing at a field that does not exist is invisible at run time — it simply
+ * never gets read.
+ */
+function validateFieldTypes(
+  fieldTypes: unknown,
+  path: string,
+  fieldNames: readonly string[],
+  errors: ValidationError[],
+): void {
+  if (fieldTypes === undefined) return
+
+  if (!isRecord(fieldTypes)) {
+    errors.push(err(`${path}.field_types`, 'FIELD_TYPES_INVALID', 'field_types must be an object'))
+    return
+  }
+
+  const known = new Set(['text', 'image', 'link', 'attr'])
+  for (const [key, value] of Object.entries(fieldTypes)) {
+    if (!fieldNames.includes(key)) {
+      errors.push(err(`${path}.field_types.${key}`, 'FIELD_TYPE_UNKNOWN_FIELD', `"${key}" is not a field of this extract step`))
+      continue
+    }
+    if (typeof value === 'string' && !known.has(value)) {
+      errors.push(
+        err(`${path}.field_types.${key}`, 'FIELD_TYPE_UNKNOWN', `"${value}" is not a field type — expected one of text, image, link, attr`),
+      )
+    }
+  }
+}
+
+/**
+ * `field_attrs`: every field typed `attr` must name the attribute to read.
+ *
+ * Rule 4's completeness case. `attr` without a name has no default that would not be a
+ * guess: falling back to `textContent` would make a mis-typed field indistinguishable from
+ * a correct one, and falling back to the first attribute would read whatever happens to be
+ * first in the document — which on a real page is a credential slot often enough
+ * (the corpus health check drops those by *name* for exactly this reason).
+ *
+ * The reverse — a `field_attrs` entry on a field typed something else — is only noise, not
+ * a failure: it is ignored at read time, and rejecting a harmless extra key would make a
+ * model's verbose answer fail validation.
+ */
+function validateFieldAttrs(
+  step: Record<string, unknown>,
+  path: string,
+  fieldNames: readonly string[],
+  errors: ValidationError[],
+): void {
+  const fieldAttrs = step['field_attrs']
+  const isPresent = fieldAttrs !== undefined
+  const map = isRecord(fieldAttrs) ? fieldAttrs : {}
+
+  if (isPresent && !isRecord(fieldAttrs)) {
+    errors.push(err(`${path}.field_attrs`, 'FIELD_ATTRS_INVALID', 'field_attrs must be an object'))
+  }
+
+  const fieldTypes = isRecord(step['field_types']) ? step['field_types'] : {}
+  for (const [key, value] of Object.entries(map)) {
+    if (!fieldNames.includes(key)) {
+      errors.push(err(`${path}.field_attrs.${key}`, 'FIELD_ATTR_UNKNOWN_FIELD', `"${key}" is not a field of this extract step`))
+      continue
+    }
+    if (typeof value !== 'string' || value.trim() === '') {
+      errors.push(err(`${path}.field_attrs.${key}`, 'FIELD_ATTR_EMPTY', `field_attrs.${key} must be a non-empty attribute name`))
+    }
+  }
+
+  // Runs even when field_attrs is absent or malformed: "typed attr with no attribute to
+  // read" is the failure this rule exists for, and skipping it whenever the map itself is
+  // missing would let exactly that shape through.
+  for (const key of fieldNames) {
+    if (fieldTypes[key] === 'attr' && typeof map[key] !== 'string') {
+      errors.push(
+        err(`${path}.field_attrs.${key}`, 'FIELD_ATTR_REQUIRED', `field "${key}" is typed attr, so field_attrs.${key} must name the attribute to read`),
+      )
     }
   }
 }
