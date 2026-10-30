@@ -21,18 +21,35 @@ import { collectNodes } from './shadow'
 /** Below three hits a group is not a repeating unit, it is a coincidence. */
 export const MIN_REPEAT = 3
 export const MAX_CONTAINERS = 5
-export const MAX_FIELD_HINTS = 8
+export const MAX_FIELD_HINTS = 12
+/**
+ * How many repeating items the field scan samples. One item is enough to guess and not
+ * enough to be sure: a promoted slot, a "sponsored" badge or a first row that is really
+ * a header do not belong to the pattern, and only sampling several items can tell them
+ * apart from fields that genuinely belong to every item.
+ */
+export const MAX_SCAN_ITEMS = 5
+/**
+ * A field has to appear in at least this share of the sampled items to be offered. Three
+ * of five, roughly: strict enough to drop the one-off, loose enough to survive a card
+ * that simply has no price today.
+ */
+export const MIN_FIELD_PRESENCE = 0.4
 
 const PATH_DEPTH = 3
 const SELECTOR_DEPTH = 3
-const FIELD_SCAN_LIMIT = 40
 /**
- * Walk budget for one container's field scan. Bounds the traversal itself (the element
- * cap below bounds the candidates); sized so a text-dense container still reaches the
- * full element cap before the budget bites.
+ * Walk budget for one *item's* field scan. Every sampled item gets its own budget, so the
+ * whole container costs `MAX_SCAN_ITEMS * FIELD_SCAN_NODE_BUDGET` at most — and the cost
+ * is paid once per container, not once per element in the page.
  */
 const FIELD_SCAN_NODE_BUDGET = 400
 const SAMPLE_TEXT_LENGTH = 40
+
+/** How many candidates one item may carry into the cross-item merge, before trimming. */
+const MAX_FIELDS_PER_ITEM = 24
+/** Above this, an element's whole text is a block of content, not one field's value. */
+const FIELD_TEXT_MAX = 80
 
 const LOAD_MORE_PATTERN = /load\s+more|show\s+more|see\s+more|more\s+results/i
 const INFINITE_PATTERN = /infinite|sentinel|end-?of-?(?:list|page|results)|lazy-?load/i
@@ -59,6 +76,11 @@ interface FieldDescriptor {
   sampleText: string
 }
 
+/** A candidate while the scan is still running: the element is needed to drop duplicates. */
+interface ScannedField extends FieldDescriptor {
+  element: Element
+}
+
 export function detectContainers(elements: readonly Element[]): ContainerCandidate[] {
   const ranked: RankedContainer[] = []
 
@@ -67,7 +89,7 @@ export function detectContainers(elements: readonly Element[]): ContainerCandida
     const first = group.items[0]
     if (first === undefined) continue
 
-    const fields = collectFields(first)
+    const fields = collectFields(group.items)
     ranked.push({
       element: first,
       items: group.items,
@@ -83,7 +105,6 @@ export function detectContainers(elements: readonly Element[]): ContainerCandida
       },
     })
   }
-
   // Equal hit counts are broken by depth: the outer element is the repeating unit, the
   // inner one is a part of it.
   ranked.sort(
@@ -156,14 +177,77 @@ function groupSiblings(elements: readonly Element[]): SiblingGroup[] {
  * Closed roots stay skipped (`shadowRoot` is `null` by platform design); the shared node
  * budget and depth cap keep the scan bounded on hostile pages.
  *
- * Leaves only: an element with children holds other fields' text as well, which would
- * put the same value under several selectors.
+ * Two rules keep the list honest:
+ *
+ * - **Several items, not one.** A single item cannot distinguish "every card has this"
+ *   from "this card happens to have this" — a promoted slot, a badge, a row that is
+ *   really a header. Only fields present in most sampled items are offered
+ *   (`MIN_FIELD_PRESENCE`).
+ * - **No duplicate values.** An element wrapping other fields holds their text too, so a
+ *   candidate whose value already appears under another accepted selector is dropped;
+ *   the deeper of the two wins. A wrapper whose value is *different* — an `<a>` carrying
+ *   `href` around a `<span>` carrying the title — is kept, because those are two fields,
+ *   not two copies of one.
  */
-function collectFields(container: Element): FieldDescriptor[] {
-  const fields: FieldDescriptor[] = []
+export function collectFields(items: readonly Element[]): FieldDescriptor[] {
+  const sampled = items.slice(0, MAX_SCAN_ITEMS)
+  if (sampled.length === 0) return []
+
+  /**
+   * Presence counted per selector, in the order the first item yielded them: the order is
+   * what survives the merge, and it is document order — which is roughly reading order.
+   *
+   * The whole selector string is the identity, not its tail: two items that reach the same
+   * leaf by different routes produce two selectors, and keeping both costs one hint that
+   * no longer resolves on every item. The requirement is that a hint has to work on the
+   * page it was measured on, and a `span` that resolves through `h3>a` in three cards and
+   * `div>span` in two is not one hint.
+   */
+  const order: string[] = []
+  const bySelector = new Map<string, { hits: number; descriptor: FieldDescriptor }>()
+
+  for (const item of sampled) {
+    for (const field of fieldsInItem(item)) {
+      const entry = bySelector.get(field.selector)
+      if (entry === undefined) {
+        bySelector.set(field.selector, { hits: 1, descriptor: field })
+        order.push(field.selector)
+        continue
+      }
+      entry.hits += 1
+    }
+  }
+
+  const required = Math.ceil(sampled.length * MIN_FIELD_PRESENCE)
+  const stable = order.filter((selector) => (bySelector.get(selector)?.hits ?? 0) >= required)
+
+  return stable
+    .slice(0, MAX_FIELD_HINTS)
+    .map((selector) => bySelector.get(selector)?.descriptor)
+    .filter((descriptor): descriptor is FieldDescriptor => descriptor !== undefined)
+}
+
+/**
+ * One item's candidates, before the cross-item merge decides which of them are real.
+ *
+ * An element earns a place if it says something on its own: either text it holds
+ * directly (a wrapper is not credited with its children's words) or a `href` / `src` of
+ * its own, which is the only way a link or an image field can be offered at all — the
+ * URL is in the attribute, never in the text.
+ *
+ * The scan pierces open shadow roots — the same policy as the census walk and the extract
+ * capability's `queryAll` (§6.1): a custom-element container (chromestatus, Reddit's
+ * `shreddit-*`) keeps its content in its shadow interior, so a light-DOM scan would offer
+ * the model a container whose fields can never be filled in. The generated relative
+ * selectors are usable because `queryAll` searches the scope's own shadow root too.
+ * Closed roots stay skipped (`shadowRoot` is `null` by platform design); the per-item node
+ * budget and depth cap keep the scan bounded on hostile pages.
+ */
+function fieldsInItem(container: Element): FieldDescriptor[] {
+  const fields: ScannedField[] = []
   const seen = new Set<string>()
 
-  // Light DOM first, then the container's own shadow root — the same order the extract
+  // Light DOM first, then the item's own shadow root — the same order the extract
   // capability's `queryAll` answers (§6.1, the chromestatus shape). `collectNodes` only
   // descends into the shadow roots of *descendants*; a container that is itself a host
   // keeps its content in its own root, so that root is walked explicitly.
@@ -172,27 +256,56 @@ function collectFields(container: Element): FieldDescriptor[] {
     ...(container.shadowRoot !== null
       ? collectNodes(container.shadowRoot, { maxNodes: FIELD_SCAN_NODE_BUDGET }).nodes.filter(isElementNode)
       : []),
-  ].slice(0, FIELD_SCAN_LIMIT)
+  ]
 
   for (const element of candidates) {
-    if (element.children.length > 0) continue
-
-    const sampleText = collapseText(element.textContent ?? '')
+    const sampleText = truncateText(sampleValue(element), SAMPLE_TEXT_LENGTH)
     if (sampleText === '') continue
 
     const selector = relativeSelector(container, element)
     if (selector === '' || seen.has(selector)) continue
-    seen.add(selector)
 
-    fields.push({
-      name: fieldName(element),
-      selector,
-      sampleText: truncateText(sampleText, SAMPLE_TEXT_LENGTH),
-    })
-    if (fields.length >= MAX_FIELD_HINTS) break
+    const duplicate = fields.findIndex(
+      (field) =>
+        field.sampleText === sampleText &&
+        (field.element.contains(element) || element.contains(field.element)),
+    )
+    if (duplicate >= 0) {
+      // Same value, one wrapping the other: the inner one is the field, the outer one is
+      // the box it sits in. Document order reaches the box first, so it is replaced here.
+      const held = fields[duplicate]
+      if (held !== undefined && held.element.contains(element)) fields[duplicate] = { element, name: fieldName(element), selector, sampleText }
+      continue
+    }
+
+    seen.add(selector)
+    fields.push({ element, name: fieldName(element), selector, sampleText })
+    if (fields.length >= MAX_FIELDS_PER_ITEM) break
   }
 
-  return fields
+  return fields.map(({ name, selector, sampleText }) => ({ name, selector, sampleText }))
+}
+
+/** What reading this element as one field would yield: its own words, or its URL. */
+function sampleValue(element: Element): string {
+  const own = collapseText(
+    Array.from(element.childNodes)
+      .filter((node) => node.nodeType === 3)
+      .map((node) => node.nodeValue ?? '')
+      .join(' '),
+  )
+  if (own !== '') return own
+
+  // Which for `<a>` and `<img>` is normal, not empty: the value the extract step reads is
+  // the attribute (`link` reads `href`, `image` reads `src`).
+  const attribute = collapseText(element.getAttribute('href') ?? element.getAttribute('src') ?? '')
+  if (attribute !== '') return attribute
+
+  // Last resort: a wrapper whose words all sit in child elements is still one plausible
+  // field when the whole thing is short. A long one is the item itself, and offering it
+  // would hand the model back the card as a field.
+  const whole = collapseText(element.textContent ?? '')
+  return whole.length <= FIELD_TEXT_MAX ? whole : ''
 }
 
 /**

@@ -1,0 +1,42 @@
+{
+  "id": "A-13",
+  "url": "https://www.scrapethissite.com/pages/simple/",
+  "bucket": "A",
+  "capturedAt": "2026-09-20T12:27:07.290Z",
+  "sizeBytes": 199961,
+  "verifiedOn": "2026-09-20",
+  "title": "Countries of the World: A Simple Example | Scrape This Site | A public sandbox for learning web scraping",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 750,
+    "repeatingSelector": "strong."
+  },
+  "interaction": [],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 127829,
+    "assetCount": 5,
+    "nodeCount": 3663,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 278,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 750
+  },
+  "rights": {
+    "basis": "scraping-sandbox",
+    "license": "purpose-built for scraping practice",
+    "reviewedOn": "2026-09-20"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.scrapethissite.com/robots.txt"
+  },
+  "notes": "One 250-row country table in plain semantic HTML. Single-field task (country name).",
+  "personalDataHits": []
+}

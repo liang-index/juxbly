@@ -241,12 +241,15 @@ interface ExportStep {
 }
 ```
 
-`copy` is a legal value in the DSL and **the run engine refuses it** (`packages/runtime`,
-pinned by a test): writing the clipboard needs a user gesture, so a run — which is by
-definition unattended — can never deliver it. The panel's Copy button is the only path to
-the clipboard and calls the port directly from the click, never through a step. The step
-stays in the type so a hand-written tool fails with a named reason instead of being
-rejected as unknown syntax.
+No `export` step is ever delivered by a run. `copy` needs a user gesture to reach the
+clipboard; `csv` and `json` hand a file to the download manager with nothing on screen that
+says so, which turns a visible wrong table into a silent wrong artefact on disk. A run is
+unattended by definition, so the engine refuses all three before resolving `input_from`
+(`packages/runtime`, pinned by `tests/integration/runtime/export-copy.test.ts`). The panel's
+resident Copy / CSV / JSON buttons are the only delivery path: the user has the rendered
+result in front of them and asks for it by clicking, and the click calls the port directly,
+never through a step. The step stays in the type so a hand-written tool fails with a named
+reason instead of being rejected as unknown syntax.
 
 ### 5.3 url_pattern matching semantics
 

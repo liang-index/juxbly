@@ -4,15 +4,22 @@ import { exportCapability } from '@juxbly/capabilities'
 import { createHarness, makeTool, productExtractStep, runOnce, type Harness } from './harness'
 
 /**
- * `export` + `format: 'copy'` is refused by the engine — `task/stage-1-15.md` AC 5,
- * `docs/ARCHITECTURE.md` §5.2.
+ * No `export` step is ever delivered by a run — `task/stage-1-15.md` AC 5 for `copy`,
+ * extended to `csv` and `json` by Maintainer ruling 2026-09-22, `docs/ARCHITECTURE.md` §5.2.
  *
- * The rule is not a nicety. A tool that auto-runs on page load and writes the clipboard
- * would overwrite whatever the user had there, and the platform would refuse the write
- * anyway without a gesture. The panel's Copy button is the only sanctioned path to the
- * clipboard and it never goes through a step — so a `copy` step reaching the engine is
- * unattended by definition. This test is what stops a later refactor from turning the
- * header comment back into a claim that nothing enforces.
+ * The rule is not a nicety. A tool that auto-runs on page load is the case where nobody is
+ * watching: `copy` overwrites whatever the user had on the clipboard, and `csv` / `json`
+ * drop a file into the download manager with nothing on screen that says so — which, at the
+ * field-level accuracy the benchmark currently measures, is a *silent* wrong artefact rather
+ * than a visible wrong table. The panel's Copy / CSV / JSON buttons are the sanctioned path
+ * and never go through a step, so an export step reaching the engine is unattended by
+ * definition. This test is what stops a later refactor from turning the header comment back
+ * into a claim that nothing enforces.
+ *
+ * The refusal is placed before `input_from` is resolved, but that ordering is belt-and-braces
+ * rather than observable from here: `packages/dsl/src/validate.ts` already rejects an
+ * `input_from` that no earlier step produces, so a dangling export fails validation before
+ * the engine ever sees it.
  */
 
 /** `export` is 1-15's capability; the shared harness deliberately leaves it unregistered. */
@@ -22,14 +29,12 @@ function harnessWithExport(): Harness {
   return harness
 }
 
-describe('export copy needs a user gesture', () => {
-  it('refuses a copy step instead of writing the clipboard unattended', async () => {
+describe('an unattended run delivers no export', () => {
+  it.each(['copy', 'csv', 'json'] as const)('refuses an export step in the %s format', async (format) => {
     const harness = harnessWithExport()
     const clipboard = vi.spyOn(harness.ports.clipboard, 'writeText')
-    const tool = makeTool([
-      productExtractStep(),
-      { type: 'export', format: 'copy', input_from: 'products' },
-    ])
+    const download = vi.spyOn(harness.ports.downloads, 'download')
+    const tool = makeTool([productExtractStep(), { type: 'export', format, input_from: 'products' }])
 
     const outcome = await runOnce(harness, { tool })
 
@@ -37,23 +42,20 @@ describe('export copy needs a user gesture', () => {
     expect(outcome.error?.code).toBe('CAPABILITY_FAILED')
     expect(outcome.error?.step).toBe(1)
     expect(clipboard).not.toHaveBeenCalled()
+    expect(download).not.toHaveBeenCalled()
   })
 
-  it('still delivers csv from the same position in the same tool', async () => {
-    // The control: the refusal is about `copy`, not about `export` steps in general.
+  it('still runs the same tool once the export step is gone', async () => {
+    // The control: the refusal is about `export`, not about the engine rejecting steps.
     const harness = harnessWithExport()
+    const clipboard = vi.spyOn(harness.ports.clipboard, 'writeText')
     const download = vi.spyOn(harness.ports.downloads, 'download')
-    const tool = makeTool([
-      productExtractStep(),
-      { type: 'export', format: 'csv', input_from: 'products' },
-    ])
+    const tool = makeTool([productExtractStep()])
 
     const outcome = await runOnce(harness, { tool })
 
     expect(outcome.ok).toBe(true)
-    expect(download).toHaveBeenCalledTimes(1)
-    const [filename, , mime] = download.mock.calls[0] as unknown as [string, string, string]
-    expect(filename.endsWith('.csv')).toBe(true)
-    expect(mime).toBe('text/csv;charset=utf-8')
+    expect(clipboard).not.toHaveBeenCalled()
+    expect(download).not.toHaveBeenCalled()
   })
 })

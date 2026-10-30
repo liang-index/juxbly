@@ -3,7 +3,7 @@
  * published numbers, so it is also the part where a dishonest default would hide.
  */
 import { describe, expect, it } from 'vitest'
-import { aggregate } from '../../apps/playground/src/bench/metrics'
+import { aggregate, medianOf } from '../../apps/playground/src/bench/metrics'
 import { renderReport } from '../../apps/playground/src/bench/report'
 import type { CaseResult, LabeledResult, MetricsReport, RunResult } from '../../apps/playground/src/bench/types'
 
@@ -98,6 +98,37 @@ describe('aggregate', () => {
       { caseId: 'C-01', bucket: 'C', stage: 'execution', detail: 'ran but extracted 0 items' },
       { caseId: 'C-02', bucket: 'C', stage: 'generation', detail: 'EMPTY_REPLY' },
     ])
+  })
+})
+
+/**
+ * "The median of two runs" is the gates' unit of measurement, so the even-count half of
+ * the definition is load-bearing. Taking the middle element of a sorted pair returns the
+ * *upper* reading — the better one — which is the direction the reading rules forbid.
+ */
+describe('medianOf', () => {
+  it('averages the two middle values when the count is even', () => {
+    // The two control readings of 2026-09-19: 37.4% and 38.7%, reported as 38.1%.
+    expect(medianOf([0.374, 0.387])).toBeCloseTo(0.3805, 4)
+    expect(medianOf([0.374, 0.387])).not.toBe(0.387)
+  })
+
+  it('takes the middle value when the count is odd', () => {
+    expect(medianOf([0.3, 0.5, 0.4])).toBe(0.4)
+  })
+
+  it('sorts before choosing, so an unsorted reading is still the median', () => {
+    expect(medianOf([0.387, 0.374])).toBeCloseTo(0.3805, 4)
+  })
+
+  it('returns null for no readings rather than a flattering zero', () => {
+    expect(medianOf([])).toBeNull()
+  })
+
+  it('leaves the array it was handed alone', () => {
+    const readings = [0.387, 0.374]
+    medianOf(readings)
+    expect(readings).toEqual([0.387, 0.374])
   })
 })
 

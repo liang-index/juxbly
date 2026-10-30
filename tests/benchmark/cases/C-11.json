@@ -1,0 +1,12 @@
+{
+  "id": "C-11",
+  "bucket": "C",
+  "url": "https://shoelace.style/components/badge",
+  "corpus": "corpus/C-11/index.html",
+  "task_description": "List the text label of every badge rendered in this page's live examples.",
+  "expected_fields": [
+    "label"
+  ],
+  "notes": "Single-field coverage for C. Every badge is a custom element whose text lives inside its shadow root, so nothing is readable without crossing the boundary; 23 live sl-badge hosts, 14 distinct labels.",
+  "verified_on": "2026-09-20"
+}

@@ -45,11 +45,18 @@ export const MAX_CORPUS_BYTES = 48 * 1024 * 1024
 export const BUCKETS = ['A', 'B', 'C', 'D', 'E']
 
 export const BUCKET_RANGE = {
-  A: [10, 12],
+  // The upper bounds were set for the original 50-snapshot corpus and every bucket sat at or
+  // one under its cap, which made "add a case" impossible without a policy change — so the
+  // policy is changed here, in the open, rather than worked around. The reason: single-field
+  // tasks made up 7 of 50 cases, thin enough that the field-count claims built on them did
+  // not survive re-scoring (see `tests/benchmark/reports/attribution-2026-09-19-step4.md`).
+  // Six single-field cases were admitted where the corpus had none or few — A, C, D, E — and
+  // the caps moved just enough to hold them. B did not move.
+  A: [10, 14],
   B: [8, 10],
-  C: [8, 10],
-  D: [6, 8],
-  E: [8, 10],
+  C: [8, 11],
+  D: [6, 9],
+  E: [8, 12],
 }
 
 export const MIN_SNAPSHOTS = 45

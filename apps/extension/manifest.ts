@@ -74,4 +74,22 @@ export const JUXBLY_MANIFEST: UserManifest = {
   permissions: JUXBLY_PERMISSIONS,
   host_permissions: JUXBLY_HOST_PERMISSIONS,
   commands: JUXBLY_COMMANDS,
+  // Icons live in apps/extension/public/; WXT copies them to the build root.
+  // The source icon.png (2048x2048) is the master; the resized sizes are
+  // committed alongside so the manifest can point at exact pixel sizes.
+  icons: {
+    '16': 'icon-16.png',
+    '32': 'icon-32.png',
+    '48': 'icon-48.png',
+    '96': 'icon-96.png',
+    '128': 'icon-128.png',
+  },
+  action: {
+    default_title: copy.extension.name,
+    default_popup: 'popup.html',
+    default_icon: {
+      '16': 'icon-16.png',
+      '32': 'icon-32.png',
+    },
+  },
 }

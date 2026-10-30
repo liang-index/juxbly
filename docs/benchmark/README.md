@@ -23,23 +23,25 @@ All four directories are populated as of stage 2-2. `cases/` and `ground-truth/`
 
 ## Task Corpus and ground truth
 
-**50 cases, labelled 2026-09-10 — every snapshot in the corpus has one.**
+**56 cases. 50 labelled 2026-09-10; six single-field cases added 2026-09-20 (two `A`, one
+`C`, one `D`, two `E`), not yet labelled — their readings come from field-level F1, which
+needs no label.**
 
 | Bucket | Cases | Corpus | Note |
 |---|---|---|---|
-| `A` regular structure | 12 | 12 | full coverage |
+| `A` regular structure | 14 | 14 | full coverage |
 | `B` SPA routing | 10 | 10 | full coverage |
-| `C` shadow DOM / custom elements | 10 | 10 | full coverage (M0's known weak spot) |
-| `D` infinite scroll / lazy loading | 8 | 8 | full coverage |
-| `E` hashed / CSS-in-JS classes | 10 | 10 | full coverage |
+| `C` shadow DOM / custom elements | 11 | 11 | full coverage (M0's known weak spot) |
+| `D` infinite scroll / lazy loading | 9 | 9 | full coverage |
+| `E` hashed / CSS-in-JS classes | 12 | 12 | full coverage |
 
-The stage required `A` and `C` end to end and three per other bucket. Every bucket ended up complete, because a half-labelled corpus gives a bucket-level breakdown with holes in it, and the bucket breakdown is the part that is actually read.
+The stage required `A` and `C` end to end and three per other bucket. Every bucket ended up complete, because a half-labelled corpus gives a bucket-level breakdown with holes in it, and the bucket breakdown is the part that is actually read. The 2026-09-20 additions exist for a different hole: with seven single-field cases the corpus could not say anything about single-field tasks that survived re-scoring, so single-field coverage was doubled and the bucket caps moved with it (`apps/playground/lib/corpus.mjs`, `BUCKET_RANGE`).
 
 A case (`cases/A-01.json`) states the task **the way a user would type it** — "Collect every book listed on this page: the title, the price, whether it is in stock, and its star rating." No `.class`, no `#id`, no `querySelector`. A task that smuggles in the selector that answers it stops measuring Juxbly and starts measuring the prompt that was written. The health check rejects selector-shaped tasks outright.
 
 Ground truth (`ground-truth/A-01.json`) carries `expected_fields`, an `item_count_range` and a `sample` of a few representative items, plus `verified_on`, `labelled_by`, `source` and an `amendments` log. Two rules keep it honest:
 
-- **`item_count_range` is a band by default.** Pages change, and a fixed count manufactures false `wrong` labels — which then have to be "fixed" by re-labelling, the exact mechanism that corrupts a baseline. 44 of 50 cases are bands.
+- **`item_count_range` is a band by default.** Pages change, and a fixed count manufactures false `wrong` labels — which then have to be "fixed" by re-labelling, the exact mechanism that corrupts a baseline. 44 of the 50 labelled cases are bands.
 - **An exact count (`[20, 20]`) is allowed where the page is deterministic.** Six cases use one: `A-01` (20 books), `A-02` (10 quotes), `A-03` (3 rows), `A-04` (16 products), `C-09` (4 features), `E-02` (5 showcase items). All six are purpose-built test or demo pages whose item count is part of the page's own fixture rather than of the live web. The benchmark runs against a frozen snapshot, so a count cannot drift inside a run — but re-capturing one of these snapshots **re-opens the label**, and the `amendments` entry is not optional. An exact count is the most falsifiable range there is; that is the point, not a shortcut.
 - **`sample` is representative, not exhaustive.** Whole-page dumps cannot be reviewed by a person, and they inflate the corpus.
 
@@ -148,7 +150,9 @@ Reported every run:
 
 | Metric | Meaning |
 |---|---|
-| **Build Success Rate** | share of cases that end in a usable tool (the headline number) |
+| **Build Success Rate** | share of cases that end in a usable tool. The headline number, and **not** a measure of correctness |
+| **Field-level F1** | precision and recall over expected field instances — did it extract what was asked for (see below) |
+| **Item count in range** | share of cases whose item count fell inside the ground-truth range |
 | Correct / Partial / Wrong | human-labelled distribution (`BENCHMARK_GUIDE.md`) |
 | Clarification Rate (proxy) | how many builds were preceded by a clarifying question — an offline stand-in for "needed user correction" (see below) |
 | Health false-positive rate | cases flagged degraded/broken on a page that had not actually broken |
@@ -167,9 +171,117 @@ What each one counts, exactly, because "build success" can mean four different t
 | **Repair success** | **not measured.** The runner does not repair — V1 forbids silent auto-repair, and a repair rate measured without a user deciding to repair would be a number about nothing. Reported as `not measured`, never as `0%` |
 | **Latency / tokens** | per case, wall clock around generation plus execution; tokens are the sum of the proposal and the run |
 
+## Field-level scoring
+
+Build success says a tool ran. It does not say what came out. A tool can build, return 232
+rows and fill none of the fields that were asked for — which is why the report leads with
+build success **and** field-level F1, and why the two are printed next to each other.
+
+Scoring is mechanical: no model, no judgement, no thresholds, so it can run on every push.
+
+| Term | Meaning |
+|---|---|
+| **Field instance** | one expected field of one case — the unit of measurement. 50 cases asking for two fields each is 100 instances |
+| `matched` | the ground-truth sample values for that field were found in the output (under **any** column name — a tool that calls it `stock` where the ground truth says `availability` is not wrong) |
+| `weak` | some of the sample values were found, but under 80% |
+| `missing` | none of them were found |
+| `extra` | a produced column that carries no expected field — a field nobody asked for |
+
+- **Recall** = `matched / instances` — of what was asked for, how much arrived.
+- **Precision** = `matched / (matched + weak + extra)` — of what came out, how much was
+  asked for. Columns nobody asked for count against it: a tool that invents a fourth
+  column has not improved.
+- **F1** = the harmonic mean of the two. It is the one number the second gate is written
+  against, because it is the one that can be computed without a person in the loop.
+- **Item count in range** is reported beside them. It is a necessary condition for a
+  correct case (no case outside the range has ever been correct) but not a sufficient
+  one, so it is never reported alone.
+
+Truncation is not a miss: the runner caps sampled values, so `"a light in the"` against
+`"A Light in the Attic"` is the same value. A prefix only counts when there is enough of
+one — `"£"` is a prefix of `"£63.00"` and is not the price, so the shorter side has to be
+at least six characters and at least half the longer one.
+
+## Taking a reading
+
+One run is not a reading. A reading is **two runs of one configuration** — same day, same
+corpus revision, same model:
+
+- **Report the median**, never the better of the two. Picking the better one is how a noisy
+  metric turns into a trend. With two runs the median is their **average**: of 37.4% and
+  38.7% the reading is 38.1%, not 38.7% — the CLI prints it, and `medianOf` is the one
+  implementation of it.
+- **The spread is part of the reading.** Two runs of an unchanged configuration have been
+  measured 4pp apart; a difference smaller than that is noise, not an improvement.
+- **A spread wider than 8pp is not a reading at all.** Re-run instead of averaging, and
+  record that the configuration is too unstable to judge.
+- **Quote a digest, not a memory.** Every published number names the digest it was replayed
+  from, and CI replays every digest on every pull request.
+
+The phase gates are written against a reading taken this way — `docs/ROADMAP.md`.
+
+## Cutting a reading by slice
+
+The headline F1 is one number over 50 cases, and one number cannot say where the loss is.
+`scripts/bench-breakdown.mjs` replays recorded digests and pools them into tables by fields
+asked for, by bucket, and by the two crossed:
+
+```bash
+node scripts/bench-breakdown.mjs tests/benchmark/digests/2026-09-19-control-*.json
+```
+
+No key, no spend — it only re-runs proposals that were recorded, so the table in a report is
+reproducible by anyone with the repository. What it is given is what it pools: pass one
+reading to describe that reading, or several to describe them together, but never mix
+variants in one table, because averaging them is what the table exists to prevent.
+
+## Variants
+
+A run can be taken in a different world on purpose — a different page representation, or a
+different rule for choosing between the model's candidates:
+
+```bash
+node scripts/bench.mjs --variant flat      # numbered page view; selectors written as @3
+node scripts/bench.mjs --variant bestof    # score every candidate on the page, take the best
+```
+
+The variant is in the run id and in the digest, and a replay re-applies it, because two runs of
+the same model are not the same experiment. Both variants exist as of 2026-09-19 and both lost
+to `control` on field-level F1; the readings are in
+`reports/attribution-2026-09-19-step4.md`. They stay in the tree until the question they were
+built to answer is answered by something else — a variant that has been measured is worth more
+than one that has been deleted.
+
+## Record and replay
+
+A published number nobody can reproduce is an opinion. Result files are gitignored — they
+are half a megabyte a run and they cannot be regenerated — so what gets committed is a
+**digest**: the tool the model proposed, plus the facts measured around it. Everything
+after the proposal is deterministic, so the same tool run against the same frozen
+snapshot reproduces the same items.
+
+A digest whose numbers stop reproducing is deleted, not kept with an exemption: it was
+recorded under a runtime that no longer exists, and its numbers are not comparable to
+today's. That already happened once — a run recorded before an engine change replayed
+`B-04` as 232 items where the live run had recorded 0, which is how the drift was found.
+
+```bash
+node scripts/bench.mjs --replay tests/benchmark/digests/<run-id>.json   # no key, no spend
+```
+
+A replay re-runs every recorded proposal and compares the item count against the one
+recorded live. Any difference is **drift** — the corpus or the runtime moved after the
+number was published — and the command exits non-zero rather than adopting the new number
+as if nothing had happened. CI replays every digest on every pull request, because it
+costs nothing; see `benchmark.yml`.
+
 ## Honesty rules
 
 - Never pick a threshold after seeing the results.
+- **Never call a single-run change an improvement.** Run-to-run variance on this corpus is
+  about 4 pp. To measure a change, run both configurations on the same day (`--runs 2`
+  prints the spread); a difference smaller than the spread is noise, and numbers taken on
+  different days are not comparable at all.
 - Never drop failed cases from the reported set without saying so.
 - Report the model, the date, and the corpus revision with every number.
 - Published claims use the current measured value, even when it is unimpressive.
@@ -182,6 +294,8 @@ JUXBLY_LLM_API_KEY=... pnpm test:bench                # the whole corpus
 JUXBLY_LLM_API_KEY=... pnpm test:bench --case C-01   # one case
 JUXBLY_LLM_API_KEY=... pnpm test:bench --bucket D    # one bucket
 JUXBLY_LLM_API_KEY=... pnpm test:bench --limit 5     # a slice
+JUXBLY_LLM_API_KEY=... pnpm test:bench --runs 2      # two full runs, same day — the variance band
+node scripts/bench.mjs --replay tests/benchmark/digests/<run-id>.json   # no key needed
 ```
 
 `JUXBLY_LLM_BASE_URL` and `JUXBLY_LLM_MODEL` are optional (BYOK, so any OpenAI-compatible endpoint works; the default model is `gpt-4o-mini`). The key is read from the environment only — it is never written to a result, a report or a log.
@@ -190,7 +304,9 @@ Without a key the run is **skipped and says so**: no model call, exit 0, and CI 
 
 When the key is there but nothing gets through, the run **fails**: every case stops with the same error code, the report opens with "Not a benchmark result", and the command exits 1. Nothing is deleted for you — the failed result stays on disk as evidence, and the message names the file to remove before the next attempt.
 
-Every run writes two files: `results/<run-id>.json` (raw, refused if it already exists) and `reports/<run-id>.md` (aggregated, with the delta against the previous run). Judgements go in `results/labels.json` as `LabeledResult` entries; until they are there the report says how many cases are pending and counts them as neither right nor wrong.
+Every run writes three files: `results/<run-id>.json` (raw, refused if it already exists),
+`digests/<run-id>.json` (compact, committed, replayable — see *Record and replay*) and
+`reports/<run-id>.md` (aggregated, with the delta against the previous run). Judgements go in `results/labels.json` as `LabeledResult` entries; until they are there the report says how many cases are pending and counts them as neither right nor wrong.
 
 Model calls cost money, so nothing runs by itself: a pull request gets a 5-case slice (enough to catch a broken runner), and the full run that produces a publishable baseline is a deliberate `workflow_dispatch`.
 
@@ -199,5 +315,9 @@ Model calls cost money, so nothing runs by itself: a pull request gets a 5-case 
 The benchmark runs on the shared-core trigger defined in [`../testing/TESTING.md`](../testing/TESTING.md) — a change to `packages/dsl`, `runtime`, `capabilities`, `health`, `analyzer` or `repair`. Results are stored per run so runs are comparable over time; the report shows the delta against the previous run and is published as the job summary and an artifact.
 
 The corpus health check is part of `pnpm test` today, because a corpus that has quietly drifted is worse than no corpus. The runner that produces the numbers is stage 2-3.
+
+A second job, `replay`, runs alongside it with no key and no spend: it replays every
+committed digest and fails on drift, so a published number that stops reproducing does not
+stay published quietly.
 
 Phase 3 entry depends on Build Success Rate reaching an honest, publishable baseline. That threshold is set from measured data in Phase 2 — it is not declared in advance.

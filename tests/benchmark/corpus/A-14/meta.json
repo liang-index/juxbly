@@ -1,0 +1,42 @@
+{
+  "id": "A-14",
+  "url": "https://www.postgresql.org/docs/current/functions-string.html",
+  "bucket": "A",
+  "capturedAt": "2026-09-20T12:26:46.961Z",
+  "sizeBytes": 96273,
+  "verifiedOn": "2026-09-20",
+  "title": "PostgreSQL: Documentation: 18: 9.4.\u00a0String Functions and Operators",
+  "bucketEvidence": {
+    "verdict": "regular repeated structure",
+    "maxRepeatingCount": 254,
+    "repeatingSelector": "code."
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 246127,
+    "assetCount": 3,
+    "nodeCount": 1916,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 0,
+    "classTokenCount": 78,
+    "hashedClassTokens": 0,
+    "maxRepeatingCount": 254
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "PostgreSQL licence",
+    "reviewedOn": "2026-09-20"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": null,
+    "reason": "no matching rule",
+    "url": "https://www.postgresql.org/robots.txt"
+  },
+  "notes": "Function reference split across several section tables rather than one. Single-field task (function name). Same site as A-07, harder layout.",
+  "personalDataHits": []
+}

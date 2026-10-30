@@ -1,0 +1,67 @@
+{
+  "id": "D-09",
+  "url": "https://mastodon.world/explore",
+  "bucket": "D",
+  "capturedAt": "2026-09-20T12:30:06.417Z",
+  "sizeBytes": 83980,
+  "verifiedOn": "2026-09-20",
+  "title": "Trending - Mastodon",
+  "bucketEvidence": {
+    "verdict": "scrolling grew 14 repeated structure(s): div|span.account__avatar 0->3; span|img. 0->3; span|bdi. 0->3; bdi|strong.display-name__html 0->3; span|span.display-name__account 0->3",
+    "grownGroups": 14,
+    "grownSample": [
+      "div|span.account__avatar 0->3",
+      "span|img. 0->3",
+      "span|bdi. 0->3",
+      "bdi|strong.display-name__html 0->3",
+      "span|span.display-name__account 0->3"
+    ],
+    "nodesBeforeScroll": 597,
+    "nodesAfterScroll": 774,
+    "scrollSteps": 3
+  },
+  "interaction": [
+    {
+      "type": "scroll",
+      "times": 3
+    }
+  ],
+  "assetDegraded": true,
+  "metrics": {
+    "cssBytes": 0,
+    "assetCount": 18,
+    "nodeCount": 774,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 14,
+    "customElementCount": 0,
+    "classTokenCount": 148,
+    "hashedClassTokens": 38,
+    "maxRepeatingCount": 96
+  },
+  "rights": {
+    "basis": "reviewed-tos",
+    "license": "AGPL-3.0 (Mastodon); public timeline",
+    "reviewedOn": "2026-09-20",
+    "reviewNote": "Fourth instance, admitted for single-field coverage; robots.txt re-checked at capture."
+  },
+  "robots": {
+    "status": "unavailable",
+    "rule": null,
+    "url": "https://mastodon.world/robots.txt"
+  },
+  "notes": "Same software as D-03/D-04/D-05. Single-field task (author).",
+  "personalDataHits": [
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email",
+    "email"
+  ]
+}

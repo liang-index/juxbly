@@ -14,6 +14,14 @@ import { handleBuildPropose } from '@juxbly/llm'
 export interface Proposal {
   /** The first candidate that passes validation; `null` when nothing usable came back. */
   tool: ToolDefinition | null
+  /**
+   * Every candidate the model returned, in its own order.
+   *
+   * `tool` is what the runner would have executed under `first-valid`; the pool is kept
+   * so a selection rule can be applied later — and re-applied on replay — without asking
+   * the model again.
+   */
+  candidates: ToolDefinition[]
   usage?: TokenUsage
   error?: string
   /** True when the model asked a clarifying question instead of proposing a tool. */
@@ -25,6 +33,12 @@ export interface ProposeRequest {
   task: string
   url: string
   noMoreQuestions: boolean
+  /**
+   * Round B: when present the model is shown what its own draft extracted and asked to
+   * return corrected candidates. Passed through to the product's own
+   * `handleBuildPropose` as a dep, exactly like `pageView`.
+   */
+  repair?: { draft: ToolDefinition; sampleRows: readonly Record<string, unknown>[] }
 }
 
 export type ProposeFn = (request: ProposeRequest) => Promise<Proposal>
@@ -36,13 +50,28 @@ export interface LlmSettings {
 }
 
 /**
+ * Which page representation the model is shown.
+ *
+ * `summary` is the shipped one. `flat` is the Phase 2 experiment: the same page,
+ * described as a numbered list the model has to choose from by index. Both are produced
+ * by the product's own `handleBuildPropose` — the only difference is what it is handed
+ * to describe, so a run is a measurement of the representation and not of a second
+ * implementation of the prompt.
+ */
+export type PageView = 'summary' | 'flat'
+
+export interface ProposerOptions {
+  pageView?: PageView
+}
+
+/**
  * Wraps `handleBuildPropose` with the storage it reads the key from.
  *
  * The adapter is the mock on purpose: the benchmark has no extension runtime, and the
  * only thing the proposer needs from storage is the settings record. Everything that
  * decides the request — prompt, error codes, response parsing — stays production code.
  */
-export function createLlmProposer(settings: LlmSettings): ProposeFn {
+export function createLlmProposer(settings: LlmSettings, options: ProposerOptions = {}): ProposeFn {
   const adapter = createMockAdapter({
     storage: {
       'juxbly:settings': {
@@ -53,10 +82,14 @@ export function createLlmProposer(settings: LlmSettings): ProposeFn {
     },
   })
 
-  return async (request) => await proposeOnce(request, adapter)
+  return async (request) => await proposeOnce(request, adapter, options)
 }
 
-async function proposeOnce(request: ProposeRequest, adapter: ReturnType<typeof createMockAdapter>): Promise<Proposal> {
+async function proposeOnce(
+  request: ProposeRequest,
+  adapter: ReturnType<typeof createMockAdapter>,
+  options: ProposerOptions,
+): Promise<Proposal> {
   const result = await handleBuildPropose(
     {
       kind: 'build:propose',
@@ -66,28 +99,38 @@ async function proposeOnce(request: ProposeRequest, adapter: ReturnType<typeof c
       noMoreQuestions: request.noMoreQuestions,
     },
     adapter,
+    {
+      ...(options.pageView === undefined ? {} : { pageView: options.pageView }),
+      ...(request.repair === undefined ? {} : { repair: request.repair }),
+    },
   )
 
-  if (!result.ok) return { tool: null, error: result.error ?? 'UNKNOWN', askedQuestion: false }
+  if (!result.ok) return { tool: null, candidates: [], error: result.error ?? 'UNKNOWN', askedQuestion: false }
 
   const candidates = 'candidates' in result ? result.candidates : undefined
   if (candidates === undefined || candidates.length === 0) {
     // A clarification question is a legitimate answer in the product. Offline there is
     // nobody to reply, so it is recorded and the runner re-asks with `noMoreQuestions`.
-    return { tool: null, askedQuestion: true }
+    return { tool: null, candidates: [], askedQuestion: true }
   }
 
-  return pickValidCandidate(candidates, result.usage)
+  const usage = result.usage === undefined ? {} : { usage: result.usage }
+  const picked = pickValidCandidate(candidates, result.usage)
+  return { ...picked, candidates, ...usage }
 }
 
 /**
- * Takes the first candidate the double gate accepts.
+ * Takes the first candidate the double gate accepts — the `first-valid` rule.
  *
  * A user would look at all of them; the benchmark cannot, and picking the last or the
- * "best looking" one would add a selection rule nobody reviewed. First-past-the-post
- * also keeps the number comparable between runs.
+ * "best looking" one would add a selection rule nobody reviewed. `best-scored` is that
+ * reviewed rule, and it lives in `selection.ts` so the live run and the replay apply the
+ * same one.
  */
-function pickValidCandidate(candidates: ToolDefinition[], usage: TokenUsage | undefined): Proposal {
+function pickValidCandidate(
+  candidates: ToolDefinition[],
+  usage: TokenUsage | undefined,
+): Omit<Proposal, 'candidates'> {
   const errors: string[] = []
 
   for (const candidate of candidates) {

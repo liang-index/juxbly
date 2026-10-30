@@ -52,3 +52,6 @@ tests/benchmark/reports/*
 
 # Agent working notes (internal; never part of the public tree)
 .workbuddy/
+
+# Logo design scratch (never committed)
+.logo-draft/

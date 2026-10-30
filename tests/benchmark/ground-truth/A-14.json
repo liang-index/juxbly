@@ -1,0 +1,29 @@
+{
+  "case_id": "A-14",
+  "bucket": "A",
+  "expected_fields": [
+    "name"
+  ],
+  "item_count_range": [
+    45,
+    60
+  ],
+  "sample": [
+    {
+      "name": "btrim"
+    },
+    {
+      "name": "bit_length"
+    },
+    {
+      "name": "normalize"
+    },
+    {
+      "name": "overlay"
+    }
+  ],
+  "verified_on": "2026-09-20",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

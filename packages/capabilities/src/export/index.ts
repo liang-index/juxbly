@@ -14,11 +14,13 @@
  *   for JSON/CSV directly *from the page* — the port is wired in the content script as a
  *   relay that sends `export:download_csv` / `export:download_json`, and the background
  *   owns the real platform `downloads` call (§7.1, AC4).
- * - **Copy needs a user gesture.** `navigator.clipboard.writeText` only works in a focused,
- *   user-initiated context; a tool that auto-runs on page load must not silently write the
- *   clipboard. The run engine **refuses** an `export:copy` step outright (enforced in
- *   `packages/runtime/src/tool-runtime.ts`, pinned by a test) — copy is delivered by the
- *   panel button, which is always a real click and never goes through a step.
+ * - **Delivery needs a user who has seen the result.** A run is unattended by definition,
+ *   so the engine refuses *every* `export` step before resolving its input — enforced in
+ *   `packages/runtime/src/tool-runtime.ts`, pinned by a test. `copy` additionally needs a
+ *   real gesture for `navigator.clipboard.writeText` to work at all, and `csv` / `json`
+ *   would otherwise drop a file into the download manager with nothing on screen saying so.
+ *   The panel's Copy / CSV / JSON buttons are the only delivery path: always a real click,
+ *   never a step. The serialisers stay shared so the two paths cannot drift apart.
  *
  * JSON and CSV go through `downloads` together (`docs/ARCHITECTURE.md` §7.3): adding the
  * `json` format added no permission, and no future format should be assumed to re-add one.
@@ -102,7 +104,7 @@ export const exportCapability: CapabilityDefinition<CapabilityInput<ExportStep>,
   // reuses `downloads`; no new permission was introduced by adding it (§7.3).
   permissions: ['clipboard.write', 'downloads'],
   securityNotes:
-    'Exports page-derived content, which is untrusted: CSV cells are prefix-neutralised against formula injection and the filename is sanitised (no path separators or control characters). copy is only delivered from a user-initiated panel click. The exported content itself is never logged and never travels back in a message; download routes through the background because the platform `downloads` API is unavailable to content scripts (ARCHITECTURE §7.1).',
+    'Exports page-derived content, which is untrusted: CSV cells are prefix-neutralised against formula injection and the filename is sanitised (no path separators or control characters). all three formats are only delivered from a user-initiated panel click — a run is unattended and never delivers an export step. The exported content itself is never logged and never travels back in a message; download routes through the background because the platform `downloads` API is unavailable to content scripts (ARCHITECTURE §7.1).',
 
   execute(input, ctx): Promise<ExportResult> {
     // Shape and count only — the rows are page content and must never be logged.
