@@ -104,13 +104,17 @@ function readRecord(dom: DomPort, step: ExtractStep, scope?: Element): Record<st
 
   for (const [name, selector] of Object.entries(step.fields)) {
     const type: FieldType = step.field_types?.[name] ?? 'text'
+    const attribute = step.field_attrs?.[name]
     // `:self` is the one selector that is resolved before querying: the container is never
     // among its own `querySelectorAll` matches, so "the value is this element" has to be
     // answered here (§5.2). Without a container (single mode, no selector) there is no
     // element to be, and the field is empty — never the document root, whose text would be
     // the whole page.
     const [element] = isSelfSelector(selector) ? [scope] : query(dom, selector, scope)
-    record[name] = element === undefined ? emptyFieldValue(type) : readFieldValue(element, type)
+    record[name] =
+      element === undefined
+        ? emptyFieldValue(type)
+        : readFieldValue(element, type, attribute)
   }
 
   return record

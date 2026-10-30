@@ -31,7 +31,7 @@ export { MAX_ITEMS, extractList, extractSingle, summarizeFields } from './modes'
 export type { ModeOutcome } from './modes'
 export { MAX_SHADOW_DEPTH, classifyQueryError, queryAll } from './query'
 export type { ExtractedImage, FieldValue } from './field-value'
-export { emptyFieldValue, hasValue, readFieldValue } from './field-value'
+export { emptyFieldValue, hasValue, isCredentialAttribute, readFieldValue } from './field-value'
 
 /**
  * Runs one `extract` step.
@@ -109,6 +109,7 @@ export const extractCapability: CapabilityDefinition<CapabilityInput<ExtractStep
           selector: { type: 'string' },
           fields: { type: 'object', additionalProperties: { type: 'string' } },
           field_types: { type: 'object' },
+          field_attrs: { type: 'object', additionalProperties: { type: 'string' } },
           pre_scroll: {
             type: 'object',
             properties: { mode: { enum: ['to_bottom'] }, max: { type: 'integer' }, settle_ms: { type: 'integer' } },

@@ -249,6 +249,114 @@ describe('rule 4 — extract shape and pre_scroll bounds', () => {
     ]
     expect(codesOf(input)).toContain('FIELD_TYPE_UNKNOWN_FIELD')
   })
+
+  it('rejects a field type that does not exist', () => {
+    const input = validDefinition()
+    input['steps'] = [
+      {
+        type: 'extract',
+        mode: 'single',
+        fields: { title: 'h1' },
+        field_types: { title: 'attributes' },
+        output_to: 'page',
+      },
+    ]
+    expect(codesOf(input)).toContain('FIELD_TYPE_UNKNOWN')
+  })
+})
+
+/**
+ * `attr` — the completeness rule that keeps an attribute read from becoming a guess.
+ *
+ * `attr` with no `field_attrs` entry has no safe default: falling back to text would be
+ * indistinguishable from a correct read, and falling back to "the first attribute" would
+ * read whatever comes first in the document.
+ */
+describe('field_attrs', () => {
+  function withExtract(extract: Record<string, unknown>): Record<string, unknown> {
+    const input = validDefinition()
+    input['steps'] = [extract, { type: 'render', view: 'table', input_from: 'items' }]
+    return input
+  }
+
+  it('accepts attr paired with the attribute it reads', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_types: { rating: 'attr' },
+      field_attrs: { rating: 'class' },
+      output_to: 'items',
+    })
+    expect(validateToolDefinition(input).ok).toBe(true)
+  })
+
+  it('rejects attr without an attribute name', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_types: { rating: 'attr' },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_ATTR_REQUIRED')
+  })
+
+  it('rejects an empty attribute name', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_types: { rating: 'attr' },
+      field_attrs: { rating: '   ' },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_ATTR_EMPTY')
+  })
+
+  it('rejects field_attrs naming a field the step does not extract', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_types: { rating: 'attr' },
+      field_attrs: { rating: 'class', price: 'title' },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_ATTR_UNKNOWN_FIELD')
+  })
+
+  it('allows a stale field_attrs entry on a field that is not typed attr', () => {
+    // Verbose model output should not fail: the entry is ignored at read time, so
+    // rejecting it would make a correct tool un-buildable.
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { title: 'h3 a' },
+      field_types: { title: 'text' },
+      field_attrs: { title: 'title' },
+      output_to: 'items',
+    })
+    expect(validateToolDefinition(input).ok).toBe(true)
+  })
+
+  it('rejects field_attrs that is not an object', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_types: { rating: 'attr' },
+      field_attrs: 'class',
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_ATTRS_INVALID')
+  })
 })
 
 describe('rule 5 — transform op parameter completeness', () => {

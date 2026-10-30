@@ -19,13 +19,57 @@ export interface ExtractedImage {
 
 export type FieldValue = string | ExtractedImage
 
-export function readFieldValue(element: Element, type: FieldType): FieldValue {
+/**
+ * `readFieldValue` can now reach **any** attribute, so it is also the first thing in the
+ * product that can bulk-copy a page's hidden values into a table a user then exports as
+ * CSV or JSON. That makes an attribute name a security boundary, not just a lookup key.
+ *
+ * This is the same rule the corpus health check already enforces on snapshots
+ * (`apps/playground/lib/corpus.mjs`, `CREDENTIAL_ATTRIBUTE`), narrowed the same way:
+ * `data-css-hash` is bookkeeping nobody objects to, `data-algolia-key` is a published
+ * credential every scanner objects to. Refusing the read is better than redacting later,
+ * because a redaction layer would have to guess which column was sensitive after the fact.
+ */
+const CREDENTIAL_ATTRIBUTE = /(?:^|[-_:])(?:key|keys|token|secret)(?:$|[-_:])/i
+
+/**
+ * True when an attribute name marks a credential slot.
+ *
+ * Exported so a build flow can refuse to *propose* such a field rather than letting the
+ * user discover it as an empty column after the run.
+ */
+export function isCredentialAttribute(name: string): boolean {
+  return CREDENTIAL_ATTRIBUTE.test(name)
+}
+
+/**
+ * Reads one named attribute, or refuses.
+ *
+ * Returns `''` rather than throwing on a credential-shaped name: this runs per row, inside
+ * a loop over up to 1000 containers, and one unusual attribute must not fail a whole run.
+ * Empty is also honest — nothing was read, and `fieldPresence` will report the field as
+ * missing, which is the signal health needs.
+ */
+function readAttribute(element: Element, name: string): string {
+  if (isCredentialAttribute(name)) return ''
+  return element.getAttribute(name) ?? ''
+}
+
+/**
+ * @param attribute the attribute name for `attr`; ignored by every other type. `attr`
+ *   without one reads `''` by design — see `FIELD_ATTR_REQUIRED`, which stops that shape
+ *   at validation rather than letting it reach here.
+ */
+export function readFieldValue(element: Element, type: FieldType, attribute?: string): FieldValue {
   switch (type) {
     case 'image': {
       return { src: absolute(readSource(element), element), alt: element.getAttribute('alt') ?? '' }
     }
     case 'link': {
       return absolute(element.getAttribute('href') ?? '', element)
+    }
+    case 'attr': {
+      return attribute === undefined ? '' : readAttribute(element, attribute)
     }
     case 'text': {
       return collapse(element.textContent ?? '')
