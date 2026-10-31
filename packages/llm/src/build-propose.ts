@@ -103,19 +103,26 @@ export async function handleBuildPropose(
             data: stringifyData(data),
           })
 
-    const response = await callLlm(
-      {
-        endpoint: {
-          baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL,
-          apiKey,
-          model: modelOrDefault(settings?.model),
-        },
-        messages,
-        responseFormat: 'json',
-        ...(deps.timeoutMs === undefined ? {} : { timeoutMs: deps.timeoutMs }),
+    const request = {
+      endpoint: {
+        baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL,
+        apiKey,
+        model: modelOrDefault(settings?.model),
       },
-      { ...(deps.fetchImpl === undefined ? {} : { fetchImpl: deps.fetchImpl }), logger },
-    )
+      messages,
+      responseFormat: 'json',
+      ...(deps.timeoutMs === undefined ? {} : { timeoutMs: deps.timeoutMs }),
+    } as const
+    const clientDeps = { ...(deps.fetchImpl === undefined ? {} : { fetchImpl: deps.fetchImpl }), logger }
+
+    let response = await callLlm(request, clientDeps)
+    // Live endpoints occasionally return a completion with no content at all — the
+    // 2026-10-31 gate reading lost 3 of 56 cases to it, all transient (the same case
+    // built fine seconds later). One retry, and only on an empty reply: a reply that
+    // parsed but offered no candidates is the model's decision, not a transport fault.
+    if (typeof response.output !== 'object' || response.output === null) {
+      response = await callLlm(request, clientDeps)
+    }
 
     const reply = readReply(response.output, new Date().toISOString())
     // A reply we could not read is a failure, not an empty success: `ok` is what the panel
@@ -218,6 +225,7 @@ export function buildInstruction(input: InstructionInput): string {
     '   ]}',
     '',
     'Rules:',
+    '- category: exactly one of the four values in the schema above — "data", "enhance", "analyze" or "export". Never a synonym or a free-form label; anything else is rejected and the tool is not saved.',
     '- No control flow, no code, no scripts. Steps run in order, once.',
     '- Prefer the container and field selectors offered in the data section; they already exist on the page.',
     '- Build selectors from stable anchors only: semantic custom-element tags (e.g. shreddit-post), aria-* and data-* attributes, stable class names, or structural position (:nth-of-type).',
