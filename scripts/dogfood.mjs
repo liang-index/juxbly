@@ -40,7 +40,9 @@ import * as steps from '../apps/playground/e2e/steps.mjs'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const EXTENSION_PATH = join(ROOT, '.output/chrome-mv3')
 const TIMEOUT_MS = 90_000
-const PROPOSAL_BUDGET_MS = 120_000
+// Heavy pages (dev.to, react.dev) have proposal calls that outlast two minutes — a person
+// keeps watching the streaming panel, so the harness can too, via `JX_PROPOSAL_BUDGET_MS`.
+const PROPOSAL_BUDGET_MS = Number(process.env.JX_PROPOSAL_BUDGET_MS ?? 120_000)
 const SETTLE_BUDGET_MS = 60_000
 
 /** A missing digit is a missing reading, never a zero — `0 tokens` would flatter the run. */
@@ -71,7 +73,7 @@ function usage(message, code = 1) {
       '  --answer     one reply, used only if the build asks a clarifying question',
       '  --out        output directory (default .dogfood/<timestamp>-<host>)',
       '',
-      'Environment: JX_API_KEY (required), JX_API_BASE_URL, JX_MODEL, JUXBLY_PLAYWRIGHT_HOME.',
+      'Environment: JX_API_KEY (required), JX_API_BASE_URL, JX_MODEL, JX_PROPOSAL_BUDGET_MS, JUXBLY_PLAYWRIGHT_HOME.',
     ].join('\n'),
   )
   process.exit(code)
