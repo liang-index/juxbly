@@ -149,6 +149,23 @@ export const en = {
       delete_failed: 'That could not be removed. Try again.',
     },
     /**
+     * The preset pack (stage 3-2 Track B): ready-made tools for named pages. The copy
+     * promises only what each card's own data states — the site it runs on and what it
+     * collects — and never a page shape beyond the two the launch promises (A and D).
+     */
+    presets: {
+      heading: 'Ready-made tools',
+      // What installing means, stated plainly: a tool appears, a site is allowed.
+      note: 'Working tools for specific pages, built and verified on the live page. Installing adds the tool and allows Juxbly on that site.',
+      install: 'Add',
+      install_aria: 'Add {title}',
+      installing: 'Adding…',
+      added: 'Added',
+      // A declined origin is a decision, reported as one — not an error to retry blindly.
+      access_denied: 'Not added — the site was not allowed. You can ask again.',
+      failed: 'That could not be added. Try again.',
+    },
+    /**
      * The version identity (stage 1-16): present so a bug report can name a build, and
      * deliberately *not* a brand slot — `text-meta` at the foot of the page, no logo.
      */

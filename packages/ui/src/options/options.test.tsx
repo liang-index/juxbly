@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ToolOverviewItem, UsageStats } from '@juxbly/core'
 import { t } from '../copy'
 import { Options } from './Options'
-import type { ManagePorts, SettingsPorts } from './ports'
+import type { ManagePorts, PresetPackPorts, SettingsPorts } from './ports'
 
 /**
  * The options page — `task/stage-1-13.md` AC 4 / 6 / 8 / 10, `docs/UI_SPEC.md` §7.2 / §7.4.
@@ -63,6 +63,19 @@ function manage(overrides: Partial<ManagePorts> = {}): ManagePorts {
   }
 }
 
+/**
+ * An empty pack: the section renders as nothing, so every assertion below reads only
+ * what its own section wrote. `preset-pack.test.tsx` covers the section itself.
+ */
+function presets(): PresetPackPorts {
+  return {
+    list: () => [],
+    installedIds: async () => [],
+    ensureSiteAccess: async () => true,
+    install: async () => 'installed',
+  }
+}
+
 let container: HTMLElement
 let root: Root | undefined
 
@@ -108,7 +121,7 @@ function buttonsWith(node: HTMLElement, label: string): HTMLButtonElement[] {
 
 describe('usage panel (§7.2 / §7.4)', () => {
   it('shows three numbers and no estimated value', async () => {
-    const node = render(<Options settings={settings()} manage={manage()} now={NOW} />)
+    const node = render(<Options settings={settings()} manage={manage()} presets={presets()} now={NOW} />)
     await flush()
 
     const terms = [...node.querySelectorAll('.jx-options-stats dt')]
@@ -122,7 +135,7 @@ describe('usage panel (§7.2 / §7.4)', () => {
   })
 
   it('reads the run total from the same count the result area writes', async () => {
-    const node = render(<Options settings={settings()} manage={manage()} now={NOW} />)
+    const node = render(<Options settings={settings()} manage={manage()} presets={presets()} now={NOW} />)
     await flush()
 
     const values = [...node.querySelectorAll('.jx-options-stats dd')].map(
@@ -132,7 +145,7 @@ describe('usage panel (§7.2 / §7.4)', () => {
   })
 
   it('keeps the privacy line next to the numbers — a promise only holds when it is visible', async () => {
-    const node = render(<Options settings={settings()} manage={manage()} now={NOW} />)
+    const node = render(<Options settings={settings()} manage={manage()} presets={presets()} now={NOW} />)
     await flush()
 
     expect(node.textContent).toContain(t('options.stats.privacy'))
@@ -140,7 +153,12 @@ describe('usage panel (§7.2 / §7.4)', () => {
 
   it('says something when there are no tools, and never renders an empty list', async () => {
     const node = render(
-      <Options settings={settings()} manage={manage({ listTools: async () => [] })} now={NOW} />,
+      <Options
+        settings={settings()}
+        manage={manage({ listTools: async () => [] })}
+        presets={presets()}
+        now={NOW}
+      />,
     )
     await flush()
 
@@ -153,7 +171,7 @@ describe('removal (AC 10)', () => {
   it('asks before it deletes: the first click only asks', async () => {
     const deleteTool = vi.fn(async () => true)
     const node = render(
-      <Options settings={settings()} manage={manage({ deleteTool })} now={NOW} />,
+      <Options settings={settings()} manage={manage({ deleteTool })} presets={presets()} now={NOW} />,
     )
     await flush()
 
@@ -168,7 +186,7 @@ describe('removal (AC 10)', () => {
   it('deletes on the confirm click, once', async () => {
     const deleteTool = vi.fn(async () => true)
     const node = render(
-      <Options settings={settings()} manage={manage({ deleteTool })} now={NOW} />,
+      <Options settings={settings()} manage={manage({ deleteTool })} presets={presets()} now={NOW} />,
     )
     await flush()
 
@@ -185,7 +203,7 @@ describe('removal (AC 10)', () => {
   it('keeping is one click and costs nothing', async () => {
     const deleteTool = vi.fn(async () => true)
     const node = render(
-      <Options settings={settings()} manage={manage({ deleteTool })} now={NOW} />,
+      <Options settings={settings()} manage={manage({ deleteTool })} presets={presets()} now={NOW} />,
     )
     await flush()
 
@@ -199,7 +217,7 @@ describe('removal (AC 10)', () => {
 
   it('reports a refused delete instead of silently keeping the row', async () => {
     const node = render(
-      <Options settings={settings()} manage={manage({ deleteTool: async () => false })} now={NOW} />,
+      <Options settings={settings()} manage={manage({ deleteTool: async () => false })} presets={presets()} now={NOW} />,
     )
     await flush()
 
@@ -215,7 +233,7 @@ describe('floating-ball switch (AC 4 / AC 5)', () => {
   it('reflects the stored setting and writes a single field on change', async () => {
     const save = vi.fn(async () => true)
     const node = render(
-      <Options settings={settings({ save })} manage={manage()} now={NOW} />,
+      <Options settings={settings({ save })} manage={manage()} presets={presets()} now={NOW} />,
     )
     await flush()
 
@@ -233,7 +251,7 @@ describe('floating-ball switch (AC 4 / AC 5)', () => {
   })
 
   it('says turning the ball off costs nothing else — the toolbar entry stays', async () => {
-    const node = render(<Options settings={settings()} manage={manage()} now={NOW} />)
+    const node = render(<Options settings={settings()} manage={manage()} presets={presets()} now={NOW} />)
     await flush()
 
     expect(node.textContent).toContain(t('options.ball.hint'))

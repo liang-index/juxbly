@@ -101,6 +101,18 @@ export type ExtensionMessage =
    * report "v2 is live" instead of a bare yes.
    */
   | { kind: 'build:save_tool_result'; ok: boolean; version?: number; error?: string }
+  /**
+   * Stage 3-2 Track B: installing a preset from the pack (options page → background).
+   *
+   * The definition travels like any other save — bundled data is still data that crossed
+   * a trust boundary, so the background re-validates it with the same §5.4 gate before
+   * writing. There is no repair and no confirmation flow: a preset is a curated v1, and
+   * installing it twice answers `ALREADY_INSTALLED` rather than silently stacking an
+   * identical version onto the history.
+   */
+  | { kind: 'preset:install'; tool: ToolDefinition }
+  | { kind: 'preset:install_result'; ok: boolean
+      ; error?: 'VALIDATION_FAILED' | 'ALREADY_INSTALLED' | 'SAVE_FAILED' }
   // Run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
@@ -471,6 +483,11 @@ export type BuildProposeMessage = Extract<ExtensionMessage, { kind: 'build:propo
 export type BuildProposeResultMessage = Extract<ExtensionMessage, { kind: 'build:propose_result' }>
 export type BuildSaveToolMessage = Extract<ExtensionMessage, { kind: 'build:save_tool' }>
 export type BuildSaveToolResultMessage = Extract<ExtensionMessage, { kind: 'build:save_tool_result' }>
+export type PresetInstallMessage = Extract<ExtensionMessage, { kind: 'preset:install' }>
+export type PresetInstallResultMessage = Extract<
+  ExtensionMessage,
+  { kind: 'preset:install_result' }
+>
 
 /**
  * Messages cross a trust boundary: anything that arrives over the runtime message
@@ -549,6 +566,16 @@ export function isBuildPropose(message: unknown): message is BuildProposeMessage
 
 export function isBuildSaveTool(message: unknown): message is BuildSaveToolMessage {
   return hasKind(message, 'build:save_tool')
+}
+
+/**
+ * Stage 3-2 Track B. The `tool` payload is **not** shape-checked beyond its presence —
+ * a nested ToolDefinition re-validated field by field here would duplicate §5.4, and the
+ * background handler runs the real `validateToolDefinition` before anything is written.
+ * The guard answers "is this an install request", never "is this a valid tool".
+ */
+export function isPresetInstall(message: unknown): message is PresetInstallMessage {
+  return hasKind(message, 'preset:install')
 }
 
 /**

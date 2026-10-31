@@ -9,6 +9,7 @@ import {
   isExportRecordUsage,
   isHealthSemanticCheck,
   isPing,
+  isPresetInstall,
   isRunLlm,
   isRunLoadState,
   isRunReport,
@@ -69,6 +70,7 @@ import {
   applySettingsPatch,
   deleteTool,
   handleBuildSaveTool,
+  handlePresetInstall,
   listToolOverviews,
   loadOnboardingFlags,
   loadTool,
@@ -136,6 +138,13 @@ export default defineBackground(() => {
 
     if (isBuildSaveTool(message)) {
       return handleBuildSaveTool(message, createChromeAdapter())
+    }
+
+    // Stage 3-2 Track B: the preset pack's install. The write and the §5.4 validation
+    // are this context's to make (§7.1); the handler lives in `@juxbly/storage`, next
+    // to the build save it mirrors.
+    if (isPresetInstall(message)) {
+      return handlePresetInstall(message, createChromeAdapter())
     }
 
     if (isRecord(message, 'settings:get')) {

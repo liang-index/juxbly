@@ -149,12 +149,17 @@ export {
 } from './popup/tool-list'
 export { createOverviewPorts, type OverviewPorts } from './popup/ports'
 export { Options, BallToggle, UsagePanel, type OptionsProps } from './options/Options'
+export { PresetPack } from './options/preset-pack'
 export { ByokForm, type ByokFormProps, type ByokFormState } from './options/byok-form'
 export {
   createSettingsPorts,
   createManagePorts,
+  createPresetPackPorts,
   type SettingsPorts,
   type ManagePorts,
+  type PresetPackPorts,
+  type PresetItem,
+  type PresetInstallOutcome,
 } from './options/ports'
 export {
   classifyConnectivity,

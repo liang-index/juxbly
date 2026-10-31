@@ -1109,6 +1109,15 @@ type ExtensionMessage =
       ; error?: string
       /** Stage 1-12: the version now in effect, so a repair can report "v2 is live". */
       ; version?: number }
+  /**
+   * Stage 3-2 Track B: installing a preset from the pack (options page → background).
+   * The definition travels like any other save — bundled data still crossed a trust
+   * boundary, so the background re-validates with the same §5.4 gate before writing.
+   * Installing twice answers `ALREADY_INSTALLED`; it never stacks an identical version.
+   */
+  | { kind: 'preset:install'; tool: ToolDefinition }
+  | { kind: 'preset:install_result'; ok: boolean
+      ; error?: 'VALIDATION_FAILED' | 'ALREADY_INSTALLED' | 'SAVE_FAILED' }
   // run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
@@ -1347,6 +1356,8 @@ Both variants request the same four `permissions`, and **neither** requests `tab
 | Popup, "Enable on this page" | the active tab's origin | the page is open in front of the user, and the action click is itself the gesture |
 | Options, save / connectivity test | the endpoint's origin | the user just typed the endpoint; config and grant land in the same click |
 | Preset install | the preset's site origin | installing a preset *is* the decision to run it on that site |
+
+One derivation rule the table's third row needs: a preset's `url_pattern` may name a path or omit the wildcard (both forms exist in the pack), but `chrome.permissions.request` accepts `<scheme>://<host>/*` and nothing else. The grant is therefore always the **origin** — what the dialog names — while the tool itself still only runs where its own `url_pattern` matches (§5.3). A broader grant than a tool uses is the platform's unit of granting, not a relaxation of the Policy Surface's promise.
 
 Two store-build degradations are accepted and quiet, recorded here because the open-source build cannot exhibit them: for a tab whose origin was never granted, `handleTabOpen`'s URL read comes back `undefined` and the "is this the tool's page" comparison is simply never true — the correct behaviour, nothing to fix; and the A3 screenshot fallback (`captureVisibleTab`) works where the origin is granted or `activeTab` covers the tab (an action click or shortcut on it) — identical behaviour on any page a user has actually enabled.
 
