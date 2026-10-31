@@ -60,6 +60,11 @@ there without the field existing. This is finding one of the live-vs-snapshot ga
 and it has a one-line fix (schema + rule) that changes every build — recorded, not
 rushed into this segment.
 
+*Postscript, same day: the fix landed after this record was written. The D bucket
+re-read 9/9 build success (from 7/9), with `pre_scroll` proposed on the four cases
+whose pages carry a scroll hint — D-01 first, extracting all 70 quotes. See the
+`llm:` entry in `CHANGELOG.md` and the 2026-10-31T15-55 bench artefacts.*
+
 ### 2. The benchmark's D readings do not transfer to live pages
 
 The D bucket's corpus reading is 55.9% build success. Live, 0 of 6 candidates

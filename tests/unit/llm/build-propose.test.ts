@@ -109,6 +109,18 @@ describe('buildInstruction — the 2026-10-31 robustness rules', () => {
   })
 })
 
+describe('buildInstruction — pre_scroll (the 2026-10-31 D-bucket finding)', () => {
+  it('names pre_scroll in the schema and tells the model when to add it', () => {
+    // The D-bucket dogfooding record: the runtime has pre_scroll, the corpus has the
+    // fixture, and the analyzer ships the scrollHint — but the prompt never named the
+    // field, so three live quotes/scroll builds all returned the first screen only.
+    const instruction = instructionOf()
+    expect(instruction).toContain('"pre_scroll": {"mode": "to_bottom"}')
+    expect(instruction).toContain('"scrollHint"')
+    expect(instruction).toContain('sees the whole list instead of the first screen')
+  })
+})
+
 describe('handleBuildPropose — live-reply robustness', () => {
   const SETTINGS = {
     api_key: 'sk-juxbly-test-0000000000',

@@ -1419,6 +1419,15 @@ interface ToolHealth {
  * and false positives hurt more than misses (the "suspected breakage never interrupts" discipline of
  * product document §6.2).
  * Thresholds must never be tuned to make metrics look good (same discipline as product document §3.8.6).
+ *
+ * Open question, recorded 2026-10-31 (D-bucket dogfooding, finding 5): an entirely empty
+ * column cannot deviate. The baseline is set on the first run, so a field whose selectors
+ * matched nothing at build time bakes 0 into the baseline and stays "healthy" against it
+ * forever — dev.to's `tags` column read empty on all 19 rows with `status: "healthy"`.
+ * For the user this is the worst failure shape: a table that looks complete and is not.
+ * Whether build-time all-empty columns should mark the tool, the baseline, or neither is
+ * a health-spec decision that has not been made; the evidence lives in
+ * `tests/benchmark/reports/dogfood-2026-10-31-d-bucket.md`.
  */
 interface StructureFingerprint {
   captured_at: string

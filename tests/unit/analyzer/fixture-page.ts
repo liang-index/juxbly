@@ -17,6 +17,7 @@ const PAGES_DIR = resolve(process.cwd(), 'tests', 'fixtures', 'pages')
 export const SHADOW_PAGE = 'shadow-custom-elements.html'
 export const TABLE_PAGE = 'table-page.html'
 export const SCROLL_PAGE = 'infinite-scroll.html'
+export const EXTENSION_MOUNT_PAGE = 'extension-mount.html'
 
 export function loadPage(name: string): Document {
   const html = readFileSync(join(PAGES_DIR, name), 'utf8')

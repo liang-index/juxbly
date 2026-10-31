@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { analyzePage } from '@juxbly/analyzer'
-import { SCROLL_PAGE, SHADOW_PAGE, TABLE_PAGE, loadPage } from './fixture-page'
+import {
+  EXTENSION_MOUNT_PAGE,
+  SCROLL_PAGE,
+  SHADOW_PAGE,
+  TABLE_PAGE,
+  loadPage,
+} from './fixture-page'
 
 /**
  * `analyzePage` against the three fixture pages — `docs/ARCHITECTURE.md` §5.5
@@ -77,6 +83,22 @@ describe('analyzePage: table page', () => {
 
   it('reports the page title', () => {
     expect(analyzePage(loadPage(TABLE_PAGE)).title).toBe('Fruit prices')
+  })
+})
+
+describe('analyzePage: the extension mount is not page content', () => {
+  // The 2026-10-31 mastodon.social dogfood pass: on a virtualized feed the only
+  // "containers" in the page data belonged to the extension itself, and the model said so.
+  it('prunes the extension mount from containers, text and custom elements', () => {
+    const analysis = analyzePage(loadPage(EXTENSION_MOUNT_PAGE))
+
+    // The page's own repeating list still surfaces; the mount's contents never do —
+    // not as text, not as a custom element the model could pick as a container.
+    expect(analysis.containers.some((c) => c.tagPath.includes('li'))).toBe(true)
+    expect(analysis.visibleText).not.toContain('Build a tool')
+    expect(analysis.visibleText).not.toContain('tokens used')
+    expect(analysis.visibleText).toContain('Apple')
+    expect(analysis.customElements).not.toContain('jx-panel')
   })
 })
 
