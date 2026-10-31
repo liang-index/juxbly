@@ -3,8 +3,13 @@ import {
   JUXBLY_COMMANDS,
   JUXBLY_HOST_PERMISSIONS,
   JUXBLY_MANIFEST,
+  JUXBLY_OPTIONAL_HOST_PERMISSIONS,
   JUXBLY_PERMISSIONS,
+  JUXBLY_STORE_STATIC_HOSTS,
+  JUXBLY_VARIANT,
+  resolveHostPermissions,
 } from '../../../apps/extension/manifest'
+import { DEFAULT_API_BASE_URL } from '../../../packages/llm/src/client'
 
 /**
  * Permission snapshot — `docs/ARCHITECTURE.md` §7.3.
@@ -17,7 +22,7 @@ import {
  * Layout: `apps/extension/manifest.ts` exists for exactly this reason.
  */
 
-/** `docs/ARCHITECTURE.md` §7.3, verbatim order. */
+/** `docs/ARCHITECTURE.md` §7.3, verbatim order — identical in both build variants. */
 const DECLARED_PERMISSIONS = ['storage', 'activeTab', 'clipboardWrite', 'downloads']
 
 /** §7.3: never requested — the URL comes from `activeTab`, and there is no injection. */
@@ -28,8 +33,24 @@ describe('manifest permissions (ARCHITECTURE.md §7.3)', () => {
     expect(JUXBLY_PERMISSIONS).toEqual(DECLARED_PERMISSIONS)
   })
 
-  it('requests <all_urls> as the only host permission', () => {
+  it('keeps the open-source host surface at static <all_urls>', () => {
     expect(JUXBLY_HOST_PERMISSIONS).toEqual(['<all_urls>'])
+    expect(resolveHostPermissions('oss')).toEqual({ host_permissions: JUXBLY_HOST_PERMISSIONS })
+  })
+
+  it('narrows the store build to one static host plus an optional surface (stage 3-2)', () => {
+    const store = resolveHostPermissions('store')
+    expect(store.host_permissions).toEqual(JUXBLY_STORE_STATIC_HOSTS)
+    expect(store.optional_host_permissions).toEqual(JUXBLY_OPTIONAL_HOST_PERMISSIONS)
+    expect(JUXBLY_OPTIONAL_HOST_PERMISSIONS).toEqual(['<all_urls>'])
+  })
+
+  it('statically grants only the origin a bare-key first run actually calls', () => {
+    // The paired constant: if the default provider moves, the store manifest moves with
+    // it or this test fails — a static grant pointing at an origin nothing calls is
+    // exactly the kind of quiet widening this file exists to stop.
+    const defaultOrigin = new URL(DEFAULT_API_BASE_URL).origin
+    expect(JUXBLY_STORE_STATIC_HOSTS).toEqual([`${defaultOrigin}/*`])
   })
 
   it('never requests tabs, scripting or webRequest', () => {
@@ -69,7 +90,12 @@ describe('manifest permissions (ARCHITECTURE.md §7.3)', () => {
     // Without this, someone could stop using these constants and the four assertions
     // above would keep passing on values nothing consumes.
     expect(JUXBLY_MANIFEST.permissions).toBe(JUXBLY_PERMISSIONS)
-    expect(JUXBLY_MANIFEST.host_permissions).toBe(JUXBLY_HOST_PERMISSIONS)
+    expect(JUXBLY_MANIFEST.host_permissions).toBe(
+      resolveHostPermissions(JUXBLY_VARIANT).host_permissions,
+    )
+    expect(JUXBLY_MANIFEST.optional_host_permissions).toBe(
+      resolveHostPermissions(JUXBLY_VARIANT).optional_host_permissions,
+    )
     expect(JUXBLY_MANIFEST.commands).toBe(JUXBLY_COMMANDS)
   })
 })

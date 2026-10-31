@@ -39,6 +39,8 @@ export interface ByokFormState {
   testing: boolean
   testClass: ConnectivityClass | null
   tested: boolean
+  /** Stage 3-2: the endpoint-origin request was declined — the probe cannot pass yet. */
+  accessDenied: boolean
 }
 
 export function ByokForm({ ports, onSaved }: ByokFormProps): ReactNode {
@@ -53,6 +55,7 @@ export function ByokForm({ ports, onSaved }: ByokFormProps): ReactNode {
     testing: false,
     testClass: null,
     tested: false,
+    accessDenied: false,
   })
   const [saved, setSaved] = useState<{ key_set: boolean; key_hint: string | null }>({
     key_set: false,
@@ -93,7 +96,12 @@ export function ByokForm({ ports, onSaved }: ByokFormProps): ReactNode {
     })
 
   const save = (): void => {
-    patch({ saving: true, saved: false, error: null })
+    patch({ saving: true, saved: false, error: null, accessDenied: false })
+    // Stage 3-2: the endpoint grant rides the save click — the one user gesture on this
+    // page that means "I chose this endpoint". Started before the settings write so the
+    // platform prompt (which needs the gesture) goes out first. A denial is not a save
+    // failure: settings are local, and the connection test is where the gap shows.
+    void ports.ensureEndpointAccess(state.endpoint)
     void ports.save(candidate()).then((ok) => {
       patch({ saving: false, saved: ok, error: ok ? null : 'SAVE_FAILED' })
       if (ok) onSaved?.()
@@ -101,15 +109,27 @@ export function ByokForm({ ports, onSaved }: ByokFormProps): ReactNode {
   }
 
   const test = (): void => {
-    patch({ testing: true, tested: false, testClass: null })
-    void ports.test(candidate()).then((code) => {
-      patch({
-        testing: false,
-        tested: true,
-        // `classifyConnectivity(null)` is the passing case.
-        testClass: classifyConnectivity(code),
+    patch({ testing: true, tested: false, testClass: null, accessDenied: false })
+    void ports
+      .ensureEndpointAccess(state.endpoint)
+      .then((granted) => {
+        // A declined grant means the background cannot reach the endpoint at all, so
+        // probing would only add a misleading "network" verdict next to the real one.
+        if (!granted) {
+          patch({ testing: false, accessDenied: true })
+          return undefined
+        }
+        return ports.test(candidate())
       })
-    })
+      .then((code) => {
+        if (code === undefined) return
+        patch({
+          testing: false,
+          tested: true,
+          // `classifyConnectivity(null)` is the passing case.
+          testClass: classifyConnectivity(code),
+        })
+      })
   }
 
   /**
@@ -231,6 +251,12 @@ export function ByokForm({ ports, onSaved }: ByokFormProps): ReactNode {
         <p className={`jx-options-result jx-options-result--${state.testClass}`}>
           {t(CONNECTIVITY_COPY[state.testClass])}
           {state.testClass !== 'ok' ? ` ${t('options.connectivity.not_saved')}` : ''}
+        </p>
+      ) : null}
+
+      {state.accessDenied ? (
+        <p className="jx-options-result jx-options-result--error">
+          {t('options.connectivity.access_denied')}
         </p>
       ) : null}
 

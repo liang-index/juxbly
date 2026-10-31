@@ -55,6 +55,18 @@ export const en = {
       broken: 'No longer reading this page',
     },
     never_used: 'Not used yet',
+    // Stage 3-2 (the Policy Surface, §7.3): the enable affordance. It renders only when
+    // the page's origin is not granted, so on a fully-granted open-source build this
+    // section never appears. The copy states what a grant covers — this site, not the
+    // web — and what to do if the ball does not appear (whether the platform injects
+    // into the open tab on grant or on reload, "reload if it is missing" is true).
+    enable: {
+      aria: 'Enable Juxbly on this site',
+      body: 'Juxbly is not enabled on {host} yet. Allowing it covers this site only.',
+      button: 'Enable on this page',
+      granted: 'Enabled on {host}. Reload the page if the ball does not appear.',
+      declined: 'Not enabled — the request was declined. You can ask again.',
+    },
   },
   options: {
     heading: 'Juxbly settings',
@@ -104,6 +116,11 @@ export const en = {
       network: 'The endpoint could not be reached. Check your connection, then try again.',
       endpoint: 'The endpoint answered, but not as an OpenAI-compatible API. Check the endpoint and model.',
       unknown: 'The test did not finish. Try again.',
+      // Stage 3-2: a declined endpoint-origin request is not a network failure — the
+      // browser never let the request leave, so the probe is skipped and this is the
+      // whole answer. The next Test click asks again.
+      access_denied:
+        'Juxbly was not given access to this endpoint. Allow the request on the next test, or clear the endpoint to use the default.',
       // The result is information, never a gate (edge cases: an offline user still configures).
       not_saved: 'You can still save this and test later.',
     },

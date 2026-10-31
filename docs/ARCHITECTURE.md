@@ -996,6 +996,12 @@ type CapabilityPermission =
 | `clipboard` | clipboard write | `clipboardWrite` |
 | `downloads` | `chrome.downloads.download` | `downloads` |
 | `messaging` | runtime messaging, visible-tab capture | none (capture is covered by `activeTab`) |
+| `permissions` | `chrome.permissions.contains` / `chrome.permissions.request` | none (it *reads and manages* the optional host permissions of §7.3; it adds no permission of its own) |
+
+`permissions` (stage 3-2) is deliberately **the only caller of `chrome.permissions.*`** in the
+codebase: an origin grant is the user's decision, and one auditable funnel is what makes that
+claim checkable. Both calls run only from extension pages inside a user gesture — the content
+script cannot and must not reach them.
 
 Nothing `tabs`-shaped is exposed **through the adapter**. URLs arrive through `activeTab`
 and the existing message flow, and DOM reads are not an adapter concern at all — they are
@@ -1011,7 +1017,7 @@ Therefore `apps/extension/entrypoints/*` is an **enumerable, assertable assembly
 
 | Location | Permitted `chrome.*` | Notes |
 |---|---|---|
-| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` / `tabs.create` / `tabs.update` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency). `tabs.query` / `tabs.sendMessage` exist **only** to relay a received shortcut to the active tab's content script (stage 1-8); `tabs.create` / `tabs.update` exist **only** to focus an already-open tab or open one from the toolbar overview (stage 1-13). No `tabs` permission is requested in either case — URL visibility comes from the existing `<all_urls>` host permission, and no tab metadata beyond the URL is read |
+| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` / `tabs.create` / `tabs.update` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency). `tabs.query` / `tabs.sendMessage` exist **only** to relay a received shortcut to the active tab's content script (stage 1-8) and to answer the popup's `tab:active_url` (stage 3-2 — the read-only "which page is open" behind enable-on-this-page); `tabs.create` / `tabs.update` exist **only** to focus an already-open tab or open one from the toolbar overview (stage 1-13). No `tabs` permission is requested in any case — in the Open Source Build URL visibility comes from the static `<all_urls>` host permission, in the Store Build from `activeTab` plus the origins the user has granted (§7.3), and no tab metadata beyond the URL is read |
 | `entrypoints/content.ts` | **none** | the content script belongs to the UI-side host; all messaging and data reads/writes go through `BrowserAdapter` |
 | `entrypoints/popup/**` · `entrypoints/options/**` | **none** | extension pages are also UI-side |
 
@@ -1173,6 +1179,16 @@ type ExtensionMessage =
    */
   | { kind: 'tab:open'; url: string }
   | { kind: 'tab:open_result'; ok: boolean; error?: string }
+  /**
+   * Stage 3-2: the popup's enable-on-this-page flow. The popup has no `chrome.*` access
+   * (§6.4.1) and the question is "what page is open *right now*", so the background — the
+   * one place `tabs.query` is already sanctioned — reads the active tab's URL and hands
+   * back the string, or null when it has none. Read-only by construction: no tab metadata
+   * beyond the URL crosses, and everything else (http(s) check, origin-pattern derivation,
+   * "is it already granted") is decided popup-side from the `permissions` port.
+   */
+  | { kind: 'tab:active_url' }
+  | { kind: 'tab:active_url_result'; url: string | null }
   // health (content script → background; semantic-layer checks call the model, whose key lives only in background)
   // The message channel is the MANUAL "check once" path — the user's action, their tokens, the
   // throttle deliberately bypassed. The AUTOMATIC path never crosses messaging: the run:report
@@ -1301,16 +1317,40 @@ Adding message types is allowed; changing the semantics of existing fields must 
 
 ### 7.3 Manifest permission list
 
-```json
+The manifest has **two variants**, resolved from one source (`apps/extension/manifest.ts`,
+locked by `tests/unit/architecture/manifest-permissions.test.ts`):
+
+```jsonc
+// Open Source Build (default; the e2e suite runs this one)
 {
   "permissions": ["storage", "activeTab", "clipboardWrite", "downloads"],
   "host_permissions": ["<all_urls>"]
 }
+
+// Store Build (JUXBLY_VARIANT=store, `pnpm build:store`)
+{
+  "permissions": ["storage", "activeTab", "clipboardWrite", "downloads"],
+  "host_permissions": ["https://api.openai.com/*"],   // the default provider origin, statically
+  "optional_host_permissions": ["<all_urls>"]         // everything else, granted on demand
+}
 ```
 
-`<all_urls>` covers both content script injection and background fetches to BYOK custom endpoints. **Not requested**: `tabs` (URLs come via `activeTab` + the existing message flow), `scripting` (no programmatic injection), `webRequest`.
+Both variants request the same four `permissions`, and **neither** requests `tabs` / `scripting` / `webRequest`.
 
-> This section operationalises the product document (V1.12) §13 "Permission policy (V1.12 changes)": the Open Source Build declares `<all_urls>` statically; the Store Build narrows it through the Policy Surface into optional host_permissions (requested on demand by URL Pattern when a tool is saved). Neither build requests `tabs` / `scripting` / `webRequest`.
+- **Open Source Build.** `<all_urls>` covers both content-script injection on any page a tool matches and background fetches to BYOK custom endpoints. Static on purpose: the open-source audience compiles from source and can read the manifest, so the broad grant is a disclosed fact, not a risk.
+- **Store Build.** Only the default provider origin (`https://api.openai.com/*`, paired with `DEFAULT_API_BASE_URL` in `packages/llm/src/client.ts` and locked by test) stays static — that is what lets the first-run key setup and its connectivity probe work before any grant exists. Every other origin — a page a tool should run on, a BYOK custom endpoint — is granted **on demand, inside the user's own click**, through `optional_host_permissions`. The content script still declares `matches: ['<all_urls>']`: Chrome injects it only where the origin has been granted, so both builds share one code path and the injection scope is the permission state, not a second manifest.
+
+**Where the Store Build asks** — all three run on an extension page, inside a user gesture, through the `permissions` port (§6.4), the only sanctioned caller:
+
+| Surface | Grant | Why there |
+|---|---|---|
+| Popup, "Enable on this page" | the active tab's origin | the page is open in front of the user, and the action click is itself the gesture |
+| Options, save / connectivity test | the endpoint's origin | the user just typed the endpoint; config and grant land in the same click |
+| Preset install | the preset's site origin | installing a preset *is* the decision to run it on that site |
+
+Two store-build degradations are accepted and quiet, recorded here because the open-source build cannot exhibit them: for a tab whose origin was never granted, `handleTabOpen`'s URL read comes back `undefined` and the "is this the tool's page" comparison is simply never true — the correct behaviour, nothing to fix; and the A3 screenshot fallback (`captureVisibleTab`) works where the origin is granted or `activeTab` covers the tab (an action click or shortcut on it) — identical behaviour on any page a user has actually enabled.
+
+> This section operationalises the product document (V1.12) §13 "Permission policy (V1.12 changes)": the Open Source Build declares `<all_urls>` statically; the Store Build narrows the static grant to the default provider origin and asks for every other origin on demand, in the user's gesture. Stage 3-2 supersedes the product document's "requested on demand by URL Pattern when a tool is saved" phrasing on one point — a tool can only be built on a page the user has already enabled, so the save moment is never where the ask belongs; the three surfaces above are where it landed. Neither build requests `tabs` / `scripting` / `webRequest`. The rationale lives in [`concepts/policy-surface.md`](concepts/policy-surface.md).
 
 ---
 

@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "pnpm --filter @juxbly/extension dev",
     "build": "pnpm --filter @juxbly/extension build",
+    "build:store": "JUXBLY_VARIANT=store pnpm --filter @juxbly/extension build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "format": "prettier --write .",

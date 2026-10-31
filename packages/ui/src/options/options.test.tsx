@@ -48,6 +48,8 @@ function settings(overrides: Partial<SettingsPorts> = {}): SettingsPorts {
     }),
     save: async () => true,
     test: async () => null,
+    // The open-source surface: everything already granted, so no prompt ever fires.
+    ensureEndpointAccess: async () => true,
     ...overrides,
   }
 }

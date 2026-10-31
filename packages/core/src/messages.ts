@@ -228,6 +228,16 @@ export type ExtensionMessage =
    */
   | { kind: 'tab:open'; url: string }
   | { kind: 'tab:open_result'; ok: boolean; error?: string }
+  /**
+   * Stage 3-2 (the Policy Surface, ARCHITECTURE §7.3): the popup's "enable on this page"
+   * needs the active tab's URL to name the origin it is about to ask for. Reading it is
+   * the same sanctioned `tabs` use as `tab:open` — the assembly layer asks the platform,
+   * and `activeTab` (granted by the very click that opened the popup) makes the URL
+   * visible without a `tabs` permission. `null` means no URL is visible (an ungranted
+   * page the popup has no business offering to enable).
+   */
+  | { kind: 'tab:active_url' }
+  | { kind: 'tab:active_url_result'; url: string | null }
   // Health (content script → background; the semantic check calls the model, key stays in background)
   | { kind: 'health:semantic_check'; requestId: string; fields: string[]; sample: unknown[] }
   | {
@@ -435,6 +445,10 @@ export type OnboardingSetResultMessage = Extract<ExtensionMessage, {
 export type ToolListResultMessage = Extract<ExtensionMessage, { kind: 'tool:list_result' }>
 export type TabOpenMessage = Extract<ExtensionMessage, { kind: 'tab:open' }>
 export type TabOpenResultMessage = Extract<ExtensionMessage, { kind: 'tab:open_result' }>
+export type TabActiveUrlMessage = Extract<ExtensionMessage, { kind: 'tab:active_url' }>
+export type TabActiveUrlResultMessage = Extract<ExtensionMessage, {
+  kind: 'tab:active_url_result'
+}>
 export type SettingsGetResultMessage = Extract<ExtensionMessage, { kind: 'settings:get_result' }>
 export type SettingsSetMessage = Extract<ExtensionMessage, { kind: 'settings:set' }>
 export type SettingsSetResultMessage = Extract<ExtensionMessage, { kind: 'settings:set_result' }>
@@ -602,6 +616,10 @@ export function isTabOpen(message: unknown): message is TabOpenMessage & { url: 
   } catch {
     return false
   }
+}
+
+export function isTabActiveUrl(message: unknown): message is TabActiveUrlMessage {
+  return hasKind(message, 'tab:active_url')
 }
 
 /**

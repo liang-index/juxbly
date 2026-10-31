@@ -40,11 +40,12 @@ Page analysis, extraction, filtering, sorting, rendering, and CSV export are all
 | `activeTab` | act on the page you have actually opened and interacted with |
 | `clipboardWrite` | the `export(copy)` capability |
 | `downloads` | the `export(csv)` capability |
-| `host_permissions: <all_urls>` | a tool must appear on any page it matches, and BYOK supports custom endpoints |
+| `host_permissions: <all_urls>` (Open Source Build) | a tool must appear on any page it matches, and BYOK supports custom endpoints |
+| `optional_host_permissions: <all_urls>` (Store Build) | the same needs, granted **per site when you enable it** — no page is readable until you click to grant it |
 
-Juxbly does **not** request `tabs`, `scripting`, or `webRequest`.
+Juxbly does **not** request `tabs`, `scripting`, or `webRequest` — in either build.
 
-Why static `<all_urls>` rather than on-demand host permissions: "a tool appears on the page it matches" requires content-script injection on arbitrary pages; declaring it statically avoids adding the `scripting` permission and the dynamic-injection state management that optional host permissions would require. A future Store Build is expected to converge to optional host permissions through the Policy Surface, without changing this open-source core.
+Why static `<all_urls>` in the Open Source Build rather than on-demand host permissions: "a tool appears on the page it matches" requires content-script injection on arbitrary pages; declaring it statically avoids adding the `scripting` permission and the dynamic-injection state management that optional host permissions would require. The Store Build ships exactly the convergence this build deferred: static host permissions narrow to the default provider origin (`https://api.openai.com/*`), and every other origin — a page Juxbly should run on, a BYOK custom endpoint — is granted only when you click to grant it, in one of three places: the popup's "Enable on this page", the options page when you save or test an endpoint, and preset installation. The rationale is in [`docs/concepts/policy-surface.md`](docs/concepts/policy-surface.md).
 
 ## Your API key
 

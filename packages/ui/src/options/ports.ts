@@ -15,6 +15,10 @@
  */
 import type { BrowserAdapter } from '@juxbly/browser'
 import type { Settings, SettingsView, ToolOverviewItem, UsageStats } from '@juxbly/core'
+// The URL→origin-pattern helper landed in the popup's ports (stage 3-2); the BYOK form
+// needs the same derivation for a custom endpoint, and a second spelling of it is a
+// second place for the Policy Surface to drift.
+import { originPatternOf } from '../popup/ports'
 
 export interface ManagePorts {
   listTools(): Promise<ToolOverviewItem[]>
@@ -29,6 +33,15 @@ export interface SettingsPorts {
   save(patch: Partial<Settings>): Promise<boolean>
   /** `null` on success, otherwise an `LlmErrorCode` as a string. */
   test(patch: Partial<Settings>): Promise<string | null>
+  /**
+   * Stage 3-2 (the Policy Surface, §7.3): make sure the background may fetch the
+   * endpoint, asking only when the origin is not already granted. A blank endpoint is
+   * the default provider — the store manifest's one static host — so there is nothing to
+   * ask. Must be called from a click handler: `permissions.request` needs a gesture.
+   * `false` means the user declined; the settings still save (they are local), and the
+   * connection test is where the gap becomes visible.
+   */
+  ensureEndpointAccess(endpoint: string): Promise<boolean>
 }
 
 /** Reply codes the panel turns into copy. Stable and English (§7.2). */
@@ -68,6 +81,17 @@ export function createSettingsPorts(adapter: BrowserAdapter): SettingsPorts {
       if (reply === null || reply.kind !== 'llm:connectivity_result') return NO_REPLY
       if (reply.ok) return null
       return reply.error ?? NO_REPLY
+    },
+
+    async ensureEndpointAccess(endpoint: string): Promise<boolean> {
+      const trimmed = endpoint.trim()
+      if (trimmed === '') return true
+      const pattern = originPatternOf(trimmed)
+      // An endpoint that is not an http(s) URL is refused by the storage layer anyway;
+      // there is no origin to ask for and no fetch this page could unlock.
+      if (pattern === null) return true
+      if (await adapter.permissions.contains([pattern])) return true
+      return await adapter.permissions.request([pattern])
     },
   }
 }

@@ -34,6 +34,8 @@ function ports(overrides: Partial<SettingsPorts> = {}): SettingsPorts {
     load: async () => VIEW,
     save: async () => true,
     test: async () => null,
+    // The open-source surface: everything already granted, so no prompt ever fires.
+    ensureEndpointAccess: async () => true,
     ...overrides,
   }
 }
@@ -274,5 +276,87 @@ describe('key lifecycle (AC 4 / friction ceiling)', () => {
     await flush()
 
     expect(test).toHaveBeenCalledTimes(1)
+  })
+})
+
+/**
+ * The endpoint-origin grant — stage 3-2, the Policy Surface (`docs/ARCHITECTURE.md` §7.3).
+ *
+ * The save and test clicks are the gestures the grant rides; the port decides when an
+ * ask is actually needed. What the form owes the user is honesty about a decline: the
+ * settings still save (they are local), and the probe is skipped rather than dressed up
+ * as a network failure.
+ */
+describe('BYOK form — endpoint access (stage 3-2)', () => {
+  it('asks for endpoint access on save and on test, with the endpoint typed', async () => {
+    const ensureEndpointAccess = vi.fn(async () => true)
+    const node = render(<ByokForm ports={ports({ ensureEndpointAccess })} />)
+    await flush()
+
+    setInput(inputWithLabel(node, t('options.byok.key_label')), 'sk-test-abcdef123456')
+    setInput(
+      inputWithLabel(node, t('options.byok.endpoint_label')),
+      'https://api.example.test/v1',
+    )
+
+    act(() => {
+      buttonWith(node, t('options.byok.save')).dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      )
+    })
+    await flush()
+    expect(ensureEndpointAccess).toHaveBeenCalledWith('https://api.example.test/v1')
+
+    act(() => {
+      buttonWith(node, t('options.connectivity.test')).dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      )
+    })
+    await flush()
+    expect(ensureEndpointAccess).toHaveBeenCalledTimes(2)
+  })
+
+  it('skips the probe and says so when the grant is declined', async () => {
+    const test = vi.fn(async () => null)
+    const node = render(
+      <ByokForm ports={ports({ test, ensureEndpointAccess: async () => false })} />,
+    )
+    await flush()
+
+    setInput(inputWithLabel(node, t('options.byok.key_label')), 'sk-test-abcdef123456')
+    setInput(inputWithLabel(node, t('options.byok.endpoint_label')), 'https://api.example.test/v1')
+
+    act(() => {
+      buttonWith(node, t('options.connectivity.test')).dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      )
+    })
+    await flush()
+
+    // The probe never ran: a browser that refused the origin would only have produced a
+    // misleading "network" verdict next to the real answer.
+    expect(test).not.toHaveBeenCalled()
+    expect(node.textContent).toContain(t('options.connectivity.access_denied'))
+    expect(node.querySelector('.jx-options-result--error')).not.toBeNull()
+  })
+
+  it('still saves when the grant is declined — settings are local, the gap shows on test', async () => {
+    const save = vi.fn(async () => true)
+    const node = render(
+      <ByokForm ports={ports({ save, ensureEndpointAccess: async () => false })} />,
+    )
+    await flush()
+
+    setInput(inputWithLabel(node, t('options.byok.key_label')), 'sk-test-abcdef123456')
+    act(() => {
+      buttonWith(node, t('options.byok.save')).dispatchEvent(
+        new MouseEvent('click', { bubbles: true }),
+      )
+    })
+    await flush()
+
+    expect(save).toHaveBeenCalledTimes(1)
+    expect(node.textContent).toContain(t('options.byok.saved'))
+    expect(node.textContent).not.toContain(t('options.connectivity.access_denied'))
   })
 })

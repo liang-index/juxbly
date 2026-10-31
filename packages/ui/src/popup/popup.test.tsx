@@ -40,6 +40,9 @@ function ports(tools: ToolOverviewItem[], overrides: Partial<OverviewPorts> = {}
   return {
     listTools: async () => tools,
     openTab: async () => true,
+    // The open-source surface: the active page needs nothing, so the section never shows.
+    pageToEnable: async () => null,
+    requestSiteAccess: async () => true,
     ...overrides,
   }
 }
@@ -164,6 +167,8 @@ describe('toolbar overview', () => {
             throw new Error('no reply')
           },
           openTab: async () => true,
+          pageToEnable: async () => null,
+          requestSiteAccess: async () => true,
         }}
         helpUrl="#"
         now={NOW}
@@ -213,5 +218,70 @@ describe('toolbar overview', () => {
         (element) => element.textContent?.trim() === t('popup.settings'),
       ),
     ).toBe(false)
+  })
+})
+
+/**
+ * The enable affordance — stage 3-2, the Policy Surface (`docs/ARCHITECTURE.md` §7.3).
+ *
+ * The section is a state, not a mode: it renders only when the active page's origin is
+ * not granted, which makes the open-source build (static `<all_urls>`) and a granted
+ * store build render the identical popup. What the tests pin is the honest states of the
+ * one surface that asks for host access on the user's behalf.
+ */
+describe('popup enable section (stage 3-2)', () => {
+  const PAGE = { host: 'shop.example.com', originPattern: 'https://shop.example.com/*' }
+
+  it('appears only when the active page origin is not granted', async () => {
+    const granted = render(<Popup ports={ports([], { pageToEnable: async () => null })} helpUrl="#" />)
+    await flush()
+    expect(granted.querySelector('.jx-popup-enable')).toBeNull()
+
+    act(() => {
+      root?.unmount()
+    })
+
+    const askable = render(
+      <Popup ports={ports([], { pageToEnable: async () => PAGE })} helpUrl="#" />,
+    )
+    await flush()
+    expect(askable.querySelector('.jx-popup-enable')).not.toBeNull()
+    expect(askable.textContent).toContain('shop.example.com')
+    // The pattern is the platform's unit of grant — never shown to the user as-is.
+    expect(askable.textContent).not.toContain('https://shop.example.com/*')
+  })
+
+  it('asks through the port on click and says what a grant did', async () => {
+    const requestSiteAccess = vi.fn(async () => true)
+    const node = render(
+      <Popup ports={ports([], { pageToEnable: async () => PAGE, requestSiteAccess })} helpUrl="#" />,
+    )
+    await flush()
+
+    const button = node.querySelector('.jx-popup-enable-button')
+    if (button === null) throw new Error('enable button missing')
+    click(button)
+    await flush()
+
+    expect(requestSiteAccess).toHaveBeenCalledWith(PAGE)
+    expect(node.textContent).toContain(t('popup.enable.granted', { host: PAGE.host }))
+    expect(node.querySelector('.jx-popup-enable-button')).toBeNull()
+  })
+
+  it('keeps the ask up after a decline, with the decline in words', async () => {
+    const requestSiteAccess = vi.fn(async () => false)
+    const node = render(
+      <Popup ports={ports([], { pageToEnable: async () => PAGE, requestSiteAccess })} helpUrl="#" />,
+    )
+    await flush()
+
+    const button = node.querySelector('.jx-popup-enable-button')
+    if (button === null) throw new Error('enable button missing')
+    click(button)
+    await flush()
+
+    expect(node.textContent).toContain(t('popup.enable.declined'))
+    // A decline is not a wall: the request can be made again.
+    expect(node.querySelector('.jx-popup-enable-button')).not.toBeNull()
   })
 })

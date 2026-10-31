@@ -5,7 +5,7 @@ import type { ToolCategory } from '@juxbly/dsl'
 import { t } from '../copy'
 import { categoryColor } from '../run/category'
 import { relativeTime } from '../run/result-header'
-import type { OverviewPorts } from './ports'
+import type { EnablePage, OverviewPorts } from './ports'
 import { overviewRows, statusColor, statusCopyKey } from './tool-list'
 
 /**
@@ -46,6 +46,10 @@ export function Popup({ ports, now, helpUrl, settingsUrl }: PopupProps): ReactNo
   const [query, setQuery] = useState('')
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(false)
+  // The enable affordance (stage 3-2): the page asking for access, or none. `null` hides
+  // the section — granted, no visible URL, or still loading all read as "nothing to ask".
+  const [page, setPage] = useState<EnablePage | null>(null)
+  const [ask, setAsk] = useState<'idle' | 'asking' | 'granted' | 'declined'>('idle')
 
   useEffect(() => {
     let live = true
@@ -61,6 +65,16 @@ export function Popup({ ports, now, helpUrl, settingsUrl }: PopupProps): ReactNo
         setLoaded(true)
         setFailed(true)
       })
+    void ports
+      .pageToEnable()
+      .then((enable) => {
+        if (live) setPage(enable)
+      })
+      .catch(() => {
+        // A failed probe hides the section: a popup that cannot see the page has no
+        // business offering access to it.
+        if (live) setPage(null)
+      })
     return () => {
       live = false
     }
@@ -72,6 +86,16 @@ export function Popup({ ports, now, helpUrl, settingsUrl }: PopupProps): ReactNo
   const open = (tool: ToolOverviewItem): void => {
     void ports.openTab(tool.url).then((ok) => {
       if (!ok) setFailed(true)
+    })
+  }
+
+  const enable = (): void => {
+    if (page === null) return
+    setAsk('asking')
+    void ports.requestSiteAccess(page).then((granted) => {
+      // A grant ends the section's job for this open; a decline keeps it up so the
+      // request can be made again.
+      setAsk(granted ? 'granted' : 'declined')
     })
   }
 
@@ -89,6 +113,29 @@ export function Popup({ ports, now, helpUrl, settingsUrl }: PopupProps): ReactNo
         aria-label={t('popup.search_aria')}
         onChange={(event) => setQuery(event.target.value)}
       />
+
+      {page === null ? null : (
+        <section className="jx-popup-enable" aria-label={t('popup.enable.aria')}>
+          {ask === 'granted' ? (
+            <p className="jx-popup-enable-note">{t('popup.enable.granted', { host: page.host })}</p>
+          ) : (
+            <>
+              <p className="jx-popup-enable-note">{t('popup.enable.body', { host: page.host })}</p>
+              <button
+                type="button"
+                className="jx-popup-enable-button"
+                disabled={ask === 'asking'}
+                onClick={enable}
+              >
+                {t('popup.enable.button')}
+              </button>
+              {ask === 'declined' ? (
+                <p className="jx-popup-enable-note">{t('popup.enable.declined')}</p>
+              ) : null}
+            </>
+          )}
+        </section>
+      )}
 
       {rows.length === 0 ? (
         <p className="jx-popup-empty">

@@ -23,6 +23,12 @@ export interface MockAdapterOptions {
   onSend?: (message: ExtensionMessage) => unknown
   /** Reply for `messaging.captureTab`; tests use a short data URL. */
   screenshot?: string
+  /**
+   * Origin patterns already granted, as `permissions.contains` sees them (stage 3-2).
+   * A `permissions.request` always grants and adds to this set — the mock stands for the
+   * platform's Allow path; a test of the denied path builds its own port.
+   */
+  grantedOrigins?: readonly string[]
 }
 
 export interface MockAdapter extends BrowserAdapter {
@@ -30,6 +36,8 @@ export interface MockAdapter extends BrowserAdapter {
   readonly calls: readonly MockCall[]
   /** Current storage contents, for assertions that do not want to go through `get`. */
   readonly data: ReadonlyMap<string, unknown>
+  /** Origin patterns granted so far — the `permissions` port's state, readable directly. */
+  readonly grantedOrigins: readonly string[]
   /** Deliver a pushed message to every current `messaging.onMessage` listener. */
   emitIncoming(message: unknown): void
 }
@@ -38,6 +46,7 @@ export function createMockAdapter(options: MockAdapterOptions = {}): MockAdapter
   const data = new Map<string, unknown>(Object.entries(options.storage ?? {}))
   const calls: MockCall[] = []
   const incoming: Array<(message: unknown) => void> = []
+  const granted = new Set<string>(options.grantedOrigins ?? [])
 
   const record = (method: string, ...args: readonly unknown[]): void => {
     calls.push({ method, args })
@@ -46,6 +55,9 @@ export function createMockAdapter(options: MockAdapterOptions = {}): MockAdapter
   return {
     calls,
     data,
+    get grantedOrigins(): readonly string[] {
+      return [...granted]
+    },
 
     emitIncoming(message: unknown): void {
       for (const listener of [...incoming]) listener(message)
@@ -99,6 +111,19 @@ export function createMockAdapter(options: MockAdapterOptions = {}): MockAdapter
       async captureTab(): Promise<string> {
         record('messaging.captureTab')
         return options.screenshot ?? ''
+      },
+    },
+
+    permissions: {
+      async contains(origins: readonly string[]): Promise<boolean> {
+        record('permissions.contains', origins)
+        return origins.every((origin) => granted.has(origin))
+      },
+
+      async request(origins: readonly string[]): Promise<boolean> {
+        record('permissions.request', origins)
+        for (const origin of origins) granted.add(origin)
+        return true
       },
     },
   }

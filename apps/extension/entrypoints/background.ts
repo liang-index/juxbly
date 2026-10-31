@@ -21,6 +21,7 @@ import {
   isSettingsManage,
   isSettingsSet,
   isStatsGet,
+  isTabActiveUrl,
   isTabOpen,
   isToolList,
 } from '@juxbly/core'
@@ -40,6 +41,7 @@ import type {
   SettingsManageResultMessage,
   SettingsSetResultMessage,
   StatsGetResultMessage,
+  TabActiveUrlResultMessage,
   TabOpenResultMessage,
   ToolDeleteResultMessage,
   ToolGetResultMessage,
@@ -173,6 +175,13 @@ export default defineBackground(() => {
     // is decided here, only which tab already shows the page.
     if (isTabOpen(message)) {
       return handleTabOpen(message.url)
+    }
+
+    // Stage 3-2: the popup's "enable on this page". The URL comes back unfiltered — the
+    // popup derives the origin it asks for, and a URL that is not visible (an ungranted
+    // page, a chrome:// page) reads as `null`, never as a guess.
+    if (isTabActiveUrl(message)) {
+      return handleTabActiveUrl()
     }
 
     if (isRecord(message, 'run:query_tools') && typeof message.url === 'string') {
@@ -395,6 +404,21 @@ function sameHost(candidate: string | undefined, target: URL): boolean {
   } catch {
     return false
   }
+}
+
+/**
+ * The active tab's URL for the popup's "enable on this page" (stage 3-2, §7.3).
+ *
+ * The same sanctioned `tabs` use as `handleTabOpen` — a read, no filter, no `tabs`
+ * permission. Opening the popup is an action click, so `activeTab` makes the active
+ * tab's URL visible even in the store build, where no static host permission covers it;
+ * a URL that is not visible comes back as `null` and the popup hides the enable afford
+ * instead of guessing an origin.
+ */
+export async function handleTabActiveUrl(): Promise<TabActiveUrlResultMessage> {
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true })
+  const url = typeof tab?.url === 'string' ? tab.url : null
+  return { kind: 'tab:active_url_result', url }
 }
 
 export async function handleRunQueryTools(url: string): Promise<{
