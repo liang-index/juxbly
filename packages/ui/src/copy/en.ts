@@ -55,6 +55,18 @@ export const en = {
       broken: 'No longer reading this page',
     },
     never_used: 'Not used yet',
+    // Stage 3-2 (the Policy Surface, §7.3): the enable affordance. It renders only when
+    // the page's origin is not granted, so on a fully-granted open-source build this
+    // section never appears. The copy states what a grant covers — this site, not the
+    // web — and what to do if the ball does not appear (whether the platform injects
+    // into the open tab on grant or on reload, "reload if it is missing" is true).
+    enable: {
+      aria: 'Enable Juxbly on this site',
+      body: 'Juxbly is not enabled on {host} yet. Allowing it covers this site only.',
+      button: 'Enable on this page',
+      granted: 'Enabled on {host}. Reload the page if the ball does not appear.',
+      declined: 'Not enabled — the request was declined. You can ask again.',
+    },
   },
   options: {
     heading: 'Juxbly settings',
@@ -104,6 +116,11 @@ export const en = {
       network: 'The endpoint could not be reached. Check your connection, then try again.',
       endpoint: 'The endpoint answered, but not as an OpenAI-compatible API. Check the endpoint and model.',
       unknown: 'The test did not finish. Try again.',
+      // Stage 3-2: a declined endpoint-origin request is not a network failure — the
+      // browser never let the request leave, so the probe is skipped and this is the
+      // whole answer. The next Test click asks again.
+      access_denied:
+        'Juxbly was not given access to this endpoint. Allow the request on the next test, or clear the endpoint to use the default.',
       // The result is information, never a gate (edge cases: an offline user still configures).
       not_saved: 'You can still save this and test later.',
     },
@@ -130,6 +147,23 @@ export const en = {
       confirm_ok: 'Remove',
       cancel: 'Keep',
       delete_failed: 'That could not be removed. Try again.',
+    },
+    /**
+     * The preset pack (stage 3-2 Track B): ready-made tools for named pages. The copy
+     * promises only what each card's own data states — the site it runs on and what it
+     * collects — and never a page shape beyond the two the launch promises (A and D).
+     */
+    presets: {
+      heading: 'Ready-made tools',
+      // What installing means, stated plainly: a tool appears, a site is allowed.
+      note: 'Working tools for specific pages, built and verified on the live page. Installing adds the tool and allows Juxbly on that site.',
+      install: 'Add',
+      install_aria: 'Add {title}',
+      installing: 'Adding…',
+      added: 'Added',
+      // A declined origin is a decision, reported as one — not an error to retry blindly.
+      access_denied: 'Not added — the site was not allowed. You can ask again.',
+      failed: 'That could not be added. Try again.',
     },
     /**
      * The version identity (stage 1-16): present so a bug report can name a build, and
@@ -271,6 +305,10 @@ export const en = {
     // 0 rows is an answer, not a failure (§7): no error colour, no apology.
     empty: 'Nothing on this page matched this tool.',
     empty_hint: 'If the page has changed, refresh to look again.',
+    // No tool at all — only ever seen right after a save whose URL pattern points
+    // elsewhere, so the hint names that instead of pretending the save failed.
+    no_tool: 'No tool on this page yet.',
+    no_tool_hint: 'The tool you just saved matches a different URL. Open it there, or build one for this page.',
     stale: 'Showing the last result — this run did not finish.',
     error: 'This run did not finish.',
     error_next: 'Refresh to try again.',

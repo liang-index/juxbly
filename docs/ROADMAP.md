@@ -13,8 +13,10 @@ entering one, is a contract change and follows
 [`contributing/DOC_CHANGE_PROTOCOL.md`](contributing/DOC_CHANGE_PROTOCOL.md).
 
 **Current position** — Phase 0 is complete: the repository clones, builds, and is ready for
-a first contribution. Phase 1 is under way; the Tool DSL (`packages/dsl`) and the core
-contracts (`packages/core`) have landed.
+a first contribution. Phase 1 is complete: the whole tool lifecycle runs end to end
+(`pnpm test:e2e`). Phase 2 is complete: a 56-case corpus, a runner with replayable digests,
+and field-level scoring. Phase 3 is entered on its first gate — build success — and held on
+its second — field-level F1, which is not yet met (see the entry condition below).
 
 ---
 
@@ -97,8 +99,75 @@ lives in the config panel).
 
 ## Phase 3 — dogfooding and Chrome Web Store release
 
-Entry condition: Build Success Rate reaches an honest publishable baseline. The threshold
-comes out of the Phase 2 data and is not set in advance.
+Entry condition — **two gates, staged** (Maintainer ruling 2026-09-20). Each is read as the
+median of two runs of one configuration (`docs/benchmark/README.md`, "Taking a reading"):
+
+| Gate | Holds back | Threshold | Reading of 2026-09-20 |
+|---|---|---|---|
+| Build Success Rate | **3-1 dogfooding** | ≥ 85% | 92.0% — met, as the median of two runs |
+| Field-level F1 | **3-3 store release** | ≥ 47% — the 43.1% of the current configuration plus one 4pp noise band | 43.1% — **not met** |
+
+A tool that builds but returns the wrong fields is good enough to learn from and not good
+enough to promise to strangers, so the two gates sit at different points rather than both at
+the door: build success decides whether the maintainer can start using it, field F1 decides
+whether it can be released. Dogfooding is also the only source of the real-usage signal that
+Phase 4 is conditioned on, and holding it behind a lab metric read on 56 cases would trade a
+decision made on evidence for a decision made on a proxy.
+
+Two gates because build success alone is not enough: on the 56-case corpus 92% of tools
+build while the asked-for fields arrive at F1 43.1%. A build-only gate, on its own, admits a
+tool that runs and returns the wrong thing — which is why field F1 still gates the release
+instead of being dropped.
+
+Both numbers come out of the Phase 2 data, which is what "not set in advance" meant; the
+*rule* — median of two runs, threshold = baseline plus one noise band — was fixed before
+the next run was taken. Baseline and band are re-measured whenever the corpus revision
+changes, because a threshold measured against a corpus that has since been re-captured is
+a threshold against a different ruler. That is not hypothetical: on 2026-09-20 six
+single-field cases were added (the old corpus had seven, too thin to support any
+field-count claim), the corpus moved from 50 to 56 cases, and the baseline moved with it,
+38.0% → 43.1% on an engine that had not changed. The increase is a property of the corpus
+— the new cases are well-defined single-field tasks, and single-field reads 65.4% — so it
+is recorded as a new ruler, not as progress. The readings:
+`tests/benchmark/reports/attribution-2026-09-20-single-field.md`.
+
+**Maintainer ruling 2026-10-31 — the F1 gate reads met, 3-3 is unblocked.** A live reading
+of the current engine — which by then carried `attr`, per-field `capture` transforms, and
+two build-compliance fixes the reading itself produced — put field F1 at 47.8% / 47.1%:
+median **47.4% ≥ 47%**, spread 0.7pp, both runs individually above the line, on the same
+corpus, the same scorer, no ruler change. The route underneath the model id drifted since
+the baseline (native `deepseek-chat` vs the September `deepseek/deepseek-chat` route); the
+reading is the engine-and-model pair as it exists today, disclosed rather than normalized.
+Build success read 76.8%, not the 92.0% of September — the drifted snapshot is worse at
+compliance, and its measured residue (transform values written as bare objects, empty
+replies that exhausted the single retry, `attr` without a `field_attrs` entry, duplicated
+`output_to`) is a robustness track ahead of 3-2, not a ruler question. The same memo
+measured the gate-realignment option (re-deriving the gate on the promised `A`/`D` shapes)
+and it was withdrawn: the measurement did the work the ruler change would have claimed.
+Evidence and failure attribution: `tests/benchmark/reports/attribution-2026-10-31-f1-ceiling.md` §8.
+
+By bucket, the same two readings put `A` at 64.7% and `D` at 55.9%, `B` at 21.3% and `E`
+at 18.4%, with `C` at 41.6% but spread 9.4pp across the two runs — wider than the 8pp
+rule, so `C` is not a reading at this corpus size. The bucket split is descriptive and is
+what the preset-pack cut below is based on; the gate itself stays corpus-wide, because a
+per-bucket gate at 9-14 cases a bucket would gate on noise.
+
+The launch commitment follows the same split (Maintainer ruling 2026-09-22): the store
+release promises the `A` and `D` page shapes only — the two buckets that read near-usable —
+while `B` (SPA) and `E` (hashed classes) are explicitly not promised in copy or UI, and `C`
+(shadow DOM) stays best-effort. This narrows the promise, not the product or the TAM:
+engine-side improvements to `B`/`C`/`E` still land, and widening the promise re-measures the
+gate under the same rule.
+
+Field-level F1 has not moved outside the noise band under any change tried so far: five
+prompt-side runs of the previous corpus (35.9% – 38.8%), both engine-side variants of
+2026-09-19 (negative), a widened field-candidate menu (2026-09-22: +2.7pp, inside the 4pp
+band — though the share of fields taken from the offered menu rose 57.5% → 78.0%), and a
+closed-loop repair round that proved inert (in a paired per-case analysis the correction
+changed extraction behavior in only 1 of 82 paired cases). The cheap engine-side experiment
+series is therefore closed: reaching 47% now requires an architecture-level change — for
+example, a restricted operator pipeline in the DSL — which is a Maintainer decision, not
+another prompt or selection rule.
 
 - 3-1 maintainer dogfooding, with real usage data feeding back; the best tools built during
   dogfooding become curated **preset seeds** (each runs, has a benchmark case, and passes
@@ -106,11 +175,12 @@ comes out of the Phase 2 data and is not set in advance.
 - 3-2 store build (the Policy Surface narrows permissions and capabilities from the same
   core; CWS review limits do not constrain the open-source core)
 - 3-3 CWS submission and release (store copy follows the copy discipline: no
-  "universal scraper" style promises). The release ships with a small curated **launch
-  preset pack** (~10 presets, quality gate over count), a launch-week push across free
-  channels (Show HN, Product Hunt, Reddit, GitHub), and post-release observation of the
-  onboarding funnel (install → key setup → first build) using store signals only — no
-  in-product telemetry
+  "universal scraper" style promises, and per the 2026-09-22 shape ruling the copy and
+  the preset pack promise `A`/`D` page shapes only). The release ships with a small
+  curated **launch preset pack** (~10 presets, quality gate over count, drawn from
+  `A`/`D`-shape sites), a launch-week push across free channels (Show HN, Product Hunt,
+  Reddit, GitHub), and post-release observation of the onboarding funnel (install → key
+  setup → first build) using store signals only — no in-product telemetry
 
 ---
 
@@ -149,6 +219,7 @@ not narrow because of commercialisation** (the Policy Surface principle holds).
 
 | Gate | Condition |
 |---|---|
-| Phase 2 → 3 | Build Success Rate reaches an honest baseline |
+| Phase 2 → 3-1 (dogfooding) | Build Success Rate ≥ 85%, the median of two runs of one configuration (92.0% on the 56-case corpus of 2026-09-20 — met) |
+| 3-1 → 3-3 (store release) | field-level F1 ≥ 47%, the median of two runs of one configuration (baseline 43.1% on the same corpus, plus one 4pp noise band — **met 2026-10-31**, median 47.4%, see the ruling under Phase 3) |
 | Phase 3 → 4 | real usage data has identified the golden scenarios |
 | Phase 4 → 5 | stable readings on 7/30-day tool repeat usage, time-to-first-tool, Tool Health false-positive rate, and repair success rate |

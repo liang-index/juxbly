@@ -20,6 +20,7 @@
 import type { CapabilityDefinition, CapabilityInput, DomPort, ExtractResult } from '@juxbly/core'
 import type { ExtractStep, PreScroll } from '@juxbly/dsl'
 import { CapabilityError } from '../errors'
+import { assertTransformPatternsSafe } from './field-transform'
 import { extractList, extractSingle, summarizeFields } from './modes'
 
 /** Mirrors §5.4 rule 4: the DSL validator caps `max` at 10, so the implementation does too. */
@@ -31,7 +32,8 @@ export { MAX_ITEMS, extractList, extractSingle, summarizeFields } from './modes'
 export type { ModeOutcome } from './modes'
 export { MAX_SHADOW_DEPTH, classifyQueryError, queryAll } from './query'
 export type { ExtractedImage, FieldValue } from './field-value'
-export { emptyFieldValue, hasValue, readFieldValue } from './field-value'
+export { emptyFieldValue, hasValue, isCredentialAttribute, readFieldValue } from './field-value'
+export { applyFieldTransforms, assertTransformPatternsSafe } from './field-transform'
 
 /**
  * Runs one `extract` step.
@@ -45,6 +47,10 @@ export async function runExtract(
   signal?: AbortSignal,
 ): Promise<ExtractResult> {
   const { step } = input
+
+  // A pattern that validation would have refused must not reach the first row: this is
+  // the capability's own fence for callers that bypass `validateToolDefinition`.
+  assertTransformPatternsSafe(step)
 
   // Preparation before the snapshot: rows that only exist after a scroll must be in the
   // document *before* the container set is read, or the tool silently collects page one.
@@ -109,6 +115,8 @@ export const extractCapability: CapabilityDefinition<CapabilityInput<ExtractStep
           selector: { type: 'string' },
           fields: { type: 'object', additionalProperties: { type: 'string' } },
           field_types: { type: 'object' },
+          field_attrs: { type: 'object', additionalProperties: { type: 'string' } },
+          field_transforms: { type: 'object' },
           pre_scroll: {
             type: 'object',
             properties: { mode: { enum: ['to_bottom'] }, max: { type: 'integer' }, settle_ms: { type: 'integer' } },

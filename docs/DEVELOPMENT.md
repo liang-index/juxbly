@@ -52,6 +52,7 @@ Then open any page with repeating structure (Hacker News is a good first target)
 | `pnpm test` | Vitest unit + integration |
 | `pnpm test:e2e` | the whole tool lifecycle in a real browser with the unpacked extension (builds first). Needs Playwright once per machine — see [Testing](#testing) |
 | `pnpm test:bench` | local web benchmark (from stage 2-3) |
+| `pnpm dogfood -- --url <page> --task "<request>"` | one pass against a **live** site with a **live** model, driven like a person (stage 3-1). Needs `JX_API_KEY`; see [Dogfooding](#dogfooding) |
 
 ## Repository layout
 
@@ -148,6 +149,38 @@ To walk the same path by hand instead, serve the pages and drive it yourself:
 ```bash
 pnpm --filter @juxbly/playground serve   # /lifecycle.html, /pages/*, recorded model at /v1
 ```
+
+### Dogfooding
+
+```bash
+pnpm build
+JX_API_KEY=sk-... pnpm dogfood -- --url https://books.toscrape.com/ \
+  --task "Collect every book: the title, the price, whether it is in stock, and its star rating."
+```
+
+Stage 3-1's input. The benchmark replays frozen snapshots against recorded answers, so it can
+only find again what it has already seen; dogfooding is the built extension on a page that is
+live right now, against a model that is answering right now. Everything it types and clicks is
+something a person can type and click — except the BYOK endpoint, written to storage because
+configuring it by hand is option work, not part of a pass.
+
+Each pass writes three artefacts into `.dogfood/<timestamp>-<host>` (gitignored): screenshots
+of the proposal and the result, the saved tool record, and a `report.json` carrying the rows,
+the sample, the wall-clock timings, the token counts the UI showed, and any page error. The
+token and latency lines exist because the first dogfooding run had neither, which made two
+runs of the same request incomparable — the steps call an endpoint the user pays for.
+
+```bash
+JX_API_BASE_URL=https://api.deepseek.com/v1   # default. Any OpenAI-compatible endpoint.
+JX_MODEL=deepseek-chat                        # default
+JUXBLY_PLAYWRIGHT_HOME=<dir with node_modules>  # reuse an existing Playwright
+```
+
+Nothing in `.dogfood/` is publishable: it is live page content. A recipe is authored from a
+pass afterwards, by hand, and checked against
+[`contributing/RECIPE_GUIDE.md`](contributing/RECIPE_GUIDE.md) before it lands. The write-up
+of what a pass found goes to `tests/benchmark/reports/dogfood-<date>.md`, which *is*
+committed — it is a person's record, not a run.
 
 ## Before you open a PR
 

@@ -6,8 +6,9 @@ import { FeedbackEntry } from '../feedback/feedback-entry'
 import { relativeTime } from '../run/result-header'
 import type { ManagePorts } from './ports'
 import { ByokForm } from './byok-form'
+import { PresetPack } from './preset-pack'
 import { VersionBadge } from './version-badge'
-import type { SettingsPorts } from './ports'
+import type { PresetPackPorts, SettingsPorts } from './ports'
 
 /**
  * The options page — `task/stage-1-13.md` Scope 4 / 5, `docs/UI_SPEC.md` §7.2 / §7.4.
@@ -22,10 +23,15 @@ import type { SettingsPorts } from './ports'
  * wants to report something needs to be able to say *which build* it was, and needs
  * somewhere to put it. The version is a label, not a brand; the feedback entry attaches
  * nothing on its own.
+ *
+ * Stage 3-2 adds the preset pack between configuration and usage: it is how a tool
+ * arrives without being built, and it belongs above the numbers that count what arrived.
  */
 export interface OptionsProps {
   settings: SettingsPorts
   manage: ManagePorts
+  /** Stage 3-2 Track B: the packed recipes, injected by the entrypoint. */
+  presets: PresetPackPorts
   /** Injected so relative times are a pure function of two numbers in tests. */
   now?: number | undefined
   /** The extension's manifest version; the badge names it so a report can too. */
@@ -34,11 +40,12 @@ export interface OptionsProps {
   clipboard?: { writeText(text: string): Promise<void> }
 }
 
-export function Options({ settings, manage, now, version, clipboard }: OptionsProps): ReactNode {
+export function Options({ settings, manage, presets, now, version, clipboard }: OptionsProps): ReactNode {
   return (
     <main className="jx-options">
       <h1 className="jx-options-title">{t('options.heading')}</h1>
       <ByokForm ports={settings} />
+      <PresetPack ports={presets} />
       <BallToggle ports={settings} />
       <UsagePanel manage={manage} now={now} />
       {version === undefined ? null : <VersionBadge version={version} />}

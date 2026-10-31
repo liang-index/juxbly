@@ -1,0 +1,49 @@
+{
+  "id": "E-12",
+  "url": "https://chakra-ui.com/docs/components/checkbox",
+  "bucket": "E",
+  "capturedAt": "2026-09-20T12:27:44.797Z",
+  "sizeBytes": 408154,
+  "verifiedOn": "2026-09-20",
+  "title": "Checkbox | Chakra UI",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.86",
+    "hashedClassTokens": 202,
+    "hashedClassRatio": 0.856,
+    "classTokenCount": 236,
+    "hashedSample": [
+      "css-1w34jeo",
+      "css-7kbzwh",
+      "css-q3f7mg",
+      "css-1al0h7p",
+      "css-1c2qtkg"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 36272,
+    "assetCount": 1,
+    "nodeCount": 2380,
+    "shadowRootCount": 1,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 236,
+    "hashedClassTokens": 202,
+    "maxRepeatingCount": 257
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-20"
+  },
+  "robots": {
+    "status": "unavailable",
+    "rule": null,
+    "url": "https://chakra-ui.com/robots.txt"
+  },
+  "notes": "Single-field coverage for E: 86% of class tokens are generated, the highest ratio measured in the bucket.",
+  "personalDataHits": []
+}

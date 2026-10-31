@@ -101,6 +101,18 @@ export type ExtensionMessage =
    * report "v2 is live" instead of a bare yes.
    */
   | { kind: 'build:save_tool_result'; ok: boolean; version?: number; error?: string }
+  /**
+   * Stage 3-2 Track B: installing a preset from the pack (options page → background).
+   *
+   * The definition travels like any other save — bundled data is still data that crossed
+   * a trust boundary, so the background re-validates it with the same §5.4 gate before
+   * writing. There is no repair and no confirmation flow: a preset is a curated v1, and
+   * installing it twice answers `ALREADY_INSTALLED` rather than silently stacking an
+   * identical version onto the history.
+   */
+  | { kind: 'preset:install'; tool: ToolDefinition }
+  | { kind: 'preset:install_result'; ok: boolean
+      ; error?: 'VALIDATION_FAILED' | 'ALREADY_INSTALLED' | 'SAVE_FAILED' }
   // Run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
@@ -228,6 +240,16 @@ export type ExtensionMessage =
    */
   | { kind: 'tab:open'; url: string }
   | { kind: 'tab:open_result'; ok: boolean; error?: string }
+  /**
+   * Stage 3-2 (the Policy Surface, ARCHITECTURE §7.3): the popup's "enable on this page"
+   * needs the active tab's URL to name the origin it is about to ask for. Reading it is
+   * the same sanctioned `tabs` use as `tab:open` — the assembly layer asks the platform,
+   * and `activeTab` (granted by the very click that opened the popup) makes the URL
+   * visible without a `tabs` permission. `null` means no URL is visible (an ungranted
+   * page the popup has no business offering to enable).
+   */
+  | { kind: 'tab:active_url' }
+  | { kind: 'tab:active_url_result'; url: string | null }
   // Health (content script → background; the semantic check calls the model, key stays in background)
   | { kind: 'health:semantic_check'; requestId: string; fields: string[]; sample: unknown[] }
   | {
@@ -435,6 +457,10 @@ export type OnboardingSetResultMessage = Extract<ExtensionMessage, {
 export type ToolListResultMessage = Extract<ExtensionMessage, { kind: 'tool:list_result' }>
 export type TabOpenMessage = Extract<ExtensionMessage, { kind: 'tab:open' }>
 export type TabOpenResultMessage = Extract<ExtensionMessage, { kind: 'tab:open_result' }>
+export type TabActiveUrlMessage = Extract<ExtensionMessage, { kind: 'tab:active_url' }>
+export type TabActiveUrlResultMessage = Extract<ExtensionMessage, {
+  kind: 'tab:active_url_result'
+}>
 export type SettingsGetResultMessage = Extract<ExtensionMessage, { kind: 'settings:get_result' }>
 export type SettingsSetMessage = Extract<ExtensionMessage, { kind: 'settings:set' }>
 export type SettingsSetResultMessage = Extract<ExtensionMessage, { kind: 'settings:set_result' }>
@@ -457,6 +483,11 @@ export type BuildProposeMessage = Extract<ExtensionMessage, { kind: 'build:propo
 export type BuildProposeResultMessage = Extract<ExtensionMessage, { kind: 'build:propose_result' }>
 export type BuildSaveToolMessage = Extract<ExtensionMessage, { kind: 'build:save_tool' }>
 export type BuildSaveToolResultMessage = Extract<ExtensionMessage, { kind: 'build:save_tool_result' }>
+export type PresetInstallMessage = Extract<ExtensionMessage, { kind: 'preset:install' }>
+export type PresetInstallResultMessage = Extract<
+  ExtensionMessage,
+  { kind: 'preset:install_result' }
+>
 
 /**
  * Messages cross a trust boundary: anything that arrives over the runtime message
@@ -538,6 +569,16 @@ export function isBuildSaveTool(message: unknown): message is BuildSaveToolMessa
 }
 
 /**
+ * Stage 3-2 Track B. The `tool` payload is **not** shape-checked beyond its presence —
+ * a nested ToolDefinition re-validated field by field here would duplicate §5.4, and the
+ * background handler runs the real `validateToolDefinition` before anything is written.
+ * The guard answers "is this an install request", never "is this a valid tool".
+ */
+export function isPresetInstall(message: unknown): message is PresetInstallMessage {
+  return hasKind(message, 'preset:install')
+}
+
+/**
  * Settings writes are a patch, so the only thing worth checking beyond `kind` is that a
  * patch arrived at all: an empty object is a no-op, not an error, and the storage layer
  * merges it.
@@ -602,6 +643,10 @@ export function isTabOpen(message: unknown): message is TabOpenMessage & { url: 
   } catch {
     return false
   }
+}
+
+export function isTabActiveUrl(message: unknown): message is TabActiveUrlMessage {
+  return hasKind(message, 'tab:active_url')
 }
 
 /**

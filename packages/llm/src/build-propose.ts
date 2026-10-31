@@ -20,19 +20,39 @@ import type {
   Logger,
   PageAnalysis,
 } from '@juxbly/core'
-import type { ToolDefinition } from '@juxbly/dsl'
+import type { ExtractStep, ToolDefinition } from '@juxbly/dsl'
 import { loadSettings } from '@juxbly/storage'
 import { buildPrompt, buildVisionMessages, DEFAULT_SYSTEM_PROMPT, stringifyData } from './build-prompt'
+import { describePage, type PageView } from './page-view'
 import { callLlm, DEFAULT_API_BASE_URL, modelOrDefault } from './client'
 import type { LlmFetch } from './client'
 import { isLlmError } from './errors'
 
 const log: Logger = createLogger('BUILD')
 
+/** How many times an empty completion is retried before the panel sees `EMPTY_REPLY`. */
+const EMPTY_REPLY_RETRIES = 2
+
 export interface BuildProposeDeps {
   fetchImpl?: LlmFetch
   logger?: Logger
   timeoutMs?: number
+  /**
+   * Which representation of the page the model is shown (§9.1). Absent means the shipped
+   * one, so the product is unchanged; the Phase 2 benchmark passes `flat` to test whether
+   * choosing from a numbered list beats composing a selector.
+   */
+  pageView?: PageView
+  /**
+   * Closed-loop repair (Round B): the model sees what its own extract step actually
+   * pulled off the page and returns corrected candidates. In-process only — the wire
+   * message is unchanged, exactly like `pageView`. `sampleRows` are page content and go
+   * into the data section (§ red line: page content is data, never instruction).
+   */
+  repair?: {
+    draft: ToolDefinition
+    sampleRows: readonly Record<string, unknown>[]
+  }
 }
 
 /** Never rejects: the panel is waiting on a reply, and a throw would look like nothing happened. */
@@ -58,12 +78,24 @@ export async function handleBuildPropose(
     // request, so a saved key always has something to run against (see `client.ts`).
     if (apiKey.trim() === '') return fail('NOT_CONFIGURED')
 
+    const view = deps.pageView ?? 'summary'
+    const repair = deps.repair
     const instruction = buildInstruction({
       conversation,
       pageAnalysis,
       conservative: conservative === true,
       noMoreQuestions: noMoreQuestions === true,
+      view,
+      ...(repair === undefined ? {} : { repair: true }),
     })
+
+    const pageData = describePage(pageAnalysis, view)
+    // The dry-run observation rides in the data section next to the page: it is page
+    // content the model must read as data, never as instruction.
+    const data =
+      repair === undefined
+        ? pageData
+        : { page: pageData, dryRun: describeDryRun(repair.draft, repair.sampleRows) }
 
     const messages =
       typeof screenshot === 'string' && screenshot !== ''
@@ -71,22 +103,36 @@ export async function handleBuildPropose(
         : buildPrompt({
             system: DEFAULT_SYSTEM_PROMPT,
             instruction,
-            data: stringifyData(summarizeAnalysis(pageAnalysis)),
+            data: stringifyData(data),
           })
 
-    const response = await callLlm(
-      {
-        endpoint: {
-          baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL,
-          apiKey,
-          model: modelOrDefault(settings?.model),
-        },
-        messages,
-        responseFormat: 'json',
-        ...(deps.timeoutMs === undefined ? {} : { timeoutMs: deps.timeoutMs }),
+    const request = {
+      endpoint: {
+        baseUrl: settings?.api_base_url ?? DEFAULT_API_BASE_URL,
+        apiKey,
+        model: modelOrDefault(settings?.model),
       },
-      { ...(deps.fetchImpl === undefined ? {} : { fetchImpl: deps.fetchImpl }), logger },
-    )
+      messages,
+      responseFormat: 'json',
+      ...(deps.timeoutMs === undefined ? {} : { timeoutMs: deps.timeoutMs }),
+    } as const
+    const clientDeps = { ...(deps.fetchImpl === undefined ? {} : { fetchImpl: deps.fetchImpl }), logger }
+
+    let response = await callLlm(request, clientDeps)
+    // Live endpoints occasionally return a completion with no content at all — the
+    // 2026-10-31 gate reading lost 3 of 56 cases to it, all transient (the same case
+    // built fine seconds later). Retries, and only on an empty reply: a reply that
+    // parsed but offered no candidates is the model's decision, not a transport fault.
+    // Two retries — across that reading's two runs, 5 cases still died to an empty
+    // reply even after the single retry.
+    for (
+      let retries = 0;
+      retries < EMPTY_REPLY_RETRIES &&
+      (typeof response.output !== 'object' || response.output === null);
+      retries += 1
+    ) {
+      response = await callLlm(request, clientDeps)
+    }
 
     const reply = readReply(response.output, new Date().toISOString())
     // A reply we could not read is a failure, not an empty success: `ok` is what the panel
@@ -98,7 +144,7 @@ export async function handleBuildPropose(
       kind: 'build:propose_result',
       requestId,
       ok: true,
-      ...reply,
+      ...('candidates' in reply ? { candidates: resolveRefs(reply.candidates, pageAnalysis, view) } : reply),
       usage: response.usage,
     }
   } catch (error: unknown) {
@@ -131,6 +177,7 @@ function readReply(
 
   const candidates = raw
     .filter((candidate): candidate is Record<string, unknown> => typeof candidate === 'object' && candidate !== null)
+    .map(normalizeTransforms)
     .map((candidate) => completeDraft(candidate, now))
     .map((candidate) => candidate as unknown as ToolDefinition)
 
@@ -152,11 +199,58 @@ function completeDraft(candidate: Record<string, unknown>, now: string): Record<
   }
 }
 
+/**
+ * A transform pipeline written as a bare op object becomes a one-op list.
+ *
+ * The 2026-10-31 gate reading lost 4 builds to one transcription slip: the model wrote
+ * `"field_transforms": {"rating": {"op": "capture", …}}` where the DSL declares an array
+ * of ops — and the prompt's own example showed the bare form. A single op object carries
+ * the same meaning as a one-op list, so it is wrapped here, at the same boundary that
+ * fills `version`. The validator itself stays strict (§5.4 unchanged); anything that is
+ * not a bare op record is left for it to report.
+ */
+function normalizeTransforms(candidate: Record<string, unknown>): Record<string, unknown> {
+  const steps = candidate['steps']
+  if (!Array.isArray(steps)) return candidate
+  return {
+    ...candidate,
+    steps: steps.map((step) => {
+      if (typeof step !== 'object' || step === null || Array.isArray(step)) return step
+      const record = step as Record<string, unknown>
+      const transforms = record['field_transforms']
+      if (typeof transforms !== 'object' || transforms === null || Array.isArray(transforms)) return step
+      return {
+        ...record,
+        field_transforms: Object.fromEntries(
+          Object.entries(transforms as Record<string, unknown>).map(([field, pipeline]) => [
+            field,
+            isBareOp(pipeline) ? [pipeline] : pipeline,
+          ]),
+        ),
+      }
+    }),
+  }
+}
+
+/** A single op record — `{"op": "capture", …}` — as opposed to an array of them. */
+function isBareOp(value: unknown): boolean {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    'op' in (value as Record<string, unknown>)
+  )
+}
+
 export interface InstructionInput {
   conversation: readonly ChatMessage[]
   pageAnalysis: PageAnalysis
   conservative: boolean
   noMoreQuestions: boolean
+  /** Which representation the data section will use; the rules have to match it. */
+  view?: PageView
+  /** True on a closed-loop repair turn: the model has seen its own dry-run output. */
+  repair?: boolean
 }
 
 /**
@@ -179,24 +273,50 @@ export function buildInstruction(input: InstructionInput): string {
     '   "steps": [',
     '     {"type": "extract", "mode": "list" | "single", "selector": "<container css>",',
     '      "fields": {"<name>": "<css, relative to selector>"},',
-    '      "field_types": {"<name>": "text" | "link" | "image"}, "output_to": "raw_items"},',
+    '      "field_types": {"<name>": "text" | "link" | "image" | "attr"},',
+    '      "field_attrs": {"<name>": "<attribute name>"},',
+    '      "pre_scroll": {"mode": "to_bottom"}, "output_to": "raw_items"},',
     '     {"type": "render", "view": "table" | "card" | "text", "input_from": "raw_items"}',
     '   ]}',
     '',
     'Rules:',
+    '- category: exactly one of the four values in the schema above — "data", "enhance", "analyze" or "export". Never a synonym or a free-form label; anything else is rejected and the tool is not saved.',
     '- No control flow, no code, no scripts. Steps run in order, once.',
+    '- If the data section carries a "scrollHint" other than "none", or the user asks for every item on a page that loads more as it scrolls, add "pre_scroll": {"mode": "to_bottom"} to the extract step: the run scrolls to the bottom first, so the extraction sees the whole list instead of the first screen. For a feed that pages through many batches, set "max" too (1-10, the number of scroll rounds) — a long feed needs more than the default. Omit pre_scroll when the page already shows all its content — V1 has no other mode.',
     '- Prefer the container and field selectors offered in the data section; they already exist on the page.',
     '- Build selectors from stable anchors only: semantic custom-element tags (e.g. shreddit-post), aria-* and data-* attributes, stable class names, or structural position (:nth-of-type).',
     "- Never use hashed or generated class names (like css-1x2y3z or jss1234): they change on the site's next deploy and the tool will break.",
     '- Field selectors are relative to the container selector.',
     `- To take the container element itself as a value, use the selector ":self". Never leave a field selector empty — there is no way to say "the whole thing" other than ":self".`,
-    '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match.',
+    '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match. The pattern must match the page URL in the data section, so the tool runs on the page it was built on.',
     '- "link" reads href, "image" reads src, "text" reads text.',
+    '- "attr" reads a named attribute, and must always come with a "field_attrs" entry naming it — a field typed "attr" with no matching "field_attrs" entry is rejected.',
+    '- Use "attr" when the value is not in the text node: a rating carried as a CSS class (class="star-rating Three"), or a full value kept in title= because the visible text is truncated. Reading such a field as "text" yields an empty or truncated column — do not settle for that.',
+    '- When a read value still carries wrapper text around what the user asked for, add "field_transforms" for that field. Its value is an array of ops, applied in order: {"<name>": [{"op": "capture", "pattern": "<regex>", "group": 0}]} — a bare op object without the array brackets is rejected. V1 has one op, "capture", which keeps the regex match (or the numbered group) — class="star-rating Three" should end up as "Three" (pattern "\\\\w+$"), "In stock (19 available)" as "19".',
+    '- Transform regexes follow the same safety rules as everywhere else (no nested quantifiers, 256 characters max) and are rejected otherwise. Never put a transform on an "image" field.',
+    '- Each step writes to its own named output: only one step may declare a given "output_to". Two steps with the same "output_to" are rejected — return an alternative extraction strategy as a separate candidate instead.',
+    '- Never read an attribute whose name marks a credential slot (containing key, keys, token or secret); it is refused.',
   )
+
+  if (input.view === 'flat') {
+    lines.push(
+      '- The data section numbers the containers it found. Write the container selector as `@N` — the index of the one you mean, and nothing else. `@3` is the container listed with `"index": 3`.',
+      '- Field selectors are `@N` as well, indexing the `fields` list inside the container you chose.',
+      '- Plain CSS is still allowed, but only when no listed container or field fits. Prefer the list: the selectors in it have already been checked against this page.',
+    )
+  }
 
   if (input.conservative) {
     lines.push(
       '- A previous attempt did not match this page. Choose the plainest, most literal container and fields; do not generalise.',
+    )
+  }
+
+  if (input.repair === true) {
+    lines.push(
+      '- REPAIR TURN: a candidate was already built and executed against this page. The data section has a "dryRun" object: the extract step that ran, and sample_rows — what each field selector actually produced, first rows first.',
+      '- Read sample_rows as evidence, not as suggestions: a field whose values look right is correct and must keep its selector; a field whose values are wrong, empty, or duplicated has a broken selector.',
+      '- Fix the broken field selectors (and the container only if the rows themselves are wrong). Return the FULL corrected candidate(s) in the "candidates" shape — not a diff, not an explanation.',
     )
   }
 
@@ -220,29 +340,104 @@ export function buildInstruction(input: InstructionInput): string {
 }
 
 /**
+ * `@N` becomes the selector it points at.
+ *
+ * A reference is not a second language the model has to learn: it is the same shape as
+ * a selector, in the same field, and it resolves to exactly the string the analyser
+ * measured. It is also *measurable* — a run can be counted for how many candidates used
+ * a reference and how many ignored the list and wrote CSS, which is the question the
+ * `flat` view exists to answer.
+ *
+ * An index that does not exist is left alone rather than quietly repaired: a nonsense
+ * reference should fail the same way a nonsense selector does, not silently become the
+ * first container.
+ */
+function resolveRefs(
+  candidates: readonly ToolDefinition[],
+  analysis: PageAnalysis,
+  view: PageView,
+): ToolDefinition[] {
+  if (view !== 'flat') return [...candidates]
+  return candidates.map((candidate) => resolveOne(candidate, analysis))
+}
+
+function resolveOne(candidate: ToolDefinition, analysis: PageAnalysis): ToolDefinition {
+  const steps = candidate.steps.map((step) => {
+    if (step.type !== 'extract') return step
+
+    const containerIndex = refIndex(typeof step.selector === 'string' ? step.selector : '')
+    const container = containerIndex === null ? undefined : analysis.containers[containerIndex]
+    const selector = container === undefined ? step.selector : container.tagPath
+
+    const fields = Object.fromEntries(
+      Object.entries(step.fields).map(([name, value]) => {
+        const fieldIndex = refIndex(typeof value === 'string' ? value : '')
+        const hint = fieldIndex === null || container === undefined ? undefined : container.fieldHints[fieldIndex]
+        return [name, hint === undefined ? value : hint.selector]
+      }),
+    )
+
+    // `selector` is optional in `single` mode, and `exactOptionalPropertyTypes` forbids
+    // writing `undefined` back into it — so it is spread only when there is one.
+    return { ...step, ...(selector === undefined ? {} : { selector }), fields }
+  })
+
+  return { ...candidate, steps }
+}
+
+/** `@3` → 3. Anything else is CSS and is left for the page to deal with. */
+function refIndex(value: string): number | null {
+  const match = /^@(\d+)$/.exec(value.trim())
+  if (match === null) return null
+  const index = Number(match[1])
+  return Number.isInteger(index) ? index : null
+}
+
+/** How many dry-run rows the model sees, and how long one cell may be. */
+const DRY_RUN_MAX_ROWS = 3
+const DRY_RUN_MAX_CELL = 120
+
+/**
+ * What the model sees of its own candidate's execution.
+ *
+ * Bounded on purpose: three rows, each cell truncated. The point is observation —
+ * "this selector pulled the promotion banner" is visible in one row — not a dump of
+ * the extraction, which would double the prompt for no new information.
+ */
+export function describeDryRun(
+  draft: ToolDefinition,
+  sampleRows: readonly Record<string, unknown>[],
+): Record<string, unknown> {
+  const step = draft.steps.find((entry): entry is ExtractStep => entry.type === 'extract')
+
+  const rows = sampleRows.slice(0, DRY_RUN_MAX_ROWS).map((row) =>
+    Object.fromEntries(
+      Object.entries(row).map(([name, value]) => [
+        name,
+        typeof value === 'string' && value.length > DRY_RUN_MAX_CELL
+          ? `${value.slice(0, DRY_RUN_MAX_CELL)}…`
+          : value,
+      ]),
+    ),
+  )
+
+  return {
+    ran_extract: step === undefined ? null : { selector: step.selector ?? null, fields: step.fields },
+    sample_rows: rows,
+    row_count_shown: rows.length,
+  }
+}
+
+/**
  * What the model gets to see of the page.
  *
  * Counts, selectors and the truncated visible text — the same material the analyzer
  * produced, never more. The visible text is page content and is wrapped as data by
  * `buildPrompt`.
+ *
+ * The view decides the shape. `summarizeAnalysis` was the only one; it is kept as the
+ * name the shipped view is known by, and `page-view.ts` is where both now live.
  */
 export function summarizeAnalysis(analysis: PageAnalysis): Record<string, unknown> {
-  return {
-    url: analysis.url,
-    title: analysis.title,
-    visibleText: analysis.visibleText,
-    truncated: analysis.truncated,
-    scrollHint: analysis.scrollHint,
-    customElements: analysis.customElements,
-    shadowHosts: analysis.shadowHosts,
-    containers: analysis.containers.map((container) => ({
-      tagPath: container.tagPath,
-      hitCount: container.hitCount,
-      sampleFields: container.sampleFields,
-      fieldHints: container.fieldHints.map((hint) => ({
-        selector: hint.selector,
-        sampleText: hint.sampleText,
-      })),
-    })),
-  }
+  return describePage(analysis, 'summary')
 }

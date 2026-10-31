@@ -24,6 +24,7 @@ export function renderReport(report: MetricsReport, previous: MetricsReport | nu
   lines.push(`| Metric | This run |${previous === null ? '' : ' Previous | Delta |'}`)
   lines.push(`|---|--${previous === null ? '' : '|--|--'}-|`)
   lines.push(`| Build Success Rate | ${percent(report.buildSuccessRate)} |${previous === null ? '' : ` ${percent(previous.buildSuccessRate)} | ${delta(report.buildSuccessRate, previous.buildSuccessRate)} |`}`)
+  lines.push(...fieldLines(report, previous))
   lines.push(`| Clarification Rate (proxy) | ${percent(report.correctionRate)} |${previous === null ? '' : ` ${percent(previous.correctionRate)} | ${delta(report.correctionRate, previous.correctionRate)} |`}`)
   lines.push(`| Health false-positive | ${percent(report.healthFalsePositiveRate)} |${previous === null ? '' : ` ${percent(previous.healthFalsePositiveRate)} | ${delta(report.healthFalsePositiveRate, previous.healthFalsePositiveRate)} |`}`)
   lines.push(`| Repair success | ${report.repairSuccessRate === null ? 'not measured' : percent(report.repairSuccessRate)} |`)
@@ -51,6 +52,35 @@ function environmentLines(code: string): string[] {
   ]
 }
 
+/**
+ * The second gate's numbers.
+ *
+ * Printed directly under Build Success Rate because the two are meant to be read
+ * together: a run that builds 90% and extracts 36% of what was asked for is not a
+ * 90% result, and putting the two on separate screens is how that mistake survives.
+ */
+function fieldLines(report: MetricsReport, previous: MetricsReport | null): string[] {
+  const fields = report.fieldMetrics
+  if (fields === null) {
+    return ['| Field-level F1 | not scored — no ground truth for this run |']
+  }
+
+  const before = previous?.fieldMetrics ?? null
+  const row = (label: string, value: number | null, was: number | null): string =>
+    `| ${label} | ${percent(value)} |${previous === null ? '' : ` ${percent(was)} | ${delta(value, was)} |`}`
+
+  return [
+    row('Field-level F1', fields.f1, before?.f1 ?? null),
+    row('Field precision', fields.precision, before?.precision ?? null),
+    row('Field recall', fields.recall, before?.recall ?? null),
+    row('Item count in range', fields.countAccuracy, before?.countAccuracy ?? null),
+    '',
+    `Field instances: ${fields.instances} — matched ${fields.matched}, weak ${fields.weak}, ` +
+      `missing ${fields.missing}, invented ${fields.extra} (columns nobody asked for).`,
+    '',
+  ]
+}
+
 function judgementLines(report: MetricsReport): string[] {
   const { correct, partial, wrong, pending } = report.labelCounts
   return [
@@ -68,11 +98,11 @@ function judgementLines(report: MetricsReport): string[] {
 }
 
 function bucketLines(report: MetricsReport): string[] {
-  const lines = ['## By bucket', '', '| Bucket | Cases | Build Success Rate | correct | partial | wrong | pending |', '|---|---|---|---|---|---|---|']
+  const lines = ['## By bucket', '', '| Bucket | Cases | Build Success Rate | Field F1 | correct | partial | wrong | pending |', '|---|---|---|---|---|---|---|---|']
   for (const bucket of BUCKETS) {
     const entry = report.byBucket[bucket as Bucket]
     lines.push(
-      `| ${bucket} | ${entry.cases} | ${percent(entry.buildSuccessRate)} | ${entry.labelCounts.correct} | ${entry.labelCounts.partial} | ${entry.labelCounts.wrong} | ${entry.labelCounts.pending} |`,
+      `| ${bucket} | ${entry.cases} | ${percent(entry.buildSuccessRate)} | ${percent(entry.fieldF1)} | ${entry.labelCounts.correct} | ${entry.labelCounts.partial} | ${entry.labelCounts.wrong} | ${entry.labelCounts.pending} |`,
     )
   }
   lines.push('')

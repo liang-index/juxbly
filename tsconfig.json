@@ -9,8 +9,10 @@
     "packages/*/src/**/*.tsx",
     "apps/*/src/**/*.ts",
     "apps/extension/*.ts",
+    "apps/extension/presets/**/*.ts",
     "apps/extension/entrypoints/**/*.ts",
     "apps/extension/entrypoints/**/*.tsx",
+    "docs/recipes/*/recipe.json",
     "tests/**/*.ts",
     "*.config.ts"
   ],

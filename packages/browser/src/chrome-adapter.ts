@@ -44,6 +44,10 @@ export interface ChromeNamespace {
   tabs: {
     captureVisibleTab(windowId: number | null, options: { format: 'png' | 'jpeg' }): Promise<string>
   }
+  permissions: {
+    contains(permissions: { origins?: string[] }): Promise<boolean>
+    request(permissions: { origins?: string[] }): Promise<boolean>
+  }
 }
 
 export interface ChromeDownloadOptions {
@@ -127,6 +131,18 @@ export function createChromeAdapter(): BrowserAdapter {
 
       async captureTab(): Promise<string> {
         return await chromeOrThrow().tabs.captureVisibleTab(null, { format: 'png' })
+      },
+    },
+
+    permissions: {
+      async contains(origins: readonly string[]): Promise<boolean> {
+        // The platform takes a mutable array; the port takes a readonly one, so the copy
+        // is where the two shapes meet.
+        return await chromeOrThrow().permissions.contains({ origins: [...origins] })
+      },
+
+      async request(origins: readonly string[]): Promise<boolean> {
+        return await chromeOrThrow().permissions.request({ origins: [...origins] })
       },
     },
   }

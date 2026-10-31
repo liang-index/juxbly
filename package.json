@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "pnpm --filter @juxbly/extension dev",
     "build": "pnpm --filter @juxbly/extension build",
+    "build:store": "JUXBLY_VARIANT=store pnpm --filter @juxbly/extension build",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "format": "prettier --write .",
@@ -18,7 +19,8 @@
     "test:e2e": "pnpm build && node apps/playground/e2e/lifecycle.mjs",
     "test:corpus": "node scripts/check-corpus.mjs",
     "test:cases": "node scripts/check-cases.mjs",
-    "test:bench": "node scripts/bench.mjs"
+    "test:bench": "node scripts/bench.mjs",
+    "dogfood": "node scripts/dogfood.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

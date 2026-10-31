@@ -139,8 +139,37 @@ interface ToolDefinition {
 ```ts
 type ToolStep = ExtractStep | TransformStep | LlmStep | RenderStep | ExportStep
 
-/** Field data type — decides extraction and the default view suggestion */
-type FieldType = 'text' | 'image' | 'link'
+/**
+ * Field data type — decides extraction and the default view suggestion.
+ *
+ * `attr` reads a **named attribute**. It exists because a real page routinely keeps the
+ * value outside the text node: books.toscrape carries its star rating as
+ * `class="star-rating Three"` and keeps the untruncated book title in `title=`, and
+ * before `attr` both were unreachable — the other three types returned `""`. Measured
+ * across the 56-case corpus, 2 of 114 field instances were reachable only this way.
+ */
+type FieldType = 'text' | 'image' | 'link' | 'attr'
+
+/**
+ * A post-read op applied to one field's value. V1 ships exactly one op, `capture`: keep
+ * the regex match (or a numbered capture group) from the value that was read. It closes
+ * the class `attr` opened — a value that is reachable but arrives wrapped:
+ * `class="star-rating Three"` reads as "star-rating Three" when the user asked for
+ * "Three"; "In stock (19 available)" reads as a sentence when the user asked for "19".
+ *
+ * A pipeline (array), not a single object, so a second op is a pure enum-style addition
+ * later. Ops are whitelist-vocabulary, not control flow: each is a fixed, deterministic
+ * function over the value that was already read, and rule 8 keeps the list from growing
+ * quietly. Semantics mirror the `regex` transform op: a failed match reads `''` — the
+ * answer `fieldPresence` already counts as missing — never an error mid-run.
+ */
+interface FieldTransform {
+  op: 'capture'
+  /** Safe-subset regex (§5.4 rule 6) applied to the value that was read */
+  pattern: string
+  /** Capture group to keep, default 0 (whole match); out of range reads as no match */
+  group?: number
+}
 
 /**
  * Scroll preparation before extraction (A1).
@@ -186,6 +215,23 @@ interface ExtractStep {
   fields: Record<string, string>
   /** Type hints, default all text. image reads src/alt, link reads href */
   field_types?: Partial<Record<string, FieldType>>
+  /**
+   * Attribute name per field — **required for every field typed `attr`** (§5.4 rule 4).
+   * A separate map, not syntax inside the selector, because the selector goes to
+   * `dom.query` unchanged and a second dialect in it would have to be parsed by every
+   * consumer including `:self` handling and the highlight layer.
+   * Attributes whose *name* marks a credential slot are refused at read time — the same
+   * narrowed rule the corpus capture enforces, see §12.2.
+   */
+  field_attrs?: Partial<Record<string, string>>
+  /**
+   * Per-field post-read transforms, applied in order after the value is read.
+   * Its own map — not syntax in the selector — for the same reason `field_attrs` is: the
+   * selector goes to `dom.query` unchanged and no existing consumer, including the
+   * highlight layer, learns a second dialect. Transforms shape what was read; they never
+   * reach the DOM. `image` is refused (its value is `{src, alt}`, not a string).
+   */
+  field_transforms?: Partial<Record<string, FieldTransform[]>>
   /** Scroll to load more before extracting (see PreScroll). Absent behaves as 'none': only what is already rendered */
   pre_scroll?: PreScroll
   output_to: string       // variable name to write, e.g. "raw_items"
@@ -241,12 +287,15 @@ interface ExportStep {
 }
 ```
 
-`copy` is a legal value in the DSL and **the run engine refuses it** (`packages/runtime`,
-pinned by a test): writing the clipboard needs a user gesture, so a run — which is by
-definition unattended — can never deliver it. The panel's Copy button is the only path to
-the clipboard and calls the port directly from the click, never through a step. The step
-stays in the type so a hand-written tool fails with a named reason instead of being
-rejected as unknown syntax.
+No `export` step is ever delivered by a run. `copy` needs a user gesture to reach the
+clipboard; `csv` and `json` hand a file to the download manager with nothing on screen that
+says so, which turns a visible wrong table into a silent wrong artefact on disk. A run is
+unattended by definition, so the engine refuses all three before resolving `input_from`
+(`packages/runtime`, pinned by `tests/integration/runtime/export-copy.test.ts`). The panel's
+resident Copy / CSV / JSON buttons are the only delivery path: the user has the rendered
+result in front of them and asks for it by clicking, and the click calls the port directly,
+never through a step. The step stays in the type so a hand-written tool fails with a named
+reason instead of being rejected as unknown syntax.
 
 ### 5.3 url_pattern matching semantics
 
@@ -296,6 +345,13 @@ Validated **twice** — before saving and before every run. Any failure rejects:
     An empty selector used to pass validation and then throw `SELECTOR_SYNTAX` mid-run; it is the shape a model reaches for when
     it wants the element itself, so it is refused at save time with the spelling that exists rather than at run time with the
     one that does not.
+11. `extract`'s `field_transforms`, when present, names only fields the step extracts; every entry is a **non-empty** list whose
+    ops are whitelist-vocabulary (V1: `capture` only); a `capture` requires a `pattern` that passes the same safe-regex check as
+    rule 6 and an integer `group ≥ 0` when present; a field typed `image` is refused, because its value is `{src, alt}` and not
+    a string. Rejected with `FIELD_TRANSFORM_UNKNOWN_FIELD` / `FIELD_TRANSFORM_EMPTY` / `FIELD_TRANSFORM_OP_UNKNOWN` /
+    `FIELD_TRANSFORM_PATTERN_REQUIRED` / `FIELD_TRANSFORM_PATTERN_UNSAFE` / `FIELD_TRANSFORM_GROUP_INVALID` /
+    `FIELD_TRANSFORM_TYPE_UNSUPPORTED`. Checked at save time rather than discovered mid-run: a catastrophic pattern here would
+    run once per row, and the capability re-checks (`assertTransformPatternsSafe`) for a caller that bypassed validation.
 
 ### 5.5 Runtime contracts
 
@@ -940,6 +996,12 @@ type CapabilityPermission =
 | `clipboard` | clipboard write | `clipboardWrite` |
 | `downloads` | `chrome.downloads.download` | `downloads` |
 | `messaging` | runtime messaging, visible-tab capture | none (capture is covered by `activeTab`) |
+| `permissions` | `chrome.permissions.contains` / `chrome.permissions.request` | none (it *reads and manages* the optional host permissions of §7.3; it adds no permission of its own) |
+
+`permissions` (stage 3-2) is deliberately **the only caller of `chrome.permissions.*`** in the
+codebase: an origin grant is the user's decision, and one auditable funnel is what makes that
+claim checkable. Both calls run only from extension pages inside a user gesture — the content
+script cannot and must not reach them.
 
 Nothing `tabs`-shaped is exposed **through the adapter**. URLs arrive through `activeTab`
 and the existing message flow, and DOM reads are not an adapter concern at all — they are
@@ -955,7 +1017,7 @@ Therefore `apps/extension/entrypoints/*` is an **enumerable, assertable assembly
 
 | Location | Permitted `chrome.*` | Notes |
 |---|---|---|
-| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` / `tabs.create` / `tabs.update` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency). `tabs.query` / `tabs.sendMessage` exist **only** to relay a received shortcut to the active tab's content script (stage 1-8); `tabs.create` / `tabs.update` exist **only** to focus an already-open tab or open one from the toolbar overview (stage 1-13). No `tabs` permission is requested in either case — URL visibility comes from the existing `<all_urls>` host permission, and no tab metadata beyond the URL is read |
+| `entrypoints/background.ts` | `runtime.onMessage` / `runtime.onInstalled` / `commands.onCommand` / `runtime.getURL` / `tabs.query` / `tabs.sendMessage` / `tabs.create` / `tabs.update` | **Registration calls**: listener registration, lifecycle, shortcut reception, locating the extension's own resources (no remote CDN dependency). `tabs.query` / `tabs.sendMessage` exist **only** to relay a received shortcut to the active tab's content script (stage 1-8) and to answer the popup's `tab:active_url` (stage 3-2 — the read-only "which page is open" behind enable-on-this-page); `tabs.create` / `tabs.update` exist **only** to focus an already-open tab or open one from the toolbar overview (stage 1-13). No `tabs` permission is requested in any case — in the Open Source Build URL visibility comes from the static `<all_urls>` host permission, in the Store Build from `activeTab` plus the origins the user has granted (§7.3), and no tab metadata beyond the URL is read |
 | `entrypoints/content.ts` | **none** | the content script belongs to the UI-side host; all messaging and data reads/writes go through `BrowserAdapter` |
 | `entrypoints/popup/**` · `entrypoints/options/**` | **none** | extension pages are also UI-side |
 
@@ -1047,6 +1109,15 @@ type ExtensionMessage =
       ; error?: string
       /** Stage 1-12: the version now in effect, so a repair can report "v2 is live". */
       ; version?: number }
+  /**
+   * Stage 3-2 Track B: installing a preset from the pack (options page → background).
+   * The definition travels like any other save — bundled data still crossed a trust
+   * boundary, so the background re-validates with the same §5.4 gate before writing.
+   * Installing twice answers `ALREADY_INSTALLED`; it never stacks an identical version.
+   */
+  | { kind: 'preset:install'; tool: ToolDefinition }
+  | { kind: 'preset:install_result'; ok: boolean
+      ; error?: 'VALIDATION_FAILED' | 'ALREADY_INSTALLED' | 'SAVE_FAILED' }
   // run (content script ↔ background)
   | { kind: 'run:query_tools'; url: string }
   | { kind: 'run:query_tools_result'; tools: ToolDefinition[] }
@@ -1117,6 +1188,16 @@ type ExtensionMessage =
    */
   | { kind: 'tab:open'; url: string }
   | { kind: 'tab:open_result'; ok: boolean; error?: string }
+  /**
+   * Stage 3-2: the popup's enable-on-this-page flow. The popup has no `chrome.*` access
+   * (§6.4.1) and the question is "what page is open *right now*", so the background — the
+   * one place `tabs.query` is already sanctioned — reads the active tab's URL and hands
+   * back the string, or null when it has none. Read-only by construction: no tab metadata
+   * beyond the URL crosses, and everything else (http(s) check, origin-pattern derivation,
+   * "is it already granted") is decided popup-side from the `permissions` port.
+   */
+  | { kind: 'tab:active_url' }
+  | { kind: 'tab:active_url_result'; url: string | null }
   // health (content script → background; semantic-layer checks call the model, whose key lives only in background)
   // The message channel is the MANUAL "check once" path — the user's action, their tokens, the
   // throttle deliberately bypassed. The AUTOMATIC path never crosses messaging: the run:report
@@ -1245,16 +1326,42 @@ Adding message types is allowed; changing the semantics of existing fields must 
 
 ### 7.3 Manifest permission list
 
-```json
+The manifest has **two variants**, resolved from one source (`apps/extension/manifest.ts`,
+locked by `tests/unit/architecture/manifest-permissions.test.ts`):
+
+```jsonc
+// Open Source Build (default; the e2e suite runs this one)
 {
   "permissions": ["storage", "activeTab", "clipboardWrite", "downloads"],
   "host_permissions": ["<all_urls>"]
 }
+
+// Store Build (JUXBLY_VARIANT=store, `pnpm build:store`)
+{
+  "permissions": ["storage", "activeTab", "clipboardWrite", "downloads"],
+  "host_permissions": ["https://api.openai.com/*"],   // the default provider origin, statically
+  "optional_host_permissions": ["<all_urls>"]         // everything else, granted on demand
+}
 ```
 
-`<all_urls>` covers both content script injection and background fetches to BYOK custom endpoints. **Not requested**: `tabs` (URLs come via `activeTab` + the existing message flow), `scripting` (no programmatic injection), `webRequest`.
+Both variants request the same four `permissions`, and **neither** requests `tabs` / `scripting` / `webRequest`.
 
-> This section operationalises the product document (V1.12) §13 "Permission policy (V1.12 changes)": the Open Source Build declares `<all_urls>` statically; the Store Build narrows it through the Policy Surface into optional host_permissions (requested on demand by URL Pattern when a tool is saved). Neither build requests `tabs` / `scripting` / `webRequest`.
+- **Open Source Build.** `<all_urls>` covers both content-script injection on any page a tool matches and background fetches to BYOK custom endpoints. Static on purpose: the open-source audience compiles from source and can read the manifest, so the broad grant is a disclosed fact, not a risk.
+- **Store Build.** Only the default provider origin (`https://api.openai.com/*`, paired with `DEFAULT_API_BASE_URL` in `packages/llm/src/client.ts` and locked by test) stays static — that is what lets the first-run key setup and its connectivity probe work before any grant exists. Every other origin — a page a tool should run on, a BYOK custom endpoint — is granted **on demand, inside the user's own click**, through `optional_host_permissions`. The content script still declares `matches: ['<all_urls>']`: Chrome injects it only where the origin has been granted, so both builds share one code path and the injection scope is the permission state, not a second manifest.
+
+**Where the Store Build asks** — all three run on an extension page, inside a user gesture, through the `permissions` port (§6.4), the only sanctioned caller:
+
+| Surface | Grant | Why there |
+|---|---|---|
+| Popup, "Enable on this page" | the active tab's origin | the page is open in front of the user, and the action click is itself the gesture |
+| Options, save / connectivity test | the endpoint's origin | the user just typed the endpoint; config and grant land in the same click |
+| Preset install | the preset's site origin | installing a preset *is* the decision to run it on that site |
+
+One derivation rule the table's third row needs: a preset's `url_pattern` may name a path or omit the wildcard (both forms exist in the pack), but `chrome.permissions.request` accepts `<scheme>://<host>/*` and nothing else. The grant is therefore always the **origin** — what the dialog names — while the tool itself still only runs where its own `url_pattern` matches (§5.3). A broader grant than a tool uses is the platform's unit of granting, not a relaxation of the Policy Surface's promise.
+
+Two store-build degradations are accepted and quiet, recorded here because the open-source build cannot exhibit them: for a tab whose origin was never granted, `handleTabOpen`'s URL read comes back `undefined` and the "is this the tool's page" comparison is simply never true — the correct behaviour, nothing to fix; and the A3 screenshot fallback (`captureVisibleTab`) works where the origin is granted or `activeTab` covers the tab (an action click or shortcut on it) — identical behaviour on any page a user has actually enabled.
+
+> This section operationalises the product document (V1.12) §13 "Permission policy (V1.12 changes)": the Open Source Build declares `<all_urls>` statically; the Store Build narrows the static grant to the default provider origin and asks for every other origin on demand, in the user's gesture. Stage 3-2 supersedes the product document's "requested on demand by URL Pattern when a tool is saved" phrasing on one point — a tool can only be built on a page the user has already enabled, so the save moment is never where the ask belongs; the three surfaces above are where it landed. Neither build requests `tabs` / `scripting` / `webRequest`. The rationale lives in [`concepts/policy-surface.md`](concepts/policy-surface.md).
 
 ---
 
@@ -1312,6 +1419,15 @@ interface ToolHealth {
  * and false positives hurt more than misses (the "suspected breakage never interrupts" discipline of
  * product document §6.2).
  * Thresholds must never be tuned to make metrics look good (same discipline as product document §3.8.6).
+ *
+ * Open question, recorded 2026-10-31 (D-bucket dogfooding, finding 5): an entirely empty
+ * column cannot deviate. The baseline is set on the first run, so a field whose selectors
+ * matched nothing at build time bakes 0 into the baseline and stays "healthy" against it
+ * forever — dev.to's `tags` column read empty on all 19 rows with `status: "healthy"`.
+ * For the user this is the worst failure shape: a table that looks complete and is not.
+ * Whether build-time all-empty columns should mark the tool, the baseline, or neither is
+ * a health-spec decision that has not been made; the evidence lives in
+ * `tests/benchmark/reports/dogfood-2026-10-31-d-bucket.md`.
  */
 interface StructureFingerprint {
   captured_at: string

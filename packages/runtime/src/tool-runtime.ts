@@ -98,20 +98,21 @@ export class ToolRuntime {
           )
         }
 
-        // The engine is the only thing that runs a tool *by itself*, and a `copy` export is
-        // the one step that must never run by itself: `navigator.clipboard` needs a user
-        // gesture, and a tool that auto-runs on page load overwriting the clipboard the
-        // user just filled is the worst possible failure of the reuse promise (1-15 AC5).
-        // The panel's Copy button does not go through a step at all — it calls the
-        // clipboard port directly from the click — so *every* `copy` step that reaches
-        // here is unattended, and refusing is the only honest answer. Refusing loudly also
-        // beats the alternative: without a gesture the platform call fails anyway, as an
-        // unattributed error three layers down. Checked before the input variable is
-        // resolved so the refusal names the real cause even when the data is broken too.
-        if (step.type === 'export' && step.format === 'copy') {
+        // An unattended run must never produce a side effect. `export` is the only
+        // side-effecting step type — `copy` writes the clipboard, `csv` / `json` hand a file
+        // to the download manager — and a tool that auto-runs on page load is precisely the
+        // case where nobody is watching: the clipboard the user just filled is overwritten,
+        // or a file lands in Downloads with nothing on screen that says so. The panel's
+        // Copy / CSV / JSON buttons are the sanctioned path and never go through a step —
+        // they call the ports directly from the click — so *every* export step that reaches
+        // here is unattended, and refusing is the only honest answer (1-15 AC 5, extended
+        // from `copy` to all three formats by Maintainer ruling 2026-09-22). Checked before
+        // the input variable is resolved so the refusal names the real cause even when the
+        // data is broken too.
+        if (step.type === 'export') {
           throw new StepFailure(
             'CAPABILITY_FAILED',
-            'an export step may not use the "copy" format: writing the clipboard needs a user gesture, so a run can never deliver it — the panel Copy button is the only path',
+            'an export step can never be delivered by a run: a run is unattended, and copy / csv / json all need the user to have seen the result and asked for it — the panel Copy, CSV and JSON buttons are the only path',
             index,
           )
         }
@@ -154,8 +155,10 @@ export class ToolRuntime {
           // did this run see" is a question about the extracted rows, not about prose.
         } else if (step.type === 'render') {
           render = output as RenderResult
-        } else if (step.type !== 'export') {
-          // `export` consumes and delivers: it produces no variable (§5.2, 1-15).
+        } else {
+          // `render` and `export` both consume without producing a variable (§5.2, 1-15);
+          // `export` never reaches here — it is refused above — so what is left is the
+          // steps that write into the bag.
           bag.set(step.output_to, output)
           lastDataName = step.output_to
         }
@@ -164,9 +167,9 @@ export class ToolRuntime {
           index,
           type: step.type,
           inputCount: step.type === 'extract' ? null : items.length,
-          ...(step.type === 'render' || step.type === 'export'
-            ? {}
-            : { outputTo: step.output_to }),
+          // `render` produces no variable either; `export` would too, but it is refused
+          // above and never reaches the trace.
+          ...(step.type === 'render' ? {} : { outputTo: step.output_to }),
           durationMs: Date.now() - stepStartedAt,
         })
 

@@ -1,0 +1,50 @@
+{
+  "id": "E-11",
+  "url": "https://mui.com/material-ui/react-alert/",
+  "bucket": "E",
+  "capturedAt": "2026-09-20T12:27:03.696Z",
+  "sizeBytes": 532619,
+  "verifiedOn": "2026-09-20",
+  "title": "React Alert component - Material UI",
+  "bucketEvidence": {
+    "verdict": "class names are generated: ratio 0.52",
+    "hashedClassTokens": 158,
+    "hashedClassRatio": 0.518,
+    "classTokenCount": 305,
+    "hashedSample": [
+      "__className_fa2f99",
+      "__className_d1796c",
+      "__className_34246c",
+      "__className_c5436a",
+      "css-14uhdw1"
+    ]
+  },
+  "interaction": [],
+  "assetDegraded": false,
+  "metrics": {
+    "cssBytes": 83651,
+    "assetCount": 3,
+    "nodeCount": 2201,
+    "shadowRootCount": 0,
+    "shadowRootWithContentCount": 0,
+    "closedShadowRootCount": 0,
+    "grownGroups": 0,
+    "customElementCount": 1,
+    "classTokenCount": 305,
+    "hashedClassTokens": 158,
+    "maxRepeatingCount": 241
+  },
+  "rights": {
+    "basis": "oss-docs",
+    "license": "MIT",
+    "reviewedOn": "2026-09-20"
+  },
+  "robots": {
+    "status": "allow",
+    "rule": "/",
+    "reason": "allow /",
+    "url": "https://mui.com/robots.txt"
+  },
+  "notes": "Single-field coverage for E: demo alerts repeated over generated class names.",
+  "personalDataHits": []
+}

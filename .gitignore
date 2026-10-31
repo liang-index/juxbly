@@ -50,5 +50,18 @@ tests/benchmark/reports/*
 # is the artefact stage 2-4 is judged on. Per-run reports stay ignored.
 !tests/benchmark/reports/attribution-*.md
 
+# A dogfooding record is the same kind of thing: what a person saw one pass do against a
+# live page, written up after the fact, carried as evidence for a number published in the
+# CHANGELOG. The run artefacts it describes stay ignored below.
+!tests/benchmark/reports/dogfood-*.md
+
 # Agent working notes (internal; never part of the public tree)
 .workbuddy/
+
+# Logo design scratch (never committed)
+.logo-draft/
+
+# Dogfooding output (stage 3-1, `pnpm dogfood`) — screenshots, the saved tool record and a
+# row sample pulled off a live page. Regenerable, priced per pass, and full of page content
+# that must never reach a recipe unredacted.
+.dogfood/

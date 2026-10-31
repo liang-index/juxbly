@@ -6,7 +6,7 @@ report: a label without the output it was given cannot be re-checked, and a case
 with different results is a drifting standard, not two data points.
 
 Judgement is human. There is no mechanical threshold. The criteria are in
-[`docs/benchmark/README.md`](../../docs/benchmark/README.md) — read them before the first case,
+[`docs/benchmark/README.md`](../../../docs/benchmark/README.md) — read them before the first case,
 not after the tenth.
 
 ---

@@ -5,8 +5,9 @@ Explanations for people who want to understand *why* Juxbly is built this way, w
 | Concept | Document |
 |---|---|
 | The Tool and its lifecycle (Build → Confirm → Save → Run → Health → Repair → Version) | [`tool-lifecycle.md`](tool-lifecycle.md) |
+| The Policy Surface (Open Source Build vs Store Build) | [`policy-surface.md`](policy-surface.md) |
 
-Planned as the corresponding stages land: the DSL as intent (not API), capability permissions, the Policy Surface (Open Source Build vs Store Build), and structure fingerprints.
+Planned as the corresponding stages land: the DSL as intent (not API), capability permissions, and structure fingerprints.
 
 ## Rule for this folder
 

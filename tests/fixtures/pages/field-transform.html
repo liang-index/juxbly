@@ -1,0 +1,30 @@
+<!doctype html>
+<!--
+  Fixture: values that are reachable but arrive wrapped (the field_transforms case).
+
+  Mirrors the shape books.toscrape.com produces: a rating that only exists as part of a
+  class attribute ("star-rating Three" where the user asked for "Three"), and a stock
+  note that reads as a sentence where the user asked for the number. Without a post-read
+  transform these fields are extracted correctly and still show the wrong thing.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Catalogue</title>
+  </head>
+  <body>
+    <h1>Catalogue</h1>
+    <ul class="catalogue">
+      <li class="item">
+        <h2 class="name">A university handbook</h2>
+        <p class="star-rating Three">rated</p>
+        <p class="stock">In stock (19 available)</p>
+      </li>
+      <li class="item">
+        <h2 class="name">A field guide</h2>
+        <p class="star-rating One">rated</p>
+        <p class="stock">In stock (2 available)</p>
+      </li>
+    </ul>
+  </body>
+</html>

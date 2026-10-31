@@ -1,0 +1,29 @@
+{
+  "case_id": "C-11",
+  "bucket": "C",
+  "expected_fields": [
+    "label"
+  ],
+  "item_count_range": [
+    18,
+    25
+  ],
+  "sample": [
+    {
+      "label": "Primary"
+    },
+    {
+      "label": "Success"
+    },
+    {
+      "label": "Neutral"
+    },
+    {
+      "label": "Danger"
+    }
+  ],
+  "verified_on": "2026-09-20",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

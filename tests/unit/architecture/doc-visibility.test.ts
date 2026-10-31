@@ -39,6 +39,7 @@ const INTERNAL_FILES = [
   'docs/DELTA.md',
   'docs/MAINTAINER_RUNBOOK.md',
   'docs/PRODUCT.md',
+  'docs/PHASE3_PLAN.md',
   'docs/testing/MANUAL_ACCEPTANCE.md',
   'docs/testing/PHASE1_CLOSURE_REPORT.md',
   'scripts/sync-public.mjs',
@@ -154,26 +155,35 @@ describe.skipIf(isInternalRepo)('document visibility: public tree stays clean', 
     expect(offenders).toEqual([])
   })
 
-  it('no tracked text file contains CJK outside the approved localized READMEs', () => {
-    const offenders: string[] = []
+  // This test reads the content of every tracked file, so its cost is I/O, not CPU — and
+  // the default 5s is a budget for CPU-bound unit tests. Measured 0.3s on CI and 16.1s on
+  // a machine where every file open goes through a proxy, which is the same reason the
+  // `bench` project already runs with `testTimeout: 60_000`: a slow machine must not turn
+  // a passing suite red.
+  it(
+    'no tracked text file contains CJK outside the approved localized READMEs',
+    { timeout: 60_000 },
+    () => {
+      const offenders: string[] = []
 
-    for (const file of trackedFiles()) {
-      if (BINARY_EXTENSIONS.some((extension) => file.endsWith(extension))) continue
-      if (CJK_ALLOWED.has(file)) continue
+      for (const file of trackedFiles()) {
+        if (BINARY_EXTENSIONS.some((extension) => file.endsWith(extension))) continue
+        if (CJK_ALLOWED.has(file)) continue
 
-      let content = readFileSync(join(REPO_ROOT, file), 'utf8')
-      if (README_FILE.test(file)) {
-        content = content
-          .split('\n')
-          .filter((line) => !LANGUAGE_SWITCHER.test(line))
-          .join('\n')
+        let content = readFileSync(join(REPO_ROOT, file), 'utf8')
+        if (README_FILE.test(file)) {
+          content = content
+            .split('\n')
+            .filter((line) => !LANGUAGE_SWITCHER.test(line))
+            .join('\n')
+        }
+
+        if (CJK.test(content)) {
+          offenders.push(file)
+        }
       }
 
-      if (CJK.test(content)) {
-        offenders.push(file)
-      }
-    }
-
-    expect(offenders).toEqual([])
-  })
+      expect(offenders).toEqual([])
+    },
+  )
 })

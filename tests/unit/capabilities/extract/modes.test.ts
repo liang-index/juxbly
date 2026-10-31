@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { CapabilityError, MAX_ITEMS, extractList, extractSingle, summarizeFields } from '@juxbly/capabilities'
+import {
+  CapabilityError,
+  MAX_ITEMS,
+  assertTransformPatternsSafe,
+  extractList,
+  extractSingle,
+  summarizeFields,
+} from '@juxbly/capabilities'
 import type { ExtractStep } from '@juxbly/dsl'
 import { createFixtureHost } from '../../../fixtures/page-host'
 
@@ -184,5 +191,194 @@ describe('the container cap', () => {
     // The real hit count survives the cap: capping must not look like a page that changed.
     expect(outcome.hitCount).toBe(MAX_ITEMS + 5)
     expect(outcome.truncated).toBe(true)
+  })
+})
+
+/**
+ * `attr` through a whole list extract — the repair for the case dogfooding found.
+ *
+ * On books.toscrape the star rating lives in the element's `class` and the untruncated
+ * title in `title=`; read as text both columns come back wrong (one empty, one clipped).
+ * The point of these two assertions is that the fix is real end to end, not just inside
+ * `readFieldValue`: `fieldPresence` has to report the field as present, because that is
+ * what health and the panel read.
+ */
+/**
+ * `attr` through a whole list extract — the repair for the case dogfooding found.
+ *
+ * On books.toscrape the star rating lives in the element's `class` and the untruncated
+ * book title in `title=`; read as text both columns come back wrong — one empty, one
+ * clipped. The page shape below is that one, rebuilt small.
+ */
+function bookShelf() {
+  const host = createFixtureHost('list-page.html')
+  const shelf = host.document.createElement('div')
+
+  for (const [stars, full] of [
+    ['Three', 'A Light in the Attic'],
+    ['One', 'Tipping the Velvet'],
+  ] as const) {
+    const book = host.document.createElement('article')
+    book.className = 'book'
+
+    const rating = host.document.createElement('p')
+    rating.className = `star-rating ${stars}`
+
+    const link = host.document.createElement('a')
+    link.setAttribute('title', full)
+    link.textContent = `${full.slice(0, 10)}...`
+
+    book.append(link, rating)
+    shelf.append(book)
+  }
+
+  host.document.body.append(shelf)
+  return host
+}
+
+describe('attr through a list extract', () => {
+  const selector = 'div article.book'
+  const fields = { rating: 'p.star-rating', title: 'a' }
+
+  it('fills both columns the three text types could not', () => {
+    const outcome = extractList(
+      bookShelf().dom,
+      step({
+        mode: 'list',
+        selector,
+        fields,
+        field_types: { rating: 'attr', title: 'attr' },
+        field_attrs: { rating: 'class', title: 'title' },
+      }),
+    )
+
+    expect(outcome.hitCount).toBe(2)
+    expect(outcome.records[0]?.['rating']).toBe('star-rating Three')
+    expect(outcome.records[0]?.['title']).toBe('A Light in the Attic')
+    expect(outcome.records[1]?.['rating']).toBe('star-rating One')
+  })
+
+  it('reports the rating as present, where reading it as text reported it missing', () => {
+    // Presence is what health and the panel read, so this is the assertion that says the
+    // fix is real end to end rather than only inside readFieldValue.
+    const host = bookShelf()
+
+    const asAttr = extractList(
+      host.dom,
+      step({ mode: 'list', selector, fields, field_types: { rating: 'attr', title: 'attr' }, field_attrs: { rating: 'class', title: 'title' } }),
+    )
+    const asText = extractList(host.dom, step({ mode: 'list', selector, fields }))
+
+    expect(summarizeFields(asAttr.records, Object.keys(fields)).missingFields).toEqual([])
+    expect(summarizeFields(asText.records, Object.keys(fields)).missingFields).toEqual(['rating'])
+  })
+
+  it('still reads a value below the cap when the attribute is refused', () => {
+    // A refused credential slot must not fail the run: it is one empty field, reported as
+    // missing like any other.
+    const host = bookShelf()
+    const outcome = extractList(
+      host.dom,
+      step({ mode: 'list', selector, fields, field_types: { rating: 'attr' }, field_attrs: { rating: 'data-api-key' } }),
+    )
+
+    expect(outcome.hitCount).toBe(2)
+    expect(outcome.records[0]?.['rating']).toBe('')
+  })
+})
+
+describe('field_transforms — the pipeline applied to what was read', () => {
+  const selector = '.catalogue li.item'
+
+  it('captures the tail of a wrapped attribute value', () => {
+    // The books.toscrape shape: the rating only exists as part of class="star-rating Three".
+    const host = createFixtureHost('field-transform.html')
+
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { name: '.name', rating: 'p.star-rating' },
+        field_types: { rating: 'attr' },
+        field_attrs: { rating: 'class' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '\\w+$' }] },
+      }),
+    )
+
+    expect(outcome.records).toEqual([
+      { name: 'A university handbook', rating: 'Three' },
+      { name: 'A field guide', rating: 'One' },
+    ])
+  })
+
+  it('keeps a numbered capture group from the value', () => {
+    const host = createFixtureHost('field-transform.html')
+
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { stock: '.stock' },
+        field_transforms: { stock: [{ op: 'capture', pattern: '\\((\\d+) available\\)', group: 1 }] },
+      }),
+    )
+
+    expect(outcome.records).toEqual([{ stock: '19' }, { stock: '2' }])
+  })
+
+  it('reads a failed capture as empty and reports the field missing', () => {
+    // "star-rating Three" carries no digits: the wrapper was not found, which is the same
+    // answer health already understands as "this field is not here" — not an error.
+    const host = createFixtureHost('field-transform.html')
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { rating: 'p.star-rating' },
+        field_types: { rating: 'attr' },
+        field_attrs: { rating: 'class' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '\\d+' }] },
+      }),
+    )
+
+    expect(outcome.records.every((record) => record['rating'] === '')).toBe(true)
+    expect(summarizeFields(outcome.records, ['rating']).missingFields).toEqual(['rating'])
+  })
+
+  it('leaves an image value untouched even when a pipeline is present', () => {
+    // Validation refuses transforms on image fields; a step that arrived without
+    // validation degrades to a no-op rather than crashing on a non-string value.
+    const host = createFixtureHost('field-transform.html')
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { rating: 'p.star-rating' },
+        field_types: { rating: 'image' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '\\w+$' }] },
+      }),
+    )
+
+    expect(outcome.records).toEqual([{ rating: { src: '', alt: '' } }, { rating: { src: '', alt: '' } }])
+  })
+
+  it('refuses an unsafe pattern before the first row is read', () => {
+    // Validation stops this shape at save time (§5.4), and `runExtract` re-checks for a
+    // caller that bypassed validation; the assert is tested directly because the modes
+    // are its callers, not its holders.
+    expect(() =>
+      assertTransformPatternsSafe({
+        type: 'extract',
+        mode: 'list',
+        selector: '.catalogue li.item',
+        fields: { rating: 'p.star-rating' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '(a+)+$' }] },
+        output_to: 'rows',
+      }),
+    ).toThrow(CapabilityError)
   })
 })

@@ -1,0 +1,12 @@
+{
+  "id": "A-13",
+  "bucket": "A",
+  "url": "https://www.scrapethissite.com/pages/simple/",
+  "corpus": "corpus/A-13/index.html",
+  "task_description": "List every country on this page by name.",
+  "expected_fields": [
+    "name"
+  ],
+  "notes": "Single-field coverage: A had none. 250 .country cards, each with an h3.country-name; capital and population sit beside it as tempting extra columns.",
+  "verified_on": "2026-09-20"
+}

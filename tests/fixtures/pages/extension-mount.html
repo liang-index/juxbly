@@ -1,0 +1,32 @@
+<!doctype html>
+<!--
+  Fixture: a page with the extension's own mount in the document (stage 3-2, D-bucket
+  dogfooding follow-up).
+
+  The content script renders into `#juxbly-root` in the same document the analyzer walks.
+  On a page whose real content is sparse or virtualized, the mount was the only thing the
+  page data described — the 2026-10-31 mastodon.social pass had a model accurately told it
+  was looking at "only the browser-tool UI". The analyzer must prune its own extension:
+  the fruit list below is the page; the mount is not.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Fruit list</title>
+  </head>
+  <body>
+    <main>
+      <ul>
+        <li>Apple</li>
+        <li>Pear</li>
+        <li>Plum</li>
+      </ul>
+    </main>
+    <div id="juxbly-root">
+      <div class="jx-ball">Build a tool</div>
+      <jx-panel>
+        <span class="jx-run-meta">1,234 tokens used</span>
+      </jx-panel>
+    </div>
+  </body>
+</html>

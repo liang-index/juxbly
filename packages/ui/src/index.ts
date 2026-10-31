@@ -133,7 +133,7 @@ export {
 export { ResultHeader, relativeTime, type ResultHeaderProps } from './run/result-header'
 export { TokenUsage, type TokenUsageProps } from './run/token-usage'
 export { ViewSwitcher, type ViewSwitcherProps } from './run/view-switcher'
-export { EmptyState } from './run/empty-state'
+export { EmptyState, NoToolState } from './run/empty-state'
 export { ErrorState, type ErrorStateProps } from './run/error-state'
 export { PromiseLine, type PromiseLineProps } from './run/promise-line'
 export { RetentionLine, type RetentionLineProps } from './run/retention-line'
@@ -149,12 +149,17 @@ export {
 } from './popup/tool-list'
 export { createOverviewPorts, type OverviewPorts } from './popup/ports'
 export { Options, BallToggle, UsagePanel, type OptionsProps } from './options/Options'
+export { PresetPack } from './options/preset-pack'
 export { ByokForm, type ByokFormProps, type ByokFormState } from './options/byok-form'
 export {
   createSettingsPorts,
   createManagePorts,
+  createPresetPackPorts,
   type SettingsPorts,
   type ManagePorts,
+  type PresetPackPorts,
+  type PresetItem,
+  type PresetInstallOutcome,
 } from './options/ports'
 export {
   classifyConnectivity,

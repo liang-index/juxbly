@@ -1,0 +1,12 @@
+{
+  "id": "D-09",
+  "bucket": "D",
+  "url": "https://mastodon.world/explore",
+  "corpus": "corpus/D-09/index.html",
+  "task_description": "List the author of every post in this trending feed.",
+  "expected_fields": [
+    "author"
+  ],
+  "notes": "Single-field coverage for D. Same shape as D-03: feed rows are virtual-list placeholders (opacity 0) and each post body survives only as escaped markup, while the author display name is plain text at the head of each row. 50 rows.",
+  "verified_on": "2026-09-20"
+}

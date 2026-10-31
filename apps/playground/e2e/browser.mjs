@@ -63,28 +63,43 @@ async function waitForWorker(context, timeoutMs = 30_000) {
   throw new Error('the extension service worker never appeared (30s)')
 }
 
-/** Points the extension at the recorded model. Nothing else is configured by the harness. */
-export async function writeRecordedEndpoint({ worker, baseUrl }) {
+/**
+ * Points the extension at an endpoint it will pay for. Dogfooding uses this with a real key;
+ * the lifecycle uses it with the loopback recording. The two differ only in what they point
+ * at, and routing both through here is what keeps `chrome.storage` inside this file — the
+ * one place the boundary allows it.
+ */
+export async function writeEndpoint({ worker, apiKey, baseUrl, model }) {
   await worker.evaluate(
     async (payload) => {
       await chrome.storage.local.set({ 'juxbly:settings': payload })
     },
-    {
-      api_key: RECORDED_MODEL_KEY,
-      api_base_url: baseUrl,
-      model: RECORDED_MODEL_NAME,
-      floating_ball_enabled: true,
-    },
+    { api_key: apiKey, api_base_url: baseUrl, model, floating_ball_enabled: true },
   )
+}
+
+/** Points the extension at the recorded model. Nothing else is configured by the harness. */
+export async function writeRecordedEndpoint({ worker, baseUrl }) {
+  await writeEndpoint({
+    worker,
+    apiKey: RECORDED_MODEL_KEY,
+    baseUrl,
+    model: RECORDED_MODEL_NAME,
+  })
+}
+
+/** Every tool record in storage — what the UI wrote, not what a run reported. */
+export async function readToolRecords({ worker }) {
+  return worker.evaluate(async () => {
+    const stored = await chrome.storage.local.get('juxbly:tools')
+    return stored['juxbly:tools'] ?? {}
+  })
 }
 
 /** Reads one tool record back — the only storage read, and it reads facts the UI drew. */
 export async function readToolRecord({ worker, toolId }) {
-  return worker.evaluate(async (id) => {
-    const stored = await chrome.storage.local.get('juxbly:tools')
-    const tools = stored['juxbly:tools'] ?? {}
-    return tools[id] ?? null
-  }, toolId)
+  const tools = await readToolRecords({ worker })
+  return tools[toolId] ?? null
 }
 
 /** Empties storage between scenarios; nothing else carries state across a lifecycle. */

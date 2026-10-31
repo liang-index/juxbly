@@ -1,0 +1,63 @@
+{
+  "recipe_version": 1,
+  "name": "webscraperio-first-table",
+  "title": "Web Scraper test site — first table rows",
+  "description": "Pulls the rows out of the first table on the page: row number, first name, last name and username.",
+  "scenario": {
+    "url_pattern": "https://webscraper.io/test-sites/tables",
+    "site_label": "Web Scraper test site",
+    "category": "data",
+    "capabilities": ["extract", "render"],
+    "page_difficulty": "regular"
+  },
+  "health_baseline": {
+    "expected_item_count": "3-3",
+    "expected_fields": {
+      "first_name": "text",
+      "last_name": "text",
+      "row_number": "numeric",
+      "username": "text"
+    }
+  },
+  "definition": {
+    "tool_id": "tool_5c1e9a",
+    "name": "First Table Rows",
+    "description": "Extracts each row of the first table with its number, first name, last name and username.",
+    "category": "data",
+    "url_pattern": "https://webscraper.io/test-sites/tables",
+    "version": 1,
+    "steps": [
+      {
+        "type": "extract",
+        "selector": "table:nth-of-type(1) tbody tr",
+        "mode": "list",
+        "fields": {
+          "first_name": "td:nth-of-type(2)",
+          "last_name": "td:nth-of-type(3)",
+          "row_number": "td:nth-of-type(1)",
+          "username": "td:nth-of-type(4)"
+        },
+        "field_types": {
+          "first_name": "text",
+          "last_name": "text",
+          "row_number": "text",
+          "username": "text"
+        },
+        "output_to": "raw_items"
+      },
+      {
+        "type": "render",
+        "input_from": "raw_items",
+        "view": "table"
+      }
+    ],
+    "created_at": "2026-10-30T23:24:58.055Z",
+    "updated_at": "2026-10-30T23:24:58.055Z"
+  },
+  "provenance": {
+    "author": "liang-index",
+    "license": "CC0",
+    "verified_on": "2026-10-30",
+    "juxbly_version": "0.1.0"
+  }
+}

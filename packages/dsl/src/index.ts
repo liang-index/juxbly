@@ -10,6 +10,7 @@ export type {
   ConditionOp,
   ExportStep,
   ExtractStep,
+  FieldTransform,
   FieldType,
   FilterCondition,
   LlmStep,

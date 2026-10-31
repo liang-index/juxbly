@@ -1,0 +1,29 @@
+{
+  "case_id": "E-12",
+  "bucket": "E",
+  "expected_fields": [
+    "label"
+  ],
+  "item_count_range": [
+    20,
+    30
+  ],
+  "sample": [
+    {
+      "label": "Usage"
+    },
+    {
+      "label": "Variants"
+    },
+    {
+      "label": "Sizes"
+    },
+    {
+      "label": "Props"
+    }
+  ],
+  "verified_on": "2026-09-20",
+  "labelled_by": "agent",
+  "source": "snapshot",
+  "amendments": []
+}

@@ -70,8 +70,34 @@ export interface MessagingPort {
 }
 
 /**
+ * Runtime host permissions — `docs/ARCHITECTURE.md` §7.3, the Policy Surface (stage 3-2).
+ *
+ * The Store Build declares no broad static host permission. Instead a page's origin is
+ * granted when the user acts — the popup's "enable on this page", a preset install, a
+ * custom AI endpoint saved in settings — and this port is how those grants are asked
+ * for. Both methods take explicit origin patterns (`https://host/*`), never a page URL:
+ * the pattern is the unit the platform grants, and the UI derives it from a URL it
+ * already shows.
+ *
+ * `request` must run during a user gesture in an extension page; content scripts cannot
+ * call it at all. That constraint is why the port has exactly two methods and no
+ * `remove`: this is the one auditable place that asks for host access, and revocation is
+ * the browser's own settings UI, not a product surface.
+ */
+export interface PermissionsPort {
+  /** Whether **every** one of the origin patterns is already granted. */
+  contains(origins: readonly string[]): Promise<boolean>
+  /**
+   * Ask the platform to grant the origin patterns (the browser shows its own prompt).
+   * `false` means the user — or the platform — said no; the UI says so rather than
+   * pretending the grant happened.
+   */
+  request(origins: readonly string[]): Promise<boolean>
+}
+
+/**
  * The confirmed minimal set (`docs/ARCHITECTURE.md` §6.4): storage, clipboard,
- * downloads and messaging.
+ * downloads, messaging and permissions.
  *
  * Deliberately absent: anything `tabs`-shaped. `tabs` is never requested (§7.3) — the
  * URL arrives through `activeTab` and the existing message flow — and DOM reading is
@@ -82,4 +108,5 @@ export interface BrowserAdapter {
   clipboard: ClipboardPort
   downloads: DownloadsPort
   messaging: MessagingPort
+  permissions: PermissionsPort
 }

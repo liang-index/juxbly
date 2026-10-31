@@ -36,8 +36,38 @@ export interface ToolDefinition {
 
 export type ToolStep = ExtractStep | TransformStep | LlmStep | RenderStep | ExportStep
 
-/** Field data type — decides extraction and the default view suggestion. */
-export type FieldType = 'text' | 'image' | 'link'
+/**
+ * Field data type — decides extraction and the default view suggestion.
+ *
+ * `attr` reads a **named attribute** rather than the element's text. It exists because a
+ * real page routinely keeps the interesting value outside the text node: books.toscrape
+ * encodes its star rating as `<p class="star-rating Three">`, and the same site truncates
+ * a book title in the anchor while keeping the full one in `title`. Before `attr`, both
+ * were unreachable — the three text-ish types could only return `""`.
+ */
+export type FieldType = 'text' | 'image' | 'link' | 'attr'
+
+/**
+ * A post-read op applied to one field's value — `docs/ARCHITECTURE.md` §5.2.
+ *
+ * V1 ships exactly one op, `capture`: keep the regex match (or a numbered capture group)
+ * from the value that was read. It closes the class `attr` opened — a value that is now
+ * reachable but arrives wrapped: `class="star-rating Three"` reads as "star-rating Three"
+ * when the user asked for "Three"; "In stock (19 available)" reads as a sentence when the
+ * user asked for "19".
+ *
+ * A pipeline (array) rather than a single object so a second op is a pure addition later,
+ * the same way a category returns as a pure enum addition. Ops are whitelist-vocabulary,
+ * not control flow: each one is a fixed, deterministic function over the value that was
+ * already read, and the whitelist is what keeps the DSL from quietly growing (§5.4 rule 8).
+ */
+export interface FieldTransform {
+  op: 'capture'
+  /** Safe-subset regex (§5.4 rule 6) applied to the value that was read. */
+  pattern: string
+  /** Capture group to keep, default 0 (whole match). Out of range reads as no match. */
+  group?: number
+}
 
 /**
  * Scroll preparation before extraction (A1).
@@ -67,6 +97,24 @@ export interface ExtractStep {
   fields: Record<string, string>
   /** Type hints, default all text. image reads src/alt, link reads href. */
   field_types?: Partial<Record<string, FieldType>>
+  /**
+   * Attribute name per field, **required for every field typed `attr`** (§5.4 rule 4).
+   *
+   * Kept as its own map next to `field_types` rather than encoded into the selector
+   * (`p.star-rating@class`) on purpose: the selector string is handed to `dom.query`
+   * unchanged, and inventing a second dialect inside it would mean every consumer —
+   * including `:self` handling and the highlight layer — now has to parse it.
+   */
+  field_attrs?: Partial<Record<string, string>>
+  /**
+   * Per-field post-read transforms, applied in order after the value is read (§5.2).
+   *
+   * Its own map — not syntax in the selector — for the same reason `field_attrs` is: the
+   * selector string goes to `dom.query` unchanged, and no existing consumer has to learn
+   * a second dialect. Transforms shape what was read; they never reach the DOM, so the
+   * highlight layer is unaffected.
+   */
+  field_transforms?: Partial<Record<string, FieldTransform[]>>
   /** Scroll before extracting. Absent ≡ take only what is already rendered. */
   pre_scroll?: PreScroll
   /** Variable name to write, e.g. "raw_items". */

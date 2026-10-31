@@ -14,8 +14,8 @@ import type { Harness } from './harness'
  * noticed.
  */
 
-/** `docs/ARCHITECTURE.md` §6.4 — the confirmed minimal set. */
-const CONFIRMED_PORTS = ['clipboard', 'downloads', 'messaging', 'storage']
+/** `docs/ARCHITECTURE.md` §6.4 — the confirmed minimal set (plus `permissions`, stage 3-2). */
+const CONFIRMED_PORTS = ['clipboard', 'downloads', 'messaging', 'permissions', 'storage']
 
 function portMethods(port: object): string[] {
   return Object.keys(port).sort()
@@ -92,6 +92,37 @@ function describeAdapter(name: string, create: () => Harness): void {
     it('captures the tab as a data url', async () => {
       await expect(harness.adapter.messaging.captureTab()).resolves.toBe(SCREENSHOT)
     })
+
+    it('reads an ungranted origin as false, grants it on request, then reads true', async () => {
+      // Stage 3-2's whole flow in three calls: the popup checks before it offers, the
+      // request is the user's decision, and a later check must agree with the grant.
+      const pattern = 'https://shop.example.com/*'
+      await expect(harness.adapter.permissions.contains([pattern])).resolves.toBe(false)
+
+      await expect(harness.adapter.permissions.request([pattern])).resolves.toBe(true)
+      expect(harness.grantedOrigins).toContain(pattern)
+      await expect(harness.adapter.permissions.contains([pattern])).resolves.toBe(true)
+    })
+
+    it('requires every named origin, not just one of them', async () => {
+      // The enable flow grants exactly one origin, but the port is plural on purpose:
+      // a preset install may need two (page + redirect host), and "some of them" would
+      // let a half-granted install read as ready.
+      await expect(
+        harness.adapter.permissions.contains([
+          'https://a.example/*',
+          'https://b.example/*',
+        ]),
+      ).resolves.toBe(false)
+
+      await harness.adapter.permissions.request(['https://a.example/*'])
+      await expect(
+        harness.adapter.permissions.contains([
+          'https://a.example/*',
+          'https://b.example/*',
+        ]),
+      ).resolves.toBe(false)
+    })
   })
 }
 
@@ -104,6 +135,7 @@ describe('browser adapter implementations', () => {
       clipboard: portMethods(adapter.clipboard),
       downloads: portMethods(adapter.downloads),
       messaging: portMethods(adapter.messaging),
+      permissions: portMethods(adapter.permissions),
       storage: portMethods(adapter.storage),
     })
 
@@ -112,8 +144,9 @@ describe('browser adapter implementations', () => {
     expect(shapeOf(createChromeAdapter())).toEqual(shapeOf(createMockAdapter()))
   })
 
-  it('keeps the adapter to the four confirmed ports', () => {
-    // `docs/ARCHITECTURE.md` §6.4: storage, clipboard, downloads, messaging. Anything else
+  it('keeps the adapter to the five confirmed ports', () => {
+    // `docs/ARCHITECTURE.md` §6.4: storage, clipboard, downloads, messaging, permissions
+    // (stage 3-2 — the Policy Surface's one ask-for-host-access place). Anything else
     // — a `tabs` port above all — is a permission decision, not an adapter detail.
     expect(portMethods(createChromeAdapter())).toEqual(CONFIRMED_PORTS)
     for (const port of CONFIRMED_PORTS) {

@@ -2,7 +2,10 @@
 
 Community-contributed Tool definitions — ready-made tools for specific pages, with the scenario metadata needed to match and curate them.
 
-**Status: placeholder.** This directory starts receiving content from stage 1-12, which ships the Recipe export format. Hand-authored recipes are welcome before then, as long as they follow the format below.
+**Status: four recipes, all of them built by the product itself.** During phase 3-1 dogfooding
+each one was built by the extension on the live page it targets, from one request and no hand
+editing, and each is also a Phase 2 corpus case — so a recipe and the benchmark measure the
+same page. Hand-authored recipes are equally welcome, as long as they follow the format below.
 
 ## Layout
 

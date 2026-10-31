@@ -145,6 +145,22 @@ export const CORPUS_SOURCES = [
     rights: { basis: 'oss-docs', license: 'GFDL-1.3', reviewedOn: '2026-09-10' },
     notes: 'Hand-written 1990s HTML: table-based layout with no semantic container at all.',
   },
+  {
+    // Six single-field cases were admitted on 2026-09-20 because 7 of 50 was too thin to
+    // support the field-count claims the readings were being used for. A had none.
+    id: 'A-13',
+    bucket: 'A',
+    url: 'https://www.scrapethissite.com/pages/simple/',
+    rights: { basis: 'scraping-sandbox', license: 'purpose-built for scraping practice', reviewedOn: '2026-09-20' },
+    notes: 'One 250-row country table in plain semantic HTML. Single-field task (country name).',
+  },
+  {
+    id: 'A-14',
+    bucket: 'A',
+    url: 'https://www.postgresql.org/docs/current/functions-string.html',
+    rights: { basis: 'oss-docs', license: 'PostgreSQL licence', reviewedOn: '2026-09-20' },
+    notes: 'Function reference split across several section tables rather than one. Single-field task (function name). Same site as A-07, harder layout.',
+  },
 
   // ---------------------------------------------------------------- bucket B
   {
@@ -289,6 +305,13 @@ export const CORPUS_SOURCES = [
     rights: { basis: 'oss-docs', license: 'MIT', reviewedOn: '2026-09-10' },
     notes: 'A thin C page: only two content-bearing roots, which is a useful floor for the bucket.',
   },
+  {
+    id: 'C-11',
+    bucket: 'C',
+    url: 'https://shoelace.style/components/badge',
+    rights: { basis: 'oss-docs', license: 'MIT', reviewedOn: '2026-09-20' },
+    notes: 'Single-field coverage for C: the live examples render one repeated custom element, each with a content-bearing shadow root.',
+  },
 
   // ---------------------------------------------------------------- bucket D
   {
@@ -381,6 +404,19 @@ export const CORPUS_SOURCES = [
     ],
     notes: 'Lazy loading without a scrollbar: the table only exists after the year control is clicked. The corpus records the steps so the runner can reproduce them.',
   },
+  {
+    id: 'D-09',
+    bucket: 'D',
+    url: 'https://mastodon.world/explore',
+    rights: {
+      basis: 'reviewed-tos',
+      license: 'AGPL-3.0 (Mastodon); public timeline',
+      reviewedOn: '2026-09-20',
+      reviewNote: 'Fourth instance, admitted for single-field coverage; robots.txt re-checked at capture.',
+    },
+    interaction: [{ type: 'scroll', times: 3 }],
+    notes: 'Same software as D-03/D-04/D-05. Single-field task (author).',
+  },
 
   // ---------------------------------------------------------------- bucket E
   {
@@ -452,6 +488,20 @@ export const CORPUS_SOURCES = [
     url: 'https://mui.com/material-ui/customization/theming/',
     rights: { basis: 'oss-docs', license: 'MIT', reviewedOn: '2026-09-10' },
     notes: '138 of 286 tokens generated, over the theme object rather than a component — E is not a component-page artefact.',
+  },
+  {
+    id: 'E-11',
+    bucket: 'E',
+    url: 'https://mui.com/material-ui/react-alert/',
+    rights: { basis: 'oss-docs', license: 'MIT', reviewedOn: '2026-09-20' },
+    notes: 'Single-field coverage for E: demo alerts repeated over generated class names.',
+  },
+  {
+    id: 'E-12',
+    bucket: 'E',
+    url: 'https://chakra-ui.com/docs/components/checkbox',
+    rights: { basis: 'oss-docs', license: 'MIT', reviewedOn: '2026-09-20' },
+    notes: 'Single-field coverage for E: 86% of class tokens are generated, the highest ratio measured in the bucket.',
   },
 ]
 

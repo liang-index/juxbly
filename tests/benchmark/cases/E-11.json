@@ -1,0 +1,12 @@
+{
+  "id": "E-11",
+  "bucket": "E",
+  "url": "https://mui.com/material-ui/react-alert/",
+  "corpus": "corpus/E-11/index.html",
+  "task_description": "List every component name in this page's navigation sidebar.",
+  "expected_fields": [
+    "name"
+  ],
+  "notes": "Single-field coverage for E. The sidebar is a flat list of 75 items over generated class names; two entries carry a 'New' badge inline, so item text and the asked-for name are not always the same string.",
+  "verified_on": "2026-09-20"
+}

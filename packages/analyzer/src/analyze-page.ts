@@ -26,8 +26,21 @@ export interface AnalyzePageOptions {
   now?: () => string
 }
 
+/**
+ * The content script's own mount (`apps/extension/entrypoints/content.ts` `HOST_ID`). The
+ * analyzer walks the same document the extension renders into, so without this skip the
+ * one thing guaranteed to be in the page data is the extension itself — on a page whose
+ * real content is virtualized, the 2026-10-31 mastodon.social pass had exactly that: a
+ * model told, accurately, that it was looking at "only the browser-tool UI". Skipping by
+ * id keeps the contract a one-line fact in both places, rather than a cross-package
+ * import the "types only" core cannot carry.
+ */
+const EXTENSION_MOUNT_ID = 'juxbly-root'
+
 export function analyzePage(root: ParentNode, options: AnalyzePageOptions = {}): PageAnalysis {
-  const walk = collectNodes(root, { skip: isInvisible })
+  const walk = collectNodes(root, {
+    skip: (element) => element.id === EXTENSION_MOUNT_ID || isInvisible(element),
+  })
   const elements = walk.nodes.filter(isElementNode)
   const text = collectVisibleText(walk.nodes, options.maxChars ?? DEFAULT_MAX_CHARS)
 

@@ -25,6 +25,8 @@ export interface Harness {
   adapter: BrowserAdapter
   readonly clipboard: readonly string[]
   readonly downloads: readonly DownloadCapture[]
+  /** Origin patterns the harness has granted so far — the `permissions` port's state. */
+  readonly grantedOrigins: readonly string[]
   /** Deliver a background-pushed message to the adapter's `messaging.onMessage` listeners. */
   dispatchIncoming(message: unknown): void
 }
@@ -59,6 +61,7 @@ export function chromeHarness(): Harness {
   const downloads: DownloadCapture[] = []
   const data = new Map<string, unknown>()
   const incoming: Array<(message: unknown) => void> = []
+  const granted = new Set<string>()
   let pendingBlob: Blob | null = null
 
   URL.createObjectURL = (object: Blob | MediaSource): string => {
@@ -116,6 +119,15 @@ export function chromeHarness(): Harness {
         return SCREENSHOT
       },
     },
+    permissions: {
+      async contains(permissions: { origins?: string[] }): Promise<boolean> {
+        return (permissions.origins ?? []).every((origin) => granted.has(origin))
+      },
+      async request(permissions: { origins?: string[] }): Promise<boolean> {
+        for (const origin of permissions.origins ?? []) granted.add(origin)
+        return true
+      },
+    },
   }
 
   define('chrome', platform)
@@ -130,6 +142,9 @@ export function chromeHarness(): Harness {
     },
     get downloads(): readonly DownloadCapture[] {
       return downloads
+    },
+    get grantedOrigins(): readonly string[] {
+      return [...granted]
     },
     dispatchIncoming(message: unknown): void {
       for (const listener of [...incoming]) listener(message)
@@ -155,6 +170,9 @@ export function mockHarness(): Harness {
         filename: String(args[0]),
         content: Promise.resolve(String(args[1])),
       }))
+    },
+    get grantedOrigins(): readonly string[] {
+      return adapter.grantedOrigins
     },
     dispatchIncoming(message: unknown): void {
       adapter.emitIncoming(message)

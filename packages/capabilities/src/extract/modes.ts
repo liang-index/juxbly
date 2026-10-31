@@ -13,6 +13,7 @@ import type { DomPort } from '@juxbly/core'
 import type { ExtractStep, FieldType } from '@juxbly/dsl'
 import { isSelfSelector } from '@juxbly/dsl'
 import { CapabilityError } from '../errors'
+import { applyFieldTransforms } from './field-transform'
 import type { FieldValue } from './field-value'
 import { emptyFieldValue, hasValue, readFieldValue } from './field-value'
 import { classifyQueryError } from './query'
@@ -104,13 +105,18 @@ function readRecord(dom: DomPort, step: ExtractStep, scope?: Element): Record<st
 
   for (const [name, selector] of Object.entries(step.fields)) {
     const type: FieldType = step.field_types?.[name] ?? 'text'
+    const attribute = step.field_attrs?.[name]
+    const transforms = step.field_transforms?.[name]
     // `:self` is the one selector that is resolved before querying: the container is never
     // among its own `querySelectorAll` matches, so "the value is this element" has to be
     // answered here (§5.2). Without a container (single mode, no selector) there is no
     // element to be, and the field is empty — never the document root, whose text would be
     // the whole page.
     const [element] = isSelfSelector(selector) ? [scope] : query(dom, selector, scope)
-    record[name] = element === undefined ? emptyFieldValue(type) : readFieldValue(element, type)
+    const read = element === undefined ? emptyFieldValue(type) : readFieldValue(element, type, attribute)
+    // Transforms run after the read and before presence is summarised: a capture that
+    // matched nothing reads '' and is counted as missing, which is the signal health needs.
+    record[name] = transforms === undefined ? read : applyFieldTransforms(read, transforms)
   }
 
   return record
