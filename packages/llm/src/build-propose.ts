@@ -30,6 +30,9 @@ import { isLlmError } from './errors'
 
 const log: Logger = createLogger('BUILD')
 
+/** How many times an empty completion is retried before the panel sees `EMPTY_REPLY`. */
+const EMPTY_REPLY_RETRIES = 2
+
 export interface BuildProposeDeps {
   fetchImpl?: LlmFetch
   logger?: Logger
@@ -118,9 +121,16 @@ export async function handleBuildPropose(
     let response = await callLlm(request, clientDeps)
     // Live endpoints occasionally return a completion with no content at all — the
     // 2026-10-31 gate reading lost 3 of 56 cases to it, all transient (the same case
-    // built fine seconds later). One retry, and only on an empty reply: a reply that
+    // built fine seconds later). Retries, and only on an empty reply: a reply that
     // parsed but offered no candidates is the model's decision, not a transport fault.
-    if (typeof response.output !== 'object' || response.output === null) {
+    // Two retries — across that reading's two runs, 5 cases still died to an empty
+    // reply even after the single retry.
+    for (
+      let retries = 0;
+      retries < EMPTY_REPLY_RETRIES &&
+      (typeof response.output !== 'object' || response.output === null);
+      retries += 1
+    ) {
       response = await callLlm(request, clientDeps)
     }
 
@@ -167,6 +177,7 @@ function readReply(
 
   const candidates = raw
     .filter((candidate): candidate is Record<string, unknown> => typeof candidate === 'object' && candidate !== null)
+    .map(normalizeTransforms)
     .map((candidate) => completeDraft(candidate, now))
     .map((candidate) => candidate as unknown as ToolDefinition)
 
@@ -186,6 +197,49 @@ function completeDraft(candidate: Record<string, unknown>, now: string): Record<
     created_at: typeof candidate['created_at'] === 'string' ? candidate['created_at'] : now,
     updated_at: now,
   }
+}
+
+/**
+ * A transform pipeline written as a bare op object becomes a one-op list.
+ *
+ * The 2026-10-31 gate reading lost 4 builds to one transcription slip: the model wrote
+ * `"field_transforms": {"rating": {"op": "capture", …}}` where the DSL declares an array
+ * of ops — and the prompt's own example showed the bare form. A single op object carries
+ * the same meaning as a one-op list, so it is wrapped here, at the same boundary that
+ * fills `version`. The validator itself stays strict (§5.4 unchanged); anything that is
+ * not a bare op record is left for it to report.
+ */
+function normalizeTransforms(candidate: Record<string, unknown>): Record<string, unknown> {
+  const steps = candidate['steps']
+  if (!Array.isArray(steps)) return candidate
+  return {
+    ...candidate,
+    steps: steps.map((step) => {
+      if (typeof step !== 'object' || step === null || Array.isArray(step)) return step
+      const record = step as Record<string, unknown>
+      const transforms = record['field_transforms']
+      if (typeof transforms !== 'object' || transforms === null || Array.isArray(transforms)) return step
+      return {
+        ...record,
+        field_transforms: Object.fromEntries(
+          Object.entries(transforms as Record<string, unknown>).map(([field, pipeline]) => [
+            field,
+            isBareOp(pipeline) ? [pipeline] : pipeline,
+          ]),
+        ),
+      }
+    }),
+  }
+}
+
+/** A single op record — `{"op": "capture", …}` — as opposed to an array of them. */
+function isBareOp(value: unknown): boolean {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !Array.isArray(value) &&
+    'op' in (value as Record<string, unknown>)
+  )
 }
 
 export interface InstructionInput {
@@ -234,10 +288,11 @@ export function buildInstruction(input: InstructionInput): string {
     `- To take the container element itself as a value, use the selector ":self". Never leave a field selector empty — there is no way to say "the whole thing" other than ":self".`,
     '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match. The pattern must match the page URL in the data section, so the tool runs on the page it was built on.',
     '- "link" reads href, "image" reads src, "text" reads text.',
-    '- "attr" reads a named attribute, and must always come with a "field_attrs" entry naming it.',
+    '- "attr" reads a named attribute, and must always come with a "field_attrs" entry naming it — a field typed "attr" with no matching "field_attrs" entry is rejected.',
     '- Use "attr" when the value is not in the text node: a rating carried as a CSS class (class="star-rating Three"), or a full value kept in title= because the visible text is truncated. Reading such a field as "text" yields an empty or truncated column — do not settle for that.',
-    '- When a read value still carries wrapper text around what the user asked for, add "field_transforms" for that field: an ordered list of ops applied to the value after it is read. V1 has one op, "capture": {"op": "capture", "pattern": "<regex>", "group": 0} keeps the regex match (or the numbered group) — class="star-rating Three" should end up as "Three" (pattern "\\\\w+$"), "In stock (19 available)" as "19".',
+    '- When a read value still carries wrapper text around what the user asked for, add "field_transforms" for that field. Its value is an array of ops, applied in order: {"<name>": [{"op": "capture", "pattern": "<regex>", "group": 0}]} — a bare op object without the array brackets is rejected. V1 has one op, "capture", which keeps the regex match (or the numbered group) — class="star-rating Three" should end up as "Three" (pattern "\\\\w+$"), "In stock (19 available)" as "19".',
     '- Transform regexes follow the same safety rules as everywhere else (no nested quantifiers, 256 characters max) and are rejected otherwise. Never put a transform on an "image" field.',
+    '- Each step writes to its own named output: only one step may declare a given "output_to". Two steps with the same "output_to" are rejected — return an alternative extraction strategy as a separate candidate instead.',
     '- Never read an attribute whose name marks a credential slot (containing key, keys, token or secret); it is refused.',
   )
 

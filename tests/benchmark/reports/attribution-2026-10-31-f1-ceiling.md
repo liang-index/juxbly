@@ -247,3 +247,14 @@ all-candidates-invalid selections (4). These are a robustness track ahead of 3-2
 ruler questions — and F1 reads with upside, since every unbuilt case contributes only
 missing instances.
 
+> **Robustness track, executed same day.** Each open shape above got the fix its shape
+> allows: the bare op object is now wrapped into a one-op list at the `build-propose`
+> parse boundary (the prompt's own example had shown the bare form — it now shows the
+> array and names the rejection; the validator stays strict, §5.4 unchanged); the empty
+> reply gets two retries, not one; the `attr`/`field_attrs` pairing and the
+> one-writer-per-`output_to` rules now state their rejection in words (the wording
+> pattern that fixed the category drift). The `attr` omission itself is not repairable —
+> no code can infer which attribute the model meant. Neither retry nor normalization
+> touches the replay path — both gate digests replay byte-identical (78.6%/47.8% and
+> 75.0%/47.1%) — so their effect lands on the next live reading, which is 3-2's.
+
