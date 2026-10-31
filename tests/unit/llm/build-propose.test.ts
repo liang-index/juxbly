@@ -46,3 +46,27 @@ describe('buildInstruction — selector anchor rules', () => {
     expect(instruction).toContain('css-1x2y3z')
   })
 })
+
+describe('buildInstruction — the tool must run where it was built', () => {
+  it('requires the url_pattern to match the page in the data section', () => {
+    // A pattern that obeys every syntax rule but points at other pages saves fine and
+    // then never runs — the model is shown the page URL, so it is told to use it.
+    const instruction = instructionOf()
+    expect(instruction).toContain('must match the page URL in the data section')
+  })
+})
+
+describe('buildInstruction — field_transforms (§5.4 rule 11)', () => {
+  it('teaches the capture op with a concrete wrapper-text example', () => {
+    const instruction = instructionOf()
+    expect(instruction).toContain('field_transforms')
+    expect(instruction).toContain('"capture"')
+    expect(instruction).toContain('star-rating Three')
+  })
+
+  it('states the safety rules and the image-field exception', () => {
+    const instruction = instructionOf()
+    expect(instruction).toContain('no nested quantifiers, 256 characters max')
+    expect(instruction).toContain('Never put a transform on an "image" field')
+  })
+})

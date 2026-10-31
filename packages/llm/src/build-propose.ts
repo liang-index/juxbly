@@ -224,10 +224,12 @@ export function buildInstruction(input: InstructionInput): string {
     "- Never use hashed or generated class names (like css-1x2y3z or jss1234): they change on the site's next deploy and the tool will break.",
     '- Field selectors are relative to the container selector.',
     `- To take the container element itself as a value, use the selector ":self". Never leave a field selector empty — there is no way to say "the whole thing" other than ":self".`,
-    '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match.',
+    '- url_pattern: the host is written exactly as the page shows it — never `*.host` and never `*://`. A trailing `*` on the path is allowed; a wildcard host is not, because subdomains already match. The pattern must match the page URL in the data section, so the tool runs on the page it was built on.',
     '- "link" reads href, "image" reads src, "text" reads text.',
     '- "attr" reads a named attribute, and must always come with a "field_attrs" entry naming it.',
     '- Use "attr" when the value is not in the text node: a rating carried as a CSS class (class="star-rating Three"), or a full value kept in title= because the visible text is truncated. Reading such a field as "text" yields an empty or truncated column — do not settle for that.',
+    '- When a read value still carries wrapper text around what the user asked for, add "field_transforms" for that field: an ordered list of ops applied to the value after it is read. V1 has one op, "capture": {"op": "capture", "pattern": "<regex>", "group": 0} keeps the regex match (or the numbered group) — class="star-rating Three" should end up as "Three" (pattern "\\\\w+$"), "In stock (19 available)" as "19".',
+    '- Transform regexes follow the same safety rules as everywhere else (no nested quantifiers, 256 characters max) and are rejected otherwise. Never put a transform on an "image" field.',
     '- Never read an attribute whose name marks a credential slot (containing key, keys, token or secret); it is refused.',
   )
 

@@ -359,6 +359,142 @@ describe('field_attrs', () => {
   })
 })
 
+describe('field_transforms', () => {
+  function withExtract(extract: Record<string, unknown>): Record<string, unknown> {
+    const input = validDefinition()
+    input['steps'] = [extract, { type: 'render', view: 'table', input_from: 'items' }]
+    return input
+  }
+
+  it('accepts a capture transform with a safe pattern', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_types: { rating: 'attr' },
+      field_attrs: { rating: 'class' },
+      field_transforms: { rating: [{ op: 'capture', pattern: '\\w+$' }] },
+      output_to: 'items',
+    })
+    expect(validateToolDefinition(input).ok).toBe(true)
+  })
+
+  it('accepts a capture with a capture group', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { stock: '.stock' },
+      field_transforms: { stock: [{ op: 'capture', pattern: '\\((\\d+) available\\)', group: 1 }] },
+      output_to: 'items',
+    })
+    expect(validateToolDefinition(input).ok).toBe(true)
+  })
+
+  it('rejects a transform naming a field the step does not extract', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_transforms: { price: [{ op: 'capture', pattern: '\\d+' }] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_UNKNOWN_FIELD')
+  })
+
+  it('rejects an empty pipeline', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_transforms: { rating: [] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_EMPTY')
+  })
+
+  it('rejects an unknown op', () => {
+    // The whitelist is the fence: a made-up op is rule 8's rejection, not a silent no-op.
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_transforms: { rating: [{ op: 'llm_rewrite' }] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_OP_UNKNOWN')
+  })
+
+  it('rejects capture without a pattern', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_transforms: { rating: [{ op: 'capture' }] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_PATTERN_REQUIRED')
+  })
+
+  it('rejects a pattern with a nested quantifier', () => {
+    // The same safe subset rule 6 pins for the regex transform op — checked at save time,
+    // because a catastrophic pattern here would run once per row.
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_transforms: { rating: [{ op: 'capture', pattern: '(a+)+$' }] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_PATTERN_UNSAFE')
+  })
+
+  it('rejects a negative group', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { stock: '.stock' },
+      field_transforms: { stock: [{ op: 'capture', pattern: '\\d+', group: -1 }] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_GROUP_INVALID')
+  })
+
+  it('rejects a transform on an image field', () => {
+    // image's value is {src, alt}, not a string — a named refusal at save time instead of
+    // a silently empty column after the run.
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { cover: 'img' },
+      field_types: { cover: 'image' },
+      field_transforms: { cover: [{ op: 'capture', pattern: '\\w+' }] },
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORM_TYPE_UNSUPPORTED')
+  })
+
+  it('rejects field_transforms that is not an object', () => {
+    const input = withExtract({
+      type: 'extract',
+      mode: 'list',
+      selector: '.book',
+      fields: { rating: 'p.stars' },
+      field_transforms: 'rating',
+      output_to: 'items',
+    })
+    expect(codesOf(input)).toContain('FIELD_TRANSFORMS_INVALID')
+  })
+})
+
 describe('rule 5 — transform op parameter completeness', () => {
   function withTransform(transform: Record<string, unknown>): Record<string, unknown> {
     const input = validDefinition()

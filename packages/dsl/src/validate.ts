@@ -1,5 +1,5 @@
 /**
- * `validateToolDefinition` — `docs/ARCHITECTURE.md` §5.4, all nine rules.
+ * `validateToolDefinition` — `docs/ARCHITECTURE.md` §5.4, all eleven rules.
  *
  * This function is the only gate between LLM output (or user edits) and execution: it
  * runs both before saving and before every run. It is a pure function — no side
@@ -38,7 +38,7 @@ const TOP_LEVEL_FIELDS: readonly string[] = [
  * `CONSUMER_HAS_OUTPUT_TO` code reports it with the right semantics.
  */
 const STEP_FIELDS: Record<string, readonly string[]> = {
-  extract: ['type', 'mode', 'selector', 'fields', 'field_types', 'field_attrs', 'pre_scroll', 'output_to'],
+  extract: ['type', 'mode', 'selector', 'fields', 'field_types', 'field_attrs', 'field_transforms', 'pre_scroll', 'output_to'],
   transform: ['type', 'op', 'input_from', 'output_to', 'condition', 'field', 'order', 'pattern', 'group'],
   llm: ['type', 'task', 'input_from', 'output_to', 'prompt', 'target_lang'],
   render: ['type', 'view', 'input_from'],
@@ -290,6 +290,7 @@ function validateExtract(step: Record<string, unknown>, path: string, errors: Va
   const fieldNames = isRecord(fields) ? Object.keys(fields) : []
   validateFieldTypes(step['field_types'], path, fieldNames, errors)
   validateFieldAttrs(step, path, fieldNames, errors)
+  validateFieldTransforms(step, path, fieldNames, errors)
 }
 
 /**
@@ -372,6 +373,82 @@ function validateFieldAttrs(
       errors.push(
         err(`${path}.field_attrs.${key}`, 'FIELD_ATTR_REQUIRED', `field "${key}" is typed attr, so field_attrs.${key} must name the attribute to read`),
       )
+    }
+  }
+}
+
+/**
+ * `field_transforms`: a per-field pipeline of post-read ops.
+ *
+ * The same shape of guarantee `field_attrs` gives, one layer later in the read: a map
+ * naming only fields this step extracts, every entry a non-empty list whose ops are
+ * whitelist-vocabulary, every pattern inside the same safe subset rule 6 already pins
+ * for the `regex` transform op — a pattern is checked here rather than discovered
+ * mid-run, because §5.4's double gate is the only place a catastrophic-backtracking
+ * pattern can be stopped before it runs once per row.
+ *
+ * `image` is refused up front: its value is `{src, alt}`, not a string, so capture has
+ * nothing to match against and a run-time refusal would surface as a silently empty
+ * column instead of a named reason at save time.
+ */
+function validateFieldTransforms(
+  step: Record<string, unknown>,
+  path: string,
+  fieldNames: readonly string[],
+  errors: ValidationError[],
+): void {
+  const fieldTransforms = step['field_transforms']
+  if (fieldTransforms === undefined) return
+
+  if (!isRecord(fieldTransforms)) {
+    errors.push(err(`${path}.field_transforms`, 'FIELD_TRANSFORMS_INVALID', 'field_transforms must be an object'))
+    return
+  }
+
+  const fieldTypes = isRecord(step['field_types']) ? step['field_types'] : {}
+  for (const [key, pipeline] of Object.entries(fieldTransforms)) {
+    if (!fieldNames.includes(key)) {
+      errors.push(
+        err(`${path}.field_transforms.${key}`, 'FIELD_TRANSFORM_UNKNOWN_FIELD', `"${key}" is not a field of this extract step`),
+      )
+      continue
+    }
+    if (fieldTypes[key] === 'image') {
+      errors.push(
+        err(
+          `${path}.field_transforms.${key}`,
+          'FIELD_TRANSFORM_TYPE_UNSUPPORTED',
+          `field "${key}" is typed image, whose value is not a string — transforms apply to text, link and attr fields`,
+        ),
+      )
+      continue
+    }
+    if (!Array.isArray(pipeline) || pipeline.length === 0) {
+      errors.push(err(`${path}.field_transforms.${key}`, 'FIELD_TRANSFORM_EMPTY', `field_transforms.${key} must be a non-empty list of ops`))
+      continue
+    }
+    for (const [index, op] of pipeline.entries()) {
+      if (!isRecord(op) || op['op'] !== 'capture') {
+        errors.push(
+          err(`${path}.field_transforms.${key}[${String(index)}]`, 'FIELD_TRANSFORM_OP_UNKNOWN', 'unknown transform op — V1 has exactly one: "capture"'),
+        )
+        continue
+      }
+      const pattern = op['pattern']
+      if (typeof pattern !== 'string' || pattern === '') {
+        errors.push(err(`${path}.field_transforms.${key}[${String(index)}].pattern`, 'FIELD_TRANSFORM_PATTERN_REQUIRED', 'capture requires a pattern'))
+        continue
+      }
+      const safety = checkRegexSafety(pattern)
+      if (!safety.safe) {
+        errors.push(
+          err(`${path}.field_transforms.${key}[${String(index)}].pattern`, 'FIELD_TRANSFORM_PATTERN_UNSAFE', `unsafe regular expression: ${safety.reason}`),
+        )
+      }
+      const group = op['group']
+      if (group !== undefined && (typeof group !== 'number' || !Number.isInteger(group) || group < 0)) {
+        errors.push(err(`${path}.field_transforms.${key}[${String(index)}].group`, 'FIELD_TRANSFORM_GROUP_INVALID', 'group must be a non-negative integer'))
+      }
     }
   }
 }

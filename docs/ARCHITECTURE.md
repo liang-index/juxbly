@@ -151,6 +151,27 @@ type ToolStep = ExtractStep | TransformStep | LlmStep | RenderStep | ExportStep
 type FieldType = 'text' | 'image' | 'link' | 'attr'
 
 /**
+ * A post-read op applied to one field's value. V1 ships exactly one op, `capture`: keep
+ * the regex match (or a numbered capture group) from the value that was read. It closes
+ * the class `attr` opened — a value that is reachable but arrives wrapped:
+ * `class="star-rating Three"` reads as "star-rating Three" when the user asked for
+ * "Three"; "In stock (19 available)" reads as a sentence when the user asked for "19".
+ *
+ * A pipeline (array), not a single object, so a second op is a pure enum-style addition
+ * later. Ops are whitelist-vocabulary, not control flow: each is a fixed, deterministic
+ * function over the value that was already read, and rule 8 keeps the list from growing
+ * quietly. Semantics mirror the `regex` transform op: a failed match reads `''` — the
+ * answer `fieldPresence` already counts as missing — never an error mid-run.
+ */
+interface FieldTransform {
+  op: 'capture'
+  /** Safe-subset regex (§5.4 rule 6) applied to the value that was read */
+  pattern: string
+  /** Capture group to keep, default 0 (whole match); out of range reads as no match */
+  group?: number
+}
+
+/**
  * Scroll preparation before extraction (A1).
  *
  * Why it exists: most list pages in 2026 load content on scroll or behind a "load more"
@@ -203,6 +224,14 @@ interface ExtractStep {
    * narrowed rule the corpus capture enforces, see §12.2.
    */
   field_attrs?: Partial<Record<string, string>>
+  /**
+   * Per-field post-read transforms, applied in order after the value is read.
+   * Its own map — not syntax in the selector — for the same reason `field_attrs` is: the
+   * selector goes to `dom.query` unchanged and no existing consumer, including the
+   * highlight layer, learns a second dialect. Transforms shape what was read; they never
+   * reach the DOM. `image` is refused (its value is `{src, alt}`, not a string).
+   */
+  field_transforms?: Partial<Record<string, FieldTransform[]>>
   /** Scroll to load more before extracting (see PreScroll). Absent behaves as 'none': only what is already rendered */
   pre_scroll?: PreScroll
   output_to: string       // variable name to write, e.g. "raw_items"
@@ -316,6 +345,13 @@ Validated **twice** — before saving and before every run. Any failure rejects:
     An empty selector used to pass validation and then throw `SELECTOR_SYNTAX` mid-run; it is the shape a model reaches for when
     it wants the element itself, so it is refused at save time with the spelling that exists rather than at run time with the
     one that does not.
+11. `extract`'s `field_transforms`, when present, names only fields the step extracts; every entry is a **non-empty** list whose
+    ops are whitelist-vocabulary (V1: `capture` only); a `capture` requires a `pattern` that passes the same safe-regex check as
+    rule 6 and an integer `group ≥ 0` when present; a field typed `image` is refused, because its value is `{src, alt}` and not
+    a string. Rejected with `FIELD_TRANSFORM_UNKNOWN_FIELD` / `FIELD_TRANSFORM_EMPTY` / `FIELD_TRANSFORM_OP_UNKNOWN` /
+    `FIELD_TRANSFORM_PATTERN_REQUIRED` / `FIELD_TRANSFORM_PATTERN_UNSAFE` / `FIELD_TRANSFORM_GROUP_INVALID` /
+    `FIELD_TRANSFORM_TYPE_UNSUPPORTED`. Checked at save time rather than discovered mid-run: a catastrophic pattern here would
+    run once per row, and the capability re-checks (`assertTransformPatternsSafe`) for a caller that bypassed validation.
 
 ### 5.5 Runtime contracts
 

@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest'
-import { CapabilityError, MAX_ITEMS, extractList, extractSingle, summarizeFields } from '@juxbly/capabilities'
+import {
+  CapabilityError,
+  MAX_ITEMS,
+  assertTransformPatternsSafe,
+  extractList,
+  extractSingle,
+  summarizeFields,
+} from '@juxbly/capabilities'
 import type { ExtractStep } from '@juxbly/dsl'
 import { createFixtureHost } from '../../../fixtures/page-host'
 
@@ -277,5 +284,101 @@ describe('attr through a list extract', () => {
 
     expect(outcome.hitCount).toBe(2)
     expect(outcome.records[0]?.['rating']).toBe('')
+  })
+})
+
+describe('field_transforms — the pipeline applied to what was read', () => {
+  const selector = '.catalogue li.item'
+
+  it('captures the tail of a wrapped attribute value', () => {
+    // The books.toscrape shape: the rating only exists as part of class="star-rating Three".
+    const host = createFixtureHost('field-transform.html')
+
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { name: '.name', rating: 'p.star-rating' },
+        field_types: { rating: 'attr' },
+        field_attrs: { rating: 'class' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '\\w+$' }] },
+      }),
+    )
+
+    expect(outcome.records).toEqual([
+      { name: 'A university handbook', rating: 'Three' },
+      { name: 'A field guide', rating: 'One' },
+    ])
+  })
+
+  it('keeps a numbered capture group from the value', () => {
+    const host = createFixtureHost('field-transform.html')
+
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { stock: '.stock' },
+        field_transforms: { stock: [{ op: 'capture', pattern: '\\((\\d+) available\\)', group: 1 }] },
+      }),
+    )
+
+    expect(outcome.records).toEqual([{ stock: '19' }, { stock: '2' }])
+  })
+
+  it('reads a failed capture as empty and reports the field missing', () => {
+    // "star-rating Three" carries no digits: the wrapper was not found, which is the same
+    // answer health already understands as "this field is not here" — not an error.
+    const host = createFixtureHost('field-transform.html')
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { rating: 'p.star-rating' },
+        field_types: { rating: 'attr' },
+        field_attrs: { rating: 'class' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '\\d+' }] },
+      }),
+    )
+
+    expect(outcome.records.every((record) => record['rating'] === '')).toBe(true)
+    expect(summarizeFields(outcome.records, ['rating']).missingFields).toEqual(['rating'])
+  })
+
+  it('leaves an image value untouched even when a pipeline is present', () => {
+    // Validation refuses transforms on image fields; a step that arrived without
+    // validation degrades to a no-op rather than crashing on a non-string value.
+    const host = createFixtureHost('field-transform.html')
+    const outcome = extractList(
+      host.dom,
+      step({
+        mode: 'list',
+        selector,
+        fields: { rating: 'p.star-rating' },
+        field_types: { rating: 'image' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '\\w+$' }] },
+      }),
+    )
+
+    expect(outcome.records).toEqual([{ rating: { src: '', alt: '' } }, { rating: { src: '', alt: '' } }])
+  })
+
+  it('refuses an unsafe pattern before the first row is read', () => {
+    // Validation stops this shape at save time (§5.4), and `runExtract` re-checks for a
+    // caller that bypassed validation; the assert is tested directly because the modes
+    // are its callers, not its holders.
+    expect(() =>
+      assertTransformPatternsSafe({
+        type: 'extract',
+        mode: 'list',
+        selector: '.catalogue li.item',
+        fields: { rating: 'p.star-rating' },
+        field_transforms: { rating: [{ op: 'capture', pattern: '(a+)+$' }] },
+        output_to: 'rows',
+      }),
+    ).toThrow(CapabilityError)
   })
 })
