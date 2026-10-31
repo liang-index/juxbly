@@ -118,6 +118,9 @@ describe('buildInstruction — pre_scroll (the 2026-10-31 D-bucket finding)', ()
     expect(instruction).toContain('"pre_scroll": {"mode": "to_bottom"}')
     expect(instruction).toContain('"scrollHint"')
     expect(instruction).toContain('sees the whole list instead of the first screen')
+    // The live follow-up pass: default 3 rounds cannot reach a feed that pages through
+    // many batches — the model is told to set max (1-10) for long feeds.
+    expect(instruction).toContain('"max" too (1-10')
   })
 })
 

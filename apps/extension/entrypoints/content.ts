@@ -403,11 +403,15 @@ function createRunPorts(
     dom: {
       query: pageQuery,
       mountPoint: mountPointOf,
-      // A1: lazy-loading lists only exist once the page has been scrolled.
+      // A1: lazy-loading lists only exist once the page has been scrolled. The growth
+      // check waits a settle budget because a real page loads its next rows over the
+      // network — one macrotask after the scroll, the height has not moved yet, and a
+      // "did it grow" verdict of false ends pre_scroll on its first round. The corpus
+      // fixture grows synchronously and never showed this; quotes.toscrape.com did.
       scrollToBottom: async () => {
         const before = document.documentElement.scrollHeight
         window.scrollTo(0, before)
-        await new Promise((resolve) => setTimeout(resolve, 0))
+        await new Promise((resolve) => setTimeout(resolve, 400))
         return document.documentElement.scrollHeight > before
       },
     },

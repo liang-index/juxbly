@@ -282,7 +282,7 @@ export function buildInstruction(input: InstructionInput): string {
     'Rules:',
     '- category: exactly one of the four values in the schema above — "data", "enhance", "analyze" or "export". Never a synonym or a free-form label; anything else is rejected and the tool is not saved.',
     '- No control flow, no code, no scripts. Steps run in order, once.',
-    '- If the data section carries a "scrollHint" other than "none", or the user asks for every item on a page that loads more as it scrolls, add "pre_scroll": {"mode": "to_bottom"} to the extract step: the run scrolls to the bottom first, so the extraction sees the whole list instead of the first screen. Omit it when the page already shows all its content — V1 has no other mode.',
+    '- If the data section carries a "scrollHint" other than "none", or the user asks for every item on a page that loads more as it scrolls, add "pre_scroll": {"mode": "to_bottom"} to the extract step: the run scrolls to the bottom first, so the extraction sees the whole list instead of the first screen. For a feed that pages through many batches, set "max" too (1-10, the number of scroll rounds) — a long feed needs more than the default. Omit pre_scroll when the page already shows all its content — V1 has no other mode.',
     '- Prefer the container and field selectors offered in the data section; they already exist on the page.',
     '- Build selectors from stable anchors only: semantic custom-element tags (e.g. shreddit-post), aria-* and data-* attributes, stable class names, or structural position (:nth-of-type).',
     "- Never use hashed or generated class names (like css-1x2y3z or jss1234): they change on the site's next deploy and the tool will break.",

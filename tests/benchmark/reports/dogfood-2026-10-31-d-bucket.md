@@ -60,10 +60,19 @@ there without the field existing. This is finding one of the live-vs-snapshot ga
 and it has a one-line fix (schema + rule) that changes every build — recorded, not
 rushed into this segment.
 
-*Postscript, same day: the fix landed after this record was written. The D bucket
-re-read 9/9 build success (from 7/9), with `pre_scroll` proposed on the four cases
-whose pages carry a scroll hint — D-01 first, extracting all 70 quotes. See the
-`llm:` entry in `CHANGELOG.md` and the 2026-10-31T15-55 bench artefacts.*
+*Postscript, same day: the fix landed after this record was written, and the live
+re-verification found a second bug behind the first. The prompt fix alone put the
+D bucket at 9/9 on the corpus (from 7/9), `pre_scroll` proposed on the four cases
+whose pages carry a scroll hint — but the live quotes/scroll pass still stopped
+at 10 rows: the run port's growth check re-read `scrollHeight` one macrotask
+after the scroll, which is earlier than any real network fetch completes, so the
+first round saw "no growth" and stopped. The corpus fixture grows synchronously
+and never shows this — the same live-vs-snapshot gap that hid finding 1 hid this
+one. With the growth check given a settle budget, and the prompt teaching `max`
+for feeds that page through many batches, the same live page now extracts **100
+rows** — the site's real total (the corpus case says 70; the snapshot predates
+the site's growth, which is its own small honest note). Finding 1 is closed end
+to end: found live, fixed in the prompt, measured on the corpus, verified live.*
 
 ### 2. The benchmark's D readings do not transfer to live pages
 
