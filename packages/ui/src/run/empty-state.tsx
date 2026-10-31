@@ -16,3 +16,19 @@ export function EmptyState(): ReactNode {
     </div>
   )
 }
+
+/**
+ * No tool matched this page at all — a different answer from a tool that ran and found
+ * nothing. The one way this state is ever *seen* is right after a save whose URL pattern
+ * points somewhere else: the post-save mount reveals the panel, and silence would read as
+ * the save having failed. So the line names what happened and where the tool does work,
+ * without an error colour — the tool itself is fine.
+ */
+export function NoToolState(): ReactNode {
+  return (
+    <div className="jx-run-state">
+      <p className="jx-run-state-line">{t('run.no_tool')}</p>
+      <p className="jx-run-state-hint">{t('run.no_tool_hint')}</p>
+    </div>
+  )
+}

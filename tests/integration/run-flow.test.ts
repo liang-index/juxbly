@@ -348,6 +348,22 @@ describe('the run flow (§9.2)', () => {
     expect(session.state().error).toBeNull()
   })
 
+  it('lands a page with no matching tool on the empty phase, never a permanent loading', async () => {
+    // The post-save mount reveals the panel before the query answers; a save whose URL
+    // pattern points at other pages must settle on an honest state, not spin forever.
+    const stored = { current: null }
+    const { session, stats } = harness([], stored)
+
+    await session.start(URL)
+
+    expect(session.state().phase).toBe('empty')
+    expect(session.state().tools).toHaveLength(0)
+    expect(session.state().items).toBeNull()
+    // Nothing matched, so nothing ran and nothing was reported (§9.2 rule 3 holds a fortiori).
+    expect(stats.ranTools).toHaveLength(0)
+    expect(stats.reports).toHaveLength(0)
+  })
+
   it('carries the background health verdict into the panel without hiding the results', async () => {
     const degraded: RunHealthVerdict = {
       status: 'degraded',

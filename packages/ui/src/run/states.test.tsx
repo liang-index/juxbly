@@ -126,6 +126,20 @@ describe('empty is an answer, not a failure (§7)', () => {
     expect(node.textContent).toContain(t('run.empty'))
     expect(node.querySelector('.jx-run-state--error')).toBeNull()
   })
+
+  it('answers "no tool at all" with its own line, not the 0-rows one', async () => {
+    // The post-save mount reveals the panel before it knows anything; a save whose URL
+    // pattern points elsewhere must land here instead of an eternal spinner (§7).
+    const node = await renderAsync(
+      <RunPanel adapter={adapterFor([])} url="https://example.com/shop" run={async () => outcome([])} />,
+    )
+
+    expect(node.querySelector('.jx-run-panel')?.getAttribute('data-phase')).toBe('empty')
+    expect(node.textContent).toContain(t('run.no_tool'))
+    expect(node.textContent).toContain(t('run.no_tool_hint'))
+    expect(node.textContent).not.toContain(t('run.empty'))
+    expect(node.querySelector('.jx-run-state--error')).toBeNull()
+  })
 })
 
 describe('error keeps the last result and offers a next step (§9 rule 2)', () => {

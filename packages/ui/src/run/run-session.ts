@@ -256,7 +256,14 @@ export function createRunSession(ports: RunSessionPorts): RunSession {
       pageUrl = url
       const [tools, flags] = await Promise.all([ports.queryTools(url), ports.loadFlags()])
       if (tools.length === 0) {
-        setState({ tools, firstToolBuilt: flags?.first_tool_built === true })
+        // 'empty', not the INITIAL 'loading': a panel mounted right after a save shows
+        // itself, and "no tool matches this page" is the honest terminal state — a
+        // permanent spinner would be a blank outcome wearing a busy costume (§7).
+        setState({
+          tools,
+          firstToolBuilt: flags?.first_tool_built === true,
+          phase: 'empty',
+        })
         return
       }
       const first = tools[0]

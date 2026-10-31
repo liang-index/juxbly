@@ -14,7 +14,7 @@ import { createRunCommands } from '../commands/slash-commands'
 import { t } from '../copy'
 import { mountView } from '../views'
 import { ConfigTab } from './config-tab'
-import { EmptyState } from './empty-state'
+import { EmptyState, NoToolState } from './empty-state'
 import { ErrorState } from './error-state'
 import { ExportActions } from './export-actions'
 import { BrokenState } from './broken-state'
@@ -273,7 +273,9 @@ export function RunPanel({
             />
           ) : null}
           {state.phase === 'loading' ? <p className="jx-run-loading">{t('run.loading')}</p> : null}
-          {state.phase === 'empty' ? <EmptyState /> : null}
+          {state.phase === 'empty' ? (
+            state.tools.length === 0 ? <NoToolState /> : <EmptyState />
+          ) : null}
           {state.phase === 'error' ? (
             <ErrorState error={state.error} onRefresh={() => void session.refresh()} />
           ) : null}

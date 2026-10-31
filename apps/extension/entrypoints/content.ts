@@ -225,11 +225,11 @@ async function mountBall(): Promise<void> {
     },
     onSaved: () => {
       panel.hide()
-      mountRun()
+      mountRun(true)
     },
   })
 
-  function mountRun(): void {
+  function mountRun(revealOnSave = false): void {
     // Each mount gets its own container, and it is created here rather than once at startup
     // because `destroy()` removes the element it was handed (the mount helper cannot know
     // who owns the parent). Reusing one container meant the second mount — which is exactly
@@ -280,6 +280,12 @@ async function mountBall(): Promise<void> {
         collapseToBall()
       },
     })
+
+    // The page-load mount stays hidden until a matching tool arrives (§9.2 auto-invoke);
+    // a mount the user caused by confirming a save shows at once — "Running…" is honest
+    // there, and a save whose URL pattern points elsewhere lands on the no-tool state
+    // instead of leaving the click unanswered (§7: no blank outcomes).
+    if (revealOnSave) runHolder.current.show()
   }
 
   mountRun()

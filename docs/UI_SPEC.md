@@ -244,6 +244,7 @@ elements the tool would read, lit up on their own page.
 | Stale | When a run fails after a successful one, the last result stays on screen behind one line saying it is not the latest. Blanking the panel would read as data loss |
 | Action area | Always visible: view switcher + refresh. `Copy` / `CSV` / `JSON` are **reserved slots** belonging to 1-15 — they must never be collapsed into a menu (§7.3 segment ③) |
 | Empty | 0 rows is the empty state, never the error state (§7) |
+| No tool at all | A page where **nothing** matches — the only way this is on screen is right after a save whose URL pattern points elsewhere. The mount that a save causes reveals the panel immediately, so this state settles on its own guidance line (`run.no_tool`), never a permanent spinner; plain muted state, not error styling |
 | Position | Draggable, **never persisted** (deferred on purpose). Collapsing returns to the floating ball and keeps the session (§8) |
 | Cancellation | Navigating away mid-run aborts it; an aborted run reports nothing and poisons no cache (`ARCHITECTURE` §9.2) |
 | Panel carries `transform` | Dragging is done with `transform`, which makes the panel the containing block for any `fixed` descendant — see §7.5: no fixed overlay may live inside it |

@@ -271,6 +271,10 @@ export const en = {
     // 0 rows is an answer, not a failure (§7): no error colour, no apology.
     empty: 'Nothing on this page matched this tool.',
     empty_hint: 'If the page has changed, refresh to look again.',
+    // No tool at all — only ever seen right after a save whose URL pattern points
+    // elsewhere, so the hint names that instead of pretending the save failed.
+    no_tool: 'No tool on this page yet.',
+    no_tool_hint: 'The tool you just saved matches a different URL. Open it there, or build one for this page.',
     stale: 'Showing the last result — this run did not finish.',
     error: 'This run did not finish.',
     error_next: 'Refresh to try again.',

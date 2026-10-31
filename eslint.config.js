@@ -16,7 +16,17 @@ import tseslint from 'typescript-eslint'
  */
 export default tseslint.config(
   {
-    ignores: ['**/node_modules/**', '**/dist/**', '**/.output/**', '**/.wxt/**', 'LICENSE'],
+    ignores: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/.output/**',
+      '**/.wxt/**',
+      // Dogfooding output (stage 3-1) — regenerable run artefacts, never committed, and
+      // the same reason `tests/benchmark/results/*` stays out of the tree: the ignore
+      // list keeps the linter from judging scratch that the repository does not carry.
+      '**/.dogfood/**',
+      'LICENSE',
+    ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

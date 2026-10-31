@@ -133,7 +133,7 @@ export {
 export { ResultHeader, relativeTime, type ResultHeaderProps } from './run/result-header'
 export { TokenUsage, type TokenUsageProps } from './run/token-usage'
 export { ViewSwitcher, type ViewSwitcherProps } from './run/view-switcher'
-export { EmptyState } from './run/empty-state'
+export { EmptyState, NoToolState } from './run/empty-state'
 export { ErrorState, type ErrorStateProps } from './run/error-state'
 export { PromiseLine, type PromiseLineProps } from './run/promise-line'
 export { RetentionLine, type RetentionLineProps } from './run/retention-line'
